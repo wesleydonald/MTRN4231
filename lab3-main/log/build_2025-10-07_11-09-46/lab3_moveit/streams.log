@@ -1,0 +1,24 @@
+[0.046s] Invoking command in '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect:/opt/ros/humble /home/mtrn/.local/bin/cmake --build /home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit -- -j20 -l20
+[0.491s] [100%] Built target move_to_marker
+[0.492s] Invoked command in '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect:/opt/ros/humble /home/mtrn/.local/bin/cmake --build /home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit -- -j20 -l20
+[0.627s] Invoking command in '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect:/opt/ros/humble /home/mtrn/.local/bin/cmake --install /home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit
+[0.668s] -- Install configuration: ""
+[0.668s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/lib/lab3_moveit/move_to_marker
+[0.668s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch
+[0.668s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch/move_to_marker.launch.py
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/package_run_dependencies/lab3_moveit
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/parent_prefix_path/lab3_moveit
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.sh
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.dsv
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.sh
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.dsv
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.bash
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.sh
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.zsh
+[0.669s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.dsv
+[0.670s] -- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.dsv
+[0.670s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/packages/lab3_moveit
+[0.670s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig.cmake
+[0.670s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig-version.cmake
+[0.670s] -- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.xml
+[0.683s] Invoked command in '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect:/opt/ros/humble /home/mtrn/.local/bin/cmake --install /home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit

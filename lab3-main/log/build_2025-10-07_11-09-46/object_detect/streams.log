@@ -1,0 +1,24 @@
+[1.220s] Invoking command in '/home/mtrn/MTRN4231-T9-1/lab3-main/src/object_detect': PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/object_detect build --build-base /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build install --record /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/install.log --single-version-externally-managed install_data
+[1.554s] running egg_info
+[1.556s] writing ../../build/object_detect/object_detect.egg-info/PKG-INFO
+[1.557s] writing dependency_links to ../../build/object_detect/object_detect.egg-info/dependency_links.txt
+[1.557s] writing entry points to ../../build/object_detect/object_detect.egg-info/entry_points.txt
+[1.557s] writing requirements to ../../build/object_detect/object_detect.egg-info/requires.txt
+[1.557s] writing top-level names to ../../build/object_detect/object_detect.egg-info/top_level.txt
+[1.564s] reading manifest file '../../build/object_detect/object_detect.egg-info/SOURCES.txt'
+[1.566s] writing manifest file '../../build/object_detect/object_detect.egg-info/SOURCES.txt'
+[1.566s] running build
+[1.567s] running build_py
+[1.567s] copying object_detect/object_detect.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect
+[1.567s] running install
+[1.568s] running install_lib
+[1.570s] copying /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect/object_detect.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect
+[1.571s] byte-compiling /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect/object_detect.py to object_detect.cpython-310.pyc
+[1.572s] running install_data
+[1.573s] running install_egg_info
+[1.575s] removing '/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect-0.0.0-py3.10.egg-info' (and everything under it)
+[1.576s] Copying ../../build/object_detect/object_detect.egg-info to /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect-0.0.0-py3.10.egg-info
+[1.576s] running install_scripts
+[1.606s] Installing object_detect script to /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/object_detect
+[1.606s] writing list of installed files to '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/install.log'
+[1.703s] Invoked command in '/home/mtrn/MTRN4231-T9-1/lab3-main/src/object_detect' returned '0': PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/object_detect build --build-base /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build install --record /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/install.log --single-version-externally-managed install_data

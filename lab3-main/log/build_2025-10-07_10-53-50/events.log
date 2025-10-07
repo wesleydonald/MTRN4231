@@ -1,0 +1,214 @@
+[0.000000] (-) TimerEvent: {}
+[0.000768] (lab3_moveit) JobQueued: {'identifier': 'lab3_moveit', 'dependencies': OrderedDict()}
+[0.000868] (object_detect) JobQueued: {'identifier': 'object_detect', 'dependencies': OrderedDict()}
+[0.000946] (lab3_moveit) JobStarted: {'identifier': 'lab3_moveit'}
+[0.005117] (object_detect) JobStarted: {'identifier': 'object_detect'}
+[0.009608] (lab3_moveit) JobProgress: {'identifier': 'lab3_moveit', 'progress': 'cmake'}
+[0.009767] (lab3_moveit) Command: {'cmd': ['/home/mtrn/.local/bin/cmake', '/home/mtrn/MTRN4231-T9-1/lab3-main/src/lab3_moveit', '-DCMAKE_INSTALL_PREFIX=/home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit'], 'cwd': '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_AU:en'), ('USER', 'mtrn'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/mtrn'), ('OLDPWD', '/home/mtrn/MTRN4231-T9-1'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '159153'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'mtrn'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'mtrn'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/opt/ros/humble/bin:/home/mtrn/.local/bin:/home/mtrn/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/mtrn-HP-Z4-G4-Workstation:@/tmp/.ICE-unix/103015,unix/mtrn-HP-Z4-G4-Workstation:/tmp/.ICE-unix/103015'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/0f4da95d_0d4b_4e0e_9822_c9684abbc006'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.5S6GD3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.254'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('ROS_DOMAIN_ID', '5'), ('AMENT_PREFIX_PATH', '/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/opt/ros/humble')]), 'shell': False}
+[0.099786] (-) TimerEvent: {}
+[0.156110] (lab3_moveit) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.199933] (-) TimerEvent: {}
+[0.214954] (lab3_moveit) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.239630] (lab3_moveit) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.300060] (-) TimerEvent: {}
+[0.369915] (lab3_moveit) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.395782] (lab3_moveit) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[0.396181] (lab3_moveit) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.396773] (lab3_moveit) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.402549] (-) TimerEvent: {}
+[0.414399] (lab3_moveit) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.502680] (-) TimerEvent: {}
+[0.542989] (lab3_moveit) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.554322] (lab3_moveit) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[0.554779] (lab3_moveit) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.555117] (lab3_moveit) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.559167] (lab3_moveit) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.10 (/opt/ros/humble/share/ament_cmake/cmake)\n'}
+[0.602889] (-) TimerEvent: {}
+[0.646645] (object_detect) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/object_detect', 'build', '--build-base', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build', 'install', '--record', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/mtrn/MTRN4231-T9-1/lab3-main/src/object_detect', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'LANGUAGE': 'en_AU:en', 'USER': 'mtrn', 'XDG_SESSION_TYPE': 'wayland', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/mtrn', 'OLDPWD': '/home/mtrn/MTRN4231-T9-1', 'DESKTOP_SESSION': 'ubuntu', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'SYSTEMD_EXEC_PID': '159153', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', 'IM_CONFIG_PHASE': '1', 'WAYLAND_DISPLAY': 'wayland-0', 'ROS_DISTRO': 'humble', 'LOGNAME': 'mtrn', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'USERNAME': 'mtrn', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/opt/ros/humble/bin:/home/mtrn/.local/bin:/home/mtrn/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin', 'SESSION_MANAGER': 'local/mtrn-HP-Z4-G4-Workstation:@/tmp/.ICE-unix/103015,unix/mtrn-HP-Z4-G4-Workstation:/tmp/.ICE-unix/103015', 'XDG_MENU_PREFIX': 'gnome-', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/0f4da95d_0d4b_4e0e_9822_c9684abbc006', 'GNOME_SETUP_DISPLAY': ':1', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':0', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'XMODIFIERS': '@im=ibus', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/.mutter-Xwaylandauth.5S6GD3', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.254', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'ROS_DOMAIN_ID': '5', 'AMENT_PREFIX_PATH': '/opt/ros/humble', 'SHELL': '/bin/bash', 'QT_ACCESSIBILITY': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'XDG_DATA_DIRS': '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[0.703013] (-) TimerEvent: {}
+[0.793898] (lab3_moveit) StdoutLine: {'line': b'-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter \n'}
+[0.803121] (-) TimerEvent: {}
+[0.892941] (lab3_moveit) StdoutLine: {'line': b'-- Found moveit_ros_planning_interface: 2.5.5 (/opt/ros/humble/share/moveit_ros_planning_interface/cmake)\n'}
+[0.903225] (-) TimerEvent: {}
+[0.903889] (object_detect) StdoutLine: {'line': b'running egg_info\n'}
+[0.904296] (object_detect) StdoutLine: {'line': b'creating ../../build/object_detect/object_detect.egg-info\n'}
+[0.904467] (object_detect) StdoutLine: {'line': b'writing ../../build/object_detect/object_detect.egg-info/PKG-INFO\n'}
+[0.904626] (object_detect) StdoutLine: {'line': b'writing dependency_links to ../../build/object_detect/object_detect.egg-info/dependency_links.txt\n'}
+[0.904754] (object_detect) StdoutLine: {'line': b'writing entry points to ../../build/object_detect/object_detect.egg-info/entry_points.txt\n'}
+[0.904872] (object_detect) StdoutLine: {'line': b'writing requirements to ../../build/object_detect/object_detect.egg-info/requires.txt\n'}
+[0.904984] (object_detect) StdoutLine: {'line': b'writing top-level names to ../../build/object_detect/object_detect.egg-info/top_level.txt\n'}
+[0.905115] (object_detect) StdoutLine: {'line': b"writing manifest file '../../build/object_detect/object_detect.egg-info/SOURCES.txt'\n"}
+[0.906196] (object_detect) StdoutLine: {'line': b"reading manifest file '../../build/object_detect/object_detect.egg-info/SOURCES.txt'\n"}
+[0.906700] (object_detect) StdoutLine: {'line': b"writing manifest file '../../build/object_detect/object_detect.egg-info/SOURCES.txt'\n"}
+[0.906889] (object_detect) StdoutLine: {'line': b'running build\n'}
+[0.906985] (object_detect) StdoutLine: {'line': b'running build_py\n'}
+[0.907064] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build\n'}
+[0.907174] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib\n'}
+[0.907318] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect\n'}
+[0.907393] (object_detect) StdoutLine: {'line': b'copying object_detect/object_detect.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect\n'}
+[0.907462] (object_detect) StdoutLine: {'line': b'copying object_detect/__init__.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect\n'}
+[0.907546] (object_detect) StdoutLine: {'line': b'running install\n'}
+[0.907655] (object_detect) StdoutLine: {'line': b'running install_lib\n'}
+[0.908010] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect\n'}
+[0.908132] (object_detect) StdoutLine: {'line': b'copying /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect/object_detect.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect\n'}
+[0.908249] (object_detect) StdoutLine: {'line': b'copying /home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/build/lib/object_detect/__init__.py -> /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect\n'}
+[0.908486] (object_detect) StdoutLine: {'line': b'byte-compiling /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect/object_detect.py to object_detect.cpython-310.pyc\n'}
+[0.909349] (object_detect) StdoutLine: {'line': b'byte-compiling /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect/__init__.py to __init__.cpython-310.pyc\n'}
+[0.909751] (object_detect) StdoutLine: {'line': b'running install_data\n'}
+[0.909916] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/share/ament_index\n'}
+[0.910063] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/share/ament_index/resource_index\n'}
+[0.910201] (object_detect) StdoutLine: {'line': b'creating /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/share/ament_index/resource_index/packages\n'}
+[0.910335] (object_detect) StdoutLine: {'line': b'copying resource/object_detect -> /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/share/ament_index/resource_index/packages\n'}
+[0.910469] (object_detect) StdoutLine: {'line': b'copying package.xml -> /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/share/object_detect\n'}
+[0.910627] (object_detect) StdoutLine: {'line': b'running install_egg_info\n'}
+[0.910985] (object_detect) StdoutLine: {'line': b'Copying ../../build/object_detect/object_detect.egg-info to /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/python3.10/site-packages/object_detect-0.0.0-py3.10.egg-info\n'}
+[0.911463] (object_detect) StdoutLine: {'line': b'running install_scripts\n'}
+[0.928830] (object_detect) StdoutLine: {'line': b'Installing object_detect script to /home/mtrn/MTRN4231-T9-1/lab3-main/install/object_detect/lib/object_detect\n'}
+[0.929350] (object_detect) StdoutLine: {'line': b"writing list of installed files to '/home/mtrn/MTRN4231-T9-1/lab3-main/build/object_detect/install.log'\n"}
+[0.954778] (object_detect) CommandEnded: {'returncode': 0}
+[0.976409] (object_detect) JobEnded: {'identifier': 'object_detect', 'rc': 0}
+[1.003391] (-) TimerEvent: {}
+[1.024126] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: date_time filesystem program_options system thread \n'}
+[1.064959] (lab3_moveit) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.5 (/opt/ros/humble/share/rosidl_generator_c/cmake)\n'}
+[1.069169] (lab3_moveit) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.5 (/opt/ros/humble/share/rosidl_adapter/cmake)\n'}
+[1.076603] (lab3_moveit) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.5 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)\n'}
+[1.088298] (lab3_moveit) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[1.103453] (-) TimerEvent: {}
+[1.103728] (lab3_moveit) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[1.203540] (-) TimerEvent: {}
+[1.303767] (-) TimerEvent: {}
+[1.356197] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: chrono date_time filesystem iostreams program_options regex serialization system thread \n'}
+[1.371858] (lab3_moveit) StdoutLine: {'line': b'-- Found parameter_traits: 0.3.9 (/opt/ros/humble/share/parameter_traits/cmake)\n'}
+[1.403851] (-) TimerEvent: {}
+[1.423804] (lab3_moveit) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)\n'}
+[1.426572] (lab3_moveit) StdoutLine: {'line': b'-- Found rmw_fastrtps_cpp: 6.2.7 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)\n'}
+[1.503992] (-) TimerEvent: {}
+[1.539081] (lab3_moveit) StdoutLine: {'line': b'-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  \n'}
+[1.582993] (lab3_moveit) StdoutLine: {'line': b'-- Found FastRTPS: /opt/ros/humble/include  \n'}
+[1.604106] (-) TimerEvent: {}
+[1.629490] (lab3_moveit) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_fastrtps_cpp' as default\n"}
+[1.639437] (lab3_moveit) StdoutLine: {'line': b'-- Found Threads: TRUE  \n'}
+[1.702060] (lab3_moveit) StdoutLine: {'line': b'-- Found rclcpp_lifecycle: 16.0.10 (/opt/ros/humble/share/rclcpp_lifecycle/cmake)\n'}
+[1.704256] (-) TimerEvent: {}
+[1.731292] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: filesystem \n'}
+[1.804398] (-) TimerEvent: {}
+[1.863172] (lab3_moveit) StdoutLine: {'line': b'-- library: /usr/lib/x86_64-linux-gnu/libcurl.so\n'}
+[1.904596] (-) TimerEvent: {}
+[1.908052] (lab3_moveit) StdoutLine: {'line': b'-- Found Eigen3: TRUE (found version "3.4.0") \n'}
+[1.908328] (lab3_moveit) StdoutLine: {'line': b'-- Ensuring Eigen3 include directory is part of orocos-kdl CMake target\n'}
+[2.004796] (-) TimerEvent: {}
+[2.093989] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread chrono \n'}
+[2.104931] (-) TimerEvent: {}
+[2.134186] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: thread system filesystem regex date_time program_options \n'}
+[2.163502] (lab3_moveit) StdoutLine: {'line': b'-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread \n'}
+[2.205049] (-) TimerEvent: {}
+[2.252183] (lab3_moveit) StdoutLine: {'line': b'-- Configuring done (2.2s)\n'}
+[2.287754] (lab3_moveit) StdoutLine: {'line': b'-- Generating done (0.0s)\n'}
+[2.290063] (lab3_moveit) StdoutLine: {'line': b'-- Build files have been written to: /home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit\n'}
+[2.305172] (-) TimerEvent: {}
+[2.315244] (lab3_moveit) CommandEnded: {'returncode': 0}
+[2.316617] (lab3_moveit) JobProgress: {'identifier': 'lab3_moveit', 'progress': 'build'}
+[2.318690] (lab3_moveit) Command: {'cmd': ['/home/mtrn/.local/bin/cmake', '--build', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit', '--', '-j20', '-l20'], 'cwd': '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_AU:en'), ('USER', 'mtrn'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/mtrn'), ('OLDPWD', '/home/mtrn/MTRN4231-T9-1'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '159153'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'mtrn'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'mtrn'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/opt/ros/humble/bin:/home/mtrn/.local/bin:/home/mtrn/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/mtrn-HP-Z4-G4-Workstation:@/tmp/.ICE-unix/103015,unix/mtrn-HP-Z4-G4-Workstation:/tmp/.ICE-unix/103015'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/0f4da95d_0d4b_4e0e_9822_c9684abbc006'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.5S6GD3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.254'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('ROS_DOMAIN_ID', '5'), ('AMENT_PREFIX_PATH', '/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/opt/ros/humble')]), 'shell': False}
+[2.405315] (-) TimerEvent: {}
+[2.408440] (lab3_moveit) StdoutLine: {'line': b'[ 50%] \x1b[32mBuilding CXX object CMakeFiles/move_to_marker.dir/src/move_to_marker.cpp.o\x1b[0m\n'}
+[2.505538] (-) TimerEvent: {}
+[2.606037] (-) TimerEvent: {}
+[2.706560] (-) TimerEvent: {}
+[2.807006] (-) TimerEvent: {}
+[2.907447] (-) TimerEvent: {}
+[3.007994] (-) TimerEvent: {}
+[3.108511] (-) TimerEvent: {}
+[3.209065] (-) TimerEvent: {}
+[3.309563] (-) TimerEvent: {}
+[3.410105] (-) TimerEvent: {}
+[3.510642] (-) TimerEvent: {}
+[3.611196] (-) TimerEvent: {}
+[3.711803] (-) TimerEvent: {}
+[3.812342] (-) TimerEvent: {}
+[3.912895] (-) TimerEvent: {}
+[4.013440] (-) TimerEvent: {}
+[4.113998] (-) TimerEvent: {}
+[4.214656] (-) TimerEvent: {}
+[4.315114] (-) TimerEvent: {}
+[4.415621] (-) TimerEvent: {}
+[4.516158] (-) TimerEvent: {}
+[4.616721] (-) TimerEvent: {}
+[4.717175] (-) TimerEvent: {}
+[4.817642] (-) TimerEvent: {}
+[4.918005] (-) TimerEvent: {}
+[5.018549] (-) TimerEvent: {}
+[5.119087] (-) TimerEvent: {}
+[5.219619] (-) TimerEvent: {}
+[5.320159] (-) TimerEvent: {}
+[5.420692] (-) TimerEvent: {}
+[5.521177] (-) TimerEvent: {}
+[5.621577] (-) TimerEvent: {}
+[5.722096] (-) TimerEvent: {}
+[5.822571] (-) TimerEvent: {}
+[5.923003] (-) TimerEvent: {}
+[6.023544] (-) TimerEvent: {}
+[6.124075] (-) TimerEvent: {}
+[6.224615] (-) TimerEvent: {}
+[6.325155] (-) TimerEvent: {}
+[6.425699] (-) TimerEvent: {}
+[6.526234] (-) TimerEvent: {}
+[6.626788] (-) TimerEvent: {}
+[6.727244] (-) TimerEvent: {}
+[6.827696] (-) TimerEvent: {}
+[6.928189] (-) TimerEvent: {}
+[7.028743] (-) TimerEvent: {}
+[7.129279] (-) TimerEvent: {}
+[7.229850] (-) TimerEvent: {}
+[7.330391] (-) TimerEvent: {}
+[7.430943] (-) TimerEvent: {}
+[7.531503] (-) TimerEvent: {}
+[7.631987] (-) TimerEvent: {}
+[7.732469] (-) TimerEvent: {}
+[7.832953] (-) TimerEvent: {}
+[7.933502] (-) TimerEvent: {}
+[8.034146] (-) TimerEvent: {}
+[8.134683] (-) TimerEvent: {}
+[8.235140] (-) TimerEvent: {}
+[8.335579] (-) TimerEvent: {}
+[8.436036] (-) TimerEvent: {}
+[8.536624] (-) TimerEvent: {}
+[8.637161] (-) TimerEvent: {}
+[8.737708] (-) TimerEvent: {}
+[8.838230] (-) TimerEvent: {}
+[8.938770] (-) TimerEvent: {}
+[9.039299] (-) TimerEvent: {}
+[9.129515] (lab3_moveit) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking CXX executable move_to_marker\x1b[0m\n'}
+[9.139446] (-) TimerEvent: {}
+[9.239849] (-) TimerEvent: {}
+[9.340306] (-) TimerEvent: {}
+[9.440865] (-) TimerEvent: {}
+[9.455753] (lab3_moveit) StdoutLine: {'line': b'[100%] Built target move_to_marker\n'}
+[9.473775] (lab3_moveit) CommandEnded: {'returncode': 0}
+[9.540949] (-) TimerEvent: {}
+[9.561069] (lab3_moveit) JobProgress: {'identifier': 'lab3_moveit', 'progress': 'install'}
+[9.622952] (lab3_moveit) Command: {'cmd': ['/home/mtrn/.local/bin/cmake', '--install', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit'], 'cwd': '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('LANGUAGE', 'en_AU:en'), ('USER', 'mtrn'), ('XDG_SESSION_TYPE', 'wayland'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/mtrn'), ('OLDPWD', '/home/mtrn/MTRN4231-T9-1'), ('DESKTOP_SESSION', 'ubuntu'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('SYSTEMD_EXEC_PID', '159153'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('COLORTERM', 'truecolor'), ('IM_CONFIG_PHASE', '1'), ('WAYLAND_DISPLAY', 'wayland-0'), ('ROS_DISTRO', 'humble'), ('LOGNAME', 'mtrn'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_SESSION_CLASS', 'user'), ('USERNAME', 'mtrn'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('PATH', '/opt/ros/humble/bin:/home/mtrn/.local/bin:/home/mtrn/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin'), ('SESSION_MANAGER', 'local/mtrn-HP-Z4-G4-Workstation:@/tmp/.ICE-unix/103015,unix/mtrn-HP-Z4-G4-Workstation:/tmp/.ICE-unix/103015'), ('XDG_MENU_PREFIX', 'gnome-'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/0f4da95d_0d4b_4e0e_9822_c9684abbc006'), ('GNOME_SETUP_DISPLAY', ':1'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('XMODIFIERS', '@im=ibus'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/.mutter-Xwaylandauth.5S6GD3'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.254'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('ROS_DOMAIN_ID', '5'), ('AMENT_PREFIX_PATH', '/opt/ros/humble'), ('SHELL', '/bin/bash'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/mtrn/MTRN4231-T9-1/lab3-main/build/lab3_moveit'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('PYTHONPATH', '/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('CMAKE_PREFIX_PATH', '/opt/ros/humble')]), 'shell': False}
+[9.641156] (-) TimerEvent: {}
+[9.655588] (lab3_moveit) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[9.655922] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/lib/lab3_moveit/move_to_marker\n'}
+[9.656174] (lab3_moveit) StdoutLine: {'line': b'-- Set runtime path of "/home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/lib/lab3_moveit/move_to_marker" to ""\n'}
+[9.656347] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch\n'}
+[9.656570] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch/move_to_marker.launch.py\n'}
+[9.656844] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/package_run_dependencies/lab3_moveit\n'}
+[9.656997] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/parent_prefix_path/lab3_moveit\n'}
+[9.657145] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.sh\n'}
+[9.657401] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.dsv\n'}
+[9.657620] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.sh\n'}
+[9.657784] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.dsv\n'}
+[9.657925] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.bash\n'}
+[9.658066] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.sh\n'}
+[9.658207] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.zsh\n'}
+[9.658348] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.dsv\n'}
+[9.658500] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.dsv\n'}
+[9.658648] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/packages/lab3_moveit\n'}
+[9.658789] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig.cmake\n'}
+[9.658929] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig-version.cmake\n'}
+[9.659123] (lab3_moveit) StdoutLine: {'line': b'-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.xml\n'}
+[9.668268] (lab3_moveit) CommandEnded: {'returncode': 0}
+[9.741280] (-) TimerEvent: {}
+[9.776724] (lab3_moveit) JobEnded: {'identifier': 'lab3_moveit', 'rc': 0}
+[9.777931] (-) EventReactorShutdown: {}

@@ -1,0 +1,20 @@
+[100%] Built target move_to_marker
+-- Install configuration: ""
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/lib/lab3_moveit/move_to_marker
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit//launch/move_to_marker.launch.py
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/package_run_dependencies/lab3_moveit
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/parent_prefix_path/lab3_moveit
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.sh
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.sh
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/environment/path.dsv
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.bash
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.sh
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.zsh
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/local_setup.dsv
+-- Installing: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.dsv
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/ament_index/resource_index/packages/lab3_moveit
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig.cmake
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/cmake/lab3_moveitConfig-version.cmake
+-- Up-to-date: /home/mtrn/MTRN4231-T9-1/lab3-main/install/lab3_moveit/share/lab3_moveit/package.xml

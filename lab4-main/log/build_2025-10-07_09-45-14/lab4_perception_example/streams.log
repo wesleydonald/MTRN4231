@@ -1,0 +1,39 @@
+[0.654s] Invoking command in '/home/mtrn/MTRN4231-T9-1/lab4-main/src/lab4_perception_example': PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/lab4_perception_example build --build-base /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build install --record /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/install.log --single-version-externally-managed install_data
+[0.864s] running egg_info
+[0.865s] creating ../../build/lab4_perception_example/lab4_perception_example.egg-info
+[0.865s] writing ../../build/lab4_perception_example/lab4_perception_example.egg-info/PKG-INFO
+[0.865s] writing dependency_links to ../../build/lab4_perception_example/lab4_perception_example.egg-info/dependency_links.txt
+[0.865s] writing entry points to ../../build/lab4_perception_example/lab4_perception_example.egg-info/entry_points.txt
+[0.865s] writing requirements to ../../build/lab4_perception_example/lab4_perception_example.egg-info/requires.txt
+[0.865s] writing top-level names to ../../build/lab4_perception_example/lab4_perception_example.egg-info/top_level.txt
+[0.866s] writing manifest file '../../build/lab4_perception_example/lab4_perception_example.egg-info/SOURCES.txt'
+[0.866s] reading manifest file '../../build/lab4_perception_example/lab4_perception_example.egg-info/SOURCES.txt'
+[0.866s] adding license file 'LICENSE'
+[0.867s] writing manifest file '../../build/lab4_perception_example/lab4_perception_example.egg-info/SOURCES.txt'
+[0.867s] running build
+[0.867s] running build_py
+[0.867s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build
+[0.868s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib
+[0.868s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib/lab4_perception_example
+[0.868s] copying lab4_perception_example/perception_example.py -> /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib/lab4_perception_example
+[0.868s] copying lab4_perception_example/__init__.py -> /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib/lab4_perception_example
+[0.868s] running install
+[0.868s] running install_lib
+[0.869s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example
+[0.869s] copying /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib/lab4_perception_example/perception_example.py -> /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example
+[0.869s] copying /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build/lib/lab4_perception_example/__init__.py -> /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example
+[0.869s] byte-compiling /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example/perception_example.py to perception_example.cpython-310.pyc
+[0.869s] byte-compiling /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example/__init__.py to __init__.cpython-310.pyc
+[0.869s] running install_data
+[0.870s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/ament_index
+[0.870s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/ament_index/resource_index
+[0.870s] creating /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/ament_index/resource_index/packages
+[0.870s] copying resource/lab4_perception_example -> /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/ament_index/resource_index/packages
+[0.870s] copying package.xml -> /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/lab4_perception_example
+[0.870s] copying yolo11n-seg.pt -> /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/share/lab4_perception_example
+[0.873s] running install_egg_info
+[0.874s] Copying ../../build/lab4_perception_example/lab4_perception_example.egg-info to /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages/lab4_perception_example-0.0.0-py3.10.egg-info
+[0.875s] running install_scripts
+[0.891s] Installing perception_example script to /home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/lab4_perception_example
+[0.891s] writing list of installed files to '/home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/install.log'
+[0.913s] Invoked command in '/home/mtrn/MTRN4231-T9-1/lab4-main/src/lab4_perception_example' returned '0': PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab4-main/install/lab4_perception_example/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../build/lab4_perception_example build --build-base /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/build install --record /home/mtrn/MTRN4231-T9-1/lab4-main/build/lab4_perception_example/install.log --single-version-externally-managed install_data

@@ -1,0 +1,24 @@
+[0.637s] Invoking command in '/home/mtrn/MTRN4231-T9-1/lab4-main/src/yolo_ros/yolo_ros': CMAKE_PREFIX_PATH=/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_msgs:/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_bringup PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../../build/yolo_ros build --build-base /home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/build install --record /home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/install.log --single-version-externally-managed install_data
+[0.840s] running egg_info
+[0.841s] writing ../../../build/yolo_ros/yolo_ros.egg-info/PKG-INFO
+[0.841s] writing dependency_links to ../../../build/yolo_ros/yolo_ros.egg-info/dependency_links.txt
+[0.841s] writing entry points to ../../../build/yolo_ros/yolo_ros.egg-info/entry_points.txt
+[0.841s] writing requirements to ../../../build/yolo_ros/yolo_ros.egg-info/requires.txt
+[0.841s] writing top-level names to ../../../build/yolo_ros/yolo_ros.egg-info/top_level.txt
+[0.842s] reading manifest file '../../../build/yolo_ros/yolo_ros.egg-info/SOURCES.txt'
+[0.843s] writing manifest file '../../../build/yolo_ros/yolo_ros.egg-info/SOURCES.txt'
+[0.843s] running build
+[0.843s] running build_py
+[0.844s] running install
+[0.844s] running install_lib
+[0.845s] running install_data
+[0.845s] running install_egg_info
+[0.846s] removing '/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/python3.10/site-packages/yolo_ros-0.0.0-py3.10.egg-info' (and everything under it)
+[0.846s] Copying ../../../build/yolo_ros/yolo_ros.egg-info to /home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/python3.10/site-packages/yolo_ros-0.0.0-py3.10.egg-info
+[0.847s] running install_scripts
+[0.864s] Installing debug_node script to /home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/yolo_ros
+[0.864s] Installing detect_3d_node script to /home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/yolo_ros
+[0.864s] Installing tracking_node script to /home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/yolo_ros
+[0.864s] Installing yolo_node script to /home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/yolo_ros
+[0.864s] writing list of installed files to '/home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/install.log'
+[0.888s] Invoked command in '/home/mtrn/MTRN4231-T9-1/lab4-main/src/yolo_ros/yolo_ros' returned '0': CMAKE_PREFIX_PATH=/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_msgs:/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_bringup PYTHONPATH=/home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-T9-1/lab4-main/install/yolo_ros/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base ../../../build/yolo_ros build --build-base /home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/build install --record /home/mtrn/MTRN4231-T9-1/lab4-main/build/yolo_ros/install.log --single-version-externally-managed install_data
