@@ -1,0 +1,59 @@
+[0.167s] colcon DEBUG Command line arguments: ['/usr/bin/colcon', 'list', '-p', '--base-paths', '/home/mtrn/t1_ws']
+[0.167s] colcon DEBUG Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='list', build_base='build', ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['/home/mtrn/t1_ws'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], topological_order=False, names_only=False, paths_only=True, topological_graph=False, topological_graph_dot=False, topological_graph_density=False, topological_graph_legend=False, topological_graph_dot_cluster=False, topological_graph_dot_include_skipped=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7a53b09ef130>, verb_extension=<colcon_package_information.verb.list.ListVerb object at 0x7a53b09ed150>, main=<bound method ListVerb.main of <colcon_package_information.verb.list.ListVerb object at 0x7a53b09ed150>>, mixin_verb=('list',))
+[0.623s] colcon.colcon_core.package_discovery Level 1 discover_packages(colcon_meta) check parameters
+[0.623s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) check parameters
+[0.624s] colcon.colcon_core.package_discovery Level 1 discover_packages(ignore) check parameters
+[0.624s] colcon.colcon_core.package_discovery Level 1 discover_packages(path) check parameters
+[0.624s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) discover
+[0.624s] colcon.colcon_core.package_discovery INFO Crawling recursively for packages in '/home/mtrn/t1_ws'
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['ignore', 'ignore_ament_install']
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'ignore'
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'ignore_ament_install'
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['colcon_pkg']
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'colcon_pkg'
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['colcon_meta']
+[0.624s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'colcon_meta'
+[0.625s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['ros']
+[0.625s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'ros'
+[0.646s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['cmake', 'python']
+[0.646s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'cmake'
+[0.646s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'python'
+[0.646s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extensions ['python_setup_py']
+[0.646s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws) by extension 'python_setup_py'
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/log) by extensions ['ignore', 'ignore_ament_install']
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/log) by extension 'ignore'
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/log) ignored
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['ignore', 'ignore_ament_install']
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'ignore'
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'ignore_ament_install'
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['colcon_pkg']
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'colcon_pkg'
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['colcon_meta']
+[0.647s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'colcon_meta'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['ros']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'ros'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['cmake', 'python']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'cmake'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'python'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extensions ['python_setup_py']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src) by extension 'python_setup_py'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['ignore', 'ignore_ament_install']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'ignore'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'ignore_ament_install'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['colcon_pkg']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'colcon_pkg'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['colcon_meta']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'colcon_meta'
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['ros']
+[0.648s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'ros'
+[0.653s] colcon.colcon_core.package_identification DEBUG Found ROS schema reference in package manifest in '/home/mtrn/t1_ws/src/my_robot_cv'
+[0.653s] colcon.colcon_core.package_identification WARNING Failed to parse ROS package manifest in '/home/mtrn/t1_ws/src/my_robot_cv': Error(s) in package '/home/mtrn/t1_ws/src/my_robot_cv/package.xml':
+Invalid email "noreply" for person "mtrn"
+[0.653s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['cmake', 'python']
+[0.653s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'cmake'
+[0.653s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'python'
+[0.653s] colcon.colcon_core.package_identification DEBUG Python package in '/home/mtrn/t1_ws/src/my_robot_cv' passes arguments to the setup() function which requires a different identification extension than 'python'
+[0.653s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extensions ['python_setup_py']
+[0.653s] colcon.colcon_core.package_identification Level 1 _identify(/home/mtrn/t1_ws/src/my_robot_cv) by extension 'python_setup_py'
+[1.349s] colcon.colcon_core.package_identification DEBUG Package '/home/mtrn/t1_ws/src/my_robot_cv' with type 'python' and name 'my_robot_cv'
+[1.349s] colcon.colcon_core.package_discovery Level 1 discover_packages(recursive) using defaults
