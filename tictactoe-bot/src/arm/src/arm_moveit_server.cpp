@@ -64,7 +64,7 @@ class move_to_marker : public rclcpp::Node
       tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
       // Look up the transformation ever 200 milliseconds
-      timer_ = this->create_wall_timer( std::chrono::milliseconds(200), std::bind(&move_to_marker::tfCallback, this));
+      timer_ = this->create_wall_timer( std::chrono::milliseconds(5000), std::bind(&move_to_marker::tfCallback, this));
 
 
       // Generate the movegroup interface
@@ -73,7 +73,7 @@ class move_to_marker : public rclcpp::Node
           "ur_manipulator"
       );
 
-      move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      move_group_interface->setPlannerId("TRRTkConfigDefault");
       move_group_interface->setPlanningTime(5.0);
 
       std::string frame_id = move_group_interface->getPlanningFrame();

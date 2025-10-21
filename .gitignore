@@ -2,3 +2,4 @@ lab4-main/rosbag*
 build/
 log/
 install/
+.cache/
