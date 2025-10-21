@@ -1,0 +1,20 @@
+[100%] Built target arm_moveit_server
+-- Install configuration: ""
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/lib/arm/arm_moveit_server
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm//launch
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm//launch/arm.launch.py
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/package_run_dependencies/arm
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/parent_prefix_path/arm
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/ament_prefix_path.sh
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/path.sh
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/path.dsv
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.bash
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.sh
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.zsh
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.dsv
+-- Installing: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/package.dsv
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/packages/arm
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/cmake/armConfig.cmake
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/cmake/armConfig-version.cmake
+-- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/package.xml

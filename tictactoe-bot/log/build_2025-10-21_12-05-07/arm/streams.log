@@ -1,0 +1,27 @@
+[0.033s] Invoking command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera:/home/ryan/ros2_packages/install/yolo_ros:/home/ryan/ws_moveit2/install/moveit_configs_utils:/home/ryan/unsw/MTRN4231/4231SuppliedCode/4231_demo_packages/install/demo_launch_param:/opt/ros/humble /usr/bin/cmake --build /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm -- -j8 -l8
+[0.154s] [ 50%] [32mBuilding CXX object CMakeFiles/arm_moveit_server.dir/src/arm_moveit_server.cpp.o[0m
+[10.713s] [100%] [32m[1mLinking CXX executable arm_moveit_server[0m
+[11.214s] [100%] Built target arm_moveit_server
+[11.235s] Invoked command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera:/home/ryan/ros2_packages/install/yolo_ros:/home/ryan/ws_moveit2/install/moveit_configs_utils:/home/ryan/unsw/MTRN4231/4231SuppliedCode/4231_demo_packages/install/demo_launch_param:/opt/ros/humble /usr/bin/cmake --build /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm -- -j8 -l8
+[11.253s] Invoking command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera:/home/ryan/ros2_packages/install/yolo_ros:/home/ryan/ws_moveit2/install/moveit_configs_utils:/home/ryan/unsw/MTRN4231/4231SuppliedCode/4231_demo_packages/install/demo_launch_param:/opt/ros/humble /usr/bin/cmake --install /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm
+[11.268s] -- Install configuration: ""
+[11.268s] -- Installing: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/lib/arm/arm_moveit_server
+[11.270s] -- Set runtime path of "/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/lib/arm/arm_moveit_server" to ""
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm//launch
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm//launch/arm.launch.py
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/package_run_dependencies/arm
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/parent_prefix_path/arm
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/ament_prefix_path.sh
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/ament_prefix_path.dsv
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/path.sh
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/environment/path.dsv
+[11.270s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.bash
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.sh
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.zsh
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/local_setup.dsv
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/package.dsv
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/ament_index/resource_index/packages/arm
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/cmake/armConfig.cmake
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/cmake/armConfig-version.cmake
+[11.271s] -- Up-to-date: /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/arm/share/arm/package.xml
+[11.274s] Invoked command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera:/home/ryan/ros2_packages/install/yolo_ros:/home/ryan/ws_moveit2/install/moveit_configs_utils:/home/ryan/unsw/MTRN4231/4231SuppliedCode/4231_demo_packages/install/demo_launch_param:/opt/ros/humble /usr/bin/cmake --install /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/arm

@@ -1,0 +1,43 @@
+[0.759s] Invoking command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/src/depth_camera': PYTHONPATH=/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/depth_camera build --build-base /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build install --record /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/install.log --single-version-externally-managed install_data
+[1.054s] running egg_info
+[1.055s] creating ../../build/depth_camera/depth_camera.egg-info
+[1.055s] writing ../../build/depth_camera/depth_camera.egg-info/PKG-INFO
+[1.056s] writing dependency_links to ../../build/depth_camera/depth_camera.egg-info/dependency_links.txt
+[1.056s] writing entry points to ../../build/depth_camera/depth_camera.egg-info/entry_points.txt
+[1.056s] writing requirements to ../../build/depth_camera/depth_camera.egg-info/requires.txt
+[1.056s] writing top-level names to ../../build/depth_camera/depth_camera.egg-info/top_level.txt
+[1.056s] writing manifest file '../../build/depth_camera/depth_camera.egg-info/SOURCES.txt'
+[1.058s] reading manifest file '../../build/depth_camera/depth_camera.egg-info/SOURCES.txt'
+[1.058s] adding license file 'LICENSE'
+[1.059s] writing manifest file '../../build/depth_camera/depth_camera.egg-info/SOURCES.txt'
+[1.059s] running build
+[1.059s] running build_py
+[1.059s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build
+[1.060s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib
+[1.060s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib/depth_camera
+[1.060s] copying depth_camera/__init__.py -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib/depth_camera
+[1.060s] copying depth_camera/camera_tf.py -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib/depth_camera
+[1.060s] running install
+[1.060s] running install_lib
+[1.061s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera
+[1.061s] copying /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib/depth_camera/__init__.py -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera
+[1.061s] copying /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build/lib/depth_camera/camera_tf.py -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera
+[1.062s] byte-compiling /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera/__init__.py to __init__.cpython-310.pyc
+[1.062s] byte-compiling /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera/camera_tf.py to camera_tf.cpython-310.pyc
+[1.063s] running install_data
+[1.063s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/ament_index
+[1.063s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/ament_index/resource_index
+[1.064s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/ament_index/resource_index/packages
+[1.064s] copying resource/depth_camera -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/ament_index/resource_index/packages
+[1.064s] copying package.xml -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/depth_camera
+[1.064s] creating /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/depth_camera/launch
+[1.064s] copying launch/depth_camera.launch.py -> /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/share/depth_camera/launch
+[1.064s] running install_egg_info
+[1.066s] Copying ../../build/depth_camera/depth_camera.egg-info to /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages/depth_camera-0.0.0-py3.10.egg-info
+[1.067s] running install_scripts
+[1.092s] Installing OOI_tf script to /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/depth_camera
+[1.092s] Installing camera_tf script to /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/depth_camera
+[1.093s] Installing detection script to /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/depth_camera
+[1.093s] Installing visualisation script to /home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/depth_camera
+[1.093s] writing list of installed files to '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/install.log'
+[1.121s] Invoked command in '/home/ryan/unsw/MTRN4231_group/tictactoe-bot/src/depth_camera' returned '0': PYTHONPATH=/home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ryan/unsw/MTRN4231_group/tictactoe-bot/install/depth_camera/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/depth_camera build --build-base /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/build install --record /home/ryan/unsw/MTRN4231_group/tictactoe-bot/build/depth_camera/install.log --single-version-externally-managed install_data
