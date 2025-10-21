@@ -1,3 +1,0 @@
-[console_scripts]
-perception_example = lab4_perception_example.perception_example:main
-

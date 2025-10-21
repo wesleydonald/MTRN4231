@@ -1,2 +1,0 @@
-[console_scripts]
-object_recognizer = my_robot_cv.object_recognizer:main

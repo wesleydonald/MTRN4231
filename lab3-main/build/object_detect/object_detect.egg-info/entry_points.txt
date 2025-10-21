@@ -1,3 +1,0 @@
-[console_scripts]
-object_detect = object_detect.object_detect:main
-
