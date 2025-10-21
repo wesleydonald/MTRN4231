@@ -27,8 +27,6 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'detection = depth_camera.detection:main',
-            'visualisation = depth_camera.visualisation:main',
             'OOI_tf = depth_camera.OOI_tf:main',
             'camera_tf = depth_camera.camera_tf:main',
         ],

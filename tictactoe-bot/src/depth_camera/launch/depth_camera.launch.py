@@ -9,4 +9,10 @@ def generate_launch_description():
             executable='camera_tf',
             name='camera_tf_publisher'
         ),
+        Node(
+            package='depth_camera',
+            namespace='',
+            executable='OOI_tf',
+            name='OOI_tf_publisher'
+        ),
     ])
