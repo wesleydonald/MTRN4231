@@ -1,0 +1,52 @@
+[0.014s] Invoking command in '/home/mtrn/4231/ur5e_with_gripper_description/build/my_gripper_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/4231/ws_moveit2/install/moveit_configs_utils:/home/mtrn/4231/ws_moveit2/install/launch_param_builder:/opt/ros/humble /usr/bin/cmake /home/mtrn/4231/ur5e_with_gripper_description -DCMAKE_INSTALL_PREFIX=/home/mtrn/4231/ur5e_with_gripper_description/install/my_gripper_description
+[0.071s] -- The C compiler identification is GNU 11.4.0
+[0.116s] -- The CXX compiler identification is GNU 11.4.0
+[0.122s] -- Detecting C compiler ABI info
+[0.194s] -- Detecting C compiler ABI info - done
+[0.198s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.199s] -- Detecting C compile features
+[0.199s] -- Detecting C compile features - done
+[0.201s] -- Detecting CXX compiler ABI info
+[0.279s] -- Detecting CXX compiler ABI info - done
+[0.283s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.284s] -- Detecting CXX compile features
+[0.284s] -- Detecting CXX compile features - done
+[0.296s] -- Found ament_cmake: 1.3.5 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.419s] -- Found Python3: /usr/bin/python3.10 (found version "3.10.12") found components: Interpreter 
+[0.512s] -- Found robot_state_publisher: 3.0.2 (/opt/ros/humble/share/robot_state_publisher/cmake)
+[0.557s] -- Found rosidl_generator_c: 3.1.5 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.566s] -- Found rosidl_adapter: 3.1.5 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.572s] -- Found rosidl_generator_cpp: 3.1.5 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.585s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.604s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.699s] -- Found eigen3_cmake_module: 0.1.1 (/opt/ros/humble/share/eigen3_cmake_module/cmake)
+[0.700s] -- Found Eigen3: TRUE (found version "3.4.0") 
+[0.700s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[0.772s] -- Found rmw_implementation_cmake: 6.1.1 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.777s] -- Found rmw_cyclonedds_cpp: 1.3.4 (/opt/ros/humble/share/rmw_cyclonedds_cpp/cmake)
+[0.810s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.823s] -- Looking for pthread.h
+[0.899s] -- Looking for pthread.h - found
+[0.899s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.975s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.976s] -- Found Threads: TRUE  
+[1.344s] [31mCMake Error at CMakeLists.txt:11 (find_package):
+[1.347s]   By not providing "Findjoint_state_publisher_gui.cmake" in CMAKE_MODULE_PATH
+[1.347s]   this project has asked CMake to find a package configuration file provided
+[1.347s]   by "joint_state_publisher_gui", but CMake did not find one.
+[1.347s] 
+[1.347s]   Could not find a package configuration file provided by
+[1.347s]   "joint_state_publisher_gui" with any of the following names:
+[1.348s] 
+[1.349s]     joint_state_publisher_guiConfig.cmake
+[1.351s]     joint_state_publisher_gui-config.cmake
+[1.351s] 
+[1.351s]   Add the installation prefix of "joint_state_publisher_gui" to
+[1.351s]   CMAKE_PREFIX_PATH or set "joint_state_publisher_gui_DIR" to a directory
+[1.352s]   containing one of the above files.  If "joint_state_publisher_gui" provides
+[1.352s]   a separate development package or SDK, be sure it has been installed.
+[1.352s] 
+[1.352s] [0m
+[1.352s] -- Configuring incomplete, errors occurred!
+[1.353s] See also "/home/mtrn/4231/ur5e_with_gripper_description/build/my_gripper_description/CMakeFiles/CMakeOutput.log".
+[1.368s] Invoked command in '/home/mtrn/4231/ur5e_with_gripper_description/build/my_gripper_description' returned '1': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/mtrn/4231/ws_moveit2/install/moveit_configs_utils:/home/mtrn/4231/ws_moveit2/install/launch_param_builder:/opt/ros/humble /usr/bin/cmake /home/mtrn/4231/ur5e_with_gripper_description -DCMAKE_INSTALL_PREFIX=/home/mtrn/4231/ur5e_with_gripper_description/install/my_gripper_description
