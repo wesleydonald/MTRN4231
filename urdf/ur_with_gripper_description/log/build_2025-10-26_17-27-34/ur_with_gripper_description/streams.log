@@ -1,0 +1,35 @@
+[0.633s] Invoking command in '/home/mtrn/4231/ur_with_gripper_description': PYTHONPATH=/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/prefix_override:/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ur_with_gripper_description build --build-base /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build install --record /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/install.log --single-version-externally-managed
+[0.752s] running egg_info
+[0.757s] creating build/ur_with_gripper_description/ur_with_gripper_description.egg-info
+[0.760s] writing build/ur_with_gripper_description/ur_with_gripper_description.egg-info/PKG-INFO
+[0.760s] writing dependency_links to build/ur_with_gripper_description/ur_with_gripper_description.egg-info/dependency_links.txt
+[0.761s] writing entry points to build/ur_with_gripper_description/ur_with_gripper_description.egg-info/entry_points.txt
+[0.761s] writing requirements to build/ur_with_gripper_description/ur_with_gripper_description.egg-info/requires.txt
+[0.761s] writing top-level names to build/ur_with_gripper_description/ur_with_gripper_description.egg-info/top_level.txt
+[0.761s] writing manifest file 'build/ur_with_gripper_description/ur_with_gripper_description.egg-info/SOURCES.txt'
+[0.764s] reading manifest file 'build/ur_with_gripper_description/ur_with_gripper_description.egg-info/SOURCES.txt'
+[0.764s] writing manifest file 'build/ur_with_gripper_description/ur_with_gripper_description.egg-info/SOURCES.txt'
+[0.764s] running build
+[0.764s] running build_py
+[0.764s] creating /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build
+[0.764s] creating /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build/lib
+[0.764s] creating /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build/lib/ur_with_gripper_description
+[0.764s] copying ur_with_gripper_description/__init__.py -> /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build/lib/ur_with_gripper_description
+[0.764s] running install
+[0.766s] /usr/lib/python3/dist-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+[0.766s]   warnings.warn(
+[0.766s] running install_lib
+[0.766s] creating /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages/ur_with_gripper_description
+[0.766s] copying /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build/lib/ur_with_gripper_description/__init__.py -> /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages/ur_with_gripper_description
+[0.767s] byte-compiling /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages/ur_with_gripper_description/__init__.py to __init__.cpython-310.pyc
+[0.768s] running install_data
+[0.768s] creating /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ament_index
+[0.768s] creating /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ament_index/resource_index
+[0.768s] creating /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ament_index/resource_index/packages
+[0.768s] copying resource/ur_with_gripper_description -> /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ament_index/resource_index/packages
+[0.768s] copying package.xml -> /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description
+[0.768s] running install_egg_info
+[0.769s] Copying build/ur_with_gripper_description/ur_with_gripper_description.egg-info to /home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages/ur_with_gripper_description-0.0.0-py3.10.egg-info
+[0.770s] running install_scripts
+[0.783s] writing list of installed files to '/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/install.log'
+[0.803s] Invoked command in '/home/mtrn/4231/ur_with_gripper_description' returned '0': PYTHONPATH=/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/prefix_override:/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ur_with_gripper_description build --build-base /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build install --record /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/install.log --single-version-externally-managed

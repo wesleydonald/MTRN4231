@@ -1,0 +1,91 @@
+[0.211s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-up-to', 'ur_with_gripper_description']
+[0.212s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=4, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=['ur_with_gripper_description'], packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x7e5e9b616140>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7e5e9b74d060>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7e5e9b74d060>>, mixin_verb=('build',))
+[0.227s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.227s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.227s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.227s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.228s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.228s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.228s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/mtrn/4231/ur_with_gripper_description'
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.228s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.236s] DEBUG:colcon.colcon_core.package_identification:Package '.' with type 'ros.ament_python' and name 'ur_with_gripper_description'
+[0.236s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.236s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.236s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.236s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.236s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.253s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.253s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.256s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 7 installed packages in /home/mtrn/4231/ros_ur_driver/install
+[0.257s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 55 installed packages in /home/mtrn/4231/ws_moveit2/install
+[0.259s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 326 installed packages in /opt/ros/humble
+[0.259s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_args' from command line to 'None'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_target' from command line to 'None'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_clean_cache' from command line to 'False'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_clean_first' from command line to 'False'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'cmake_force_configure' from command line to 'False'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'ament_cmake_args' from command line to 'None'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'catkin_cmake_args' from command line to 'None'
+[0.297s] Level 5:colcon.colcon_core.verb:set package 'ur_with_gripper_description' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.297s] DEBUG:colcon.colcon_core.verb:Building package 'ur_with_gripper_description' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description', 'merge_install': False, 'path': '/home/mtrn/4231/ur_with_gripper_description', 'symlink_install': False, 'test_result_base': None}
+[0.298s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.302s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.302s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/mtrn/4231/ur_with_gripper_description' with build type 'ament_python'
+[0.302s] Level 1:colcon.colcon_core.shell:create_environment_hook('ur_with_gripper_description', 'ament_prefix_path')
+[0.307s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.307s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/ament_prefix_path.ps1'
+[0.307s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/ament_prefix_path.dsv'
+[0.308s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/ament_prefix_path.sh'
+[0.309s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.309s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.472s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/mtrn/4231/ur_with_gripper_description'
+[0.474s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.474s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.938s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/mtrn/4231/ur_with_gripper_description': PYTHONPATH=/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/prefix_override:/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ur_with_gripper_description build --build-base /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build install --record /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/install.log --single-version-externally-managed
+[1.108s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/mtrn/4231/ur_with_gripper_description' returned '0': PYTHONPATH=/home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/prefix_override:/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/ur_with_gripper_description build --build-base /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/build install --record /home/mtrn/4231/ur_with_gripper_description/build/ur_with_gripper_description/install.log --single-version-externally-managed
+[1.109s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description' for CMake module files
+[1.109s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description' for CMake config files
+[1.110s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib'
+[1.110s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/bin'
+[1.110s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/pkgconfig/ur_with_gripper_description.pc'
+[1.110s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/lib/python3.10/site-packages'
+[1.110s] Level 1:colcon.colcon_core.shell:create_environment_hook('ur_with_gripper_description', 'pythonpath')
+[1.112s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/pythonpath.ps1'
+[1.112s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/pythonpath.dsv'
+[1.112s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/hook/pythonpath.sh'
+[1.112s] Level 1:colcon.colcon_core.environment:checking '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/bin'
+[1.112s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(ur_with_gripper_description)
+[1.114s] INFO:colcon.colcon_core.shell:Creating package script '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/package.ps1'
+[1.114s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/package.dsv'
+[1.114s] INFO:colcon.colcon_core.shell:Creating package script '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/package.sh'
+[1.115s] INFO:colcon.colcon_core.shell:Creating package script '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/package.bash'
+[1.115s] INFO:colcon.colcon_core.shell:Creating package script '/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/ur_with_gripper_description/package.zsh'
+[1.115s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/mtrn/4231/ur_with_gripper_description/install/ur_with_gripper_description/share/colcon-core/packages/ur_with_gripper_description)
+[1.116s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[1.116s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[1.116s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[1.116s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[1.121s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[1.121s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[1.121s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[1.134s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[1.136s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/mtrn/4231/ur_with_gripper_description/install/local_setup.ps1'
+[1.137s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/mtrn/4231/ur_with_gripper_description/install/_local_setup_util_ps1.py'
+[1.137s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/mtrn/4231/ur_with_gripper_description/install/setup.ps1'
+[1.139s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/mtrn/4231/ur_with_gripper_description/install/local_setup.sh'
+[1.139s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/mtrn/4231/ur_with_gripper_description/install/_local_setup_util_sh.py'
+[1.140s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/mtrn/4231/ur_with_gripper_description/install/setup.sh'
+[1.142s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/mtrn/4231/ur_with_gripper_description/install/local_setup.bash'
+[1.142s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/mtrn/4231/ur_with_gripper_description/install/setup.bash'
+[1.143s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/mtrn/4231/ur_with_gripper_description/install/local_setup.zsh'
+[1.144s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/mtrn/4231/ur_with_gripper_description/install/setup.zsh'

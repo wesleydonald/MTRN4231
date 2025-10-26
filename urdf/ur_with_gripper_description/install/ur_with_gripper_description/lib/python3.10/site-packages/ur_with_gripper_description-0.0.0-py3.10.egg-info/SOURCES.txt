@@ -1,0 +1,17 @@
+package.xml
+setup.cfg
+setup.py
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/PKG-INFO
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/SOURCES.txt
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/dependency_links.txt
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/entry_points.txt
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/requires.txt
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/top_level.txt
+build/ur_with_gripper_description/ur_with_gripper_description.egg-info/zip-safe
+launch/display.launch.py
+resource/ur_with_gripper_description
+test/test_copyright.py
+test/test_flake8.py
+test/test_pep257.py
+ur_with_gripper_description/__init__.py
+urdf/ur_with_gripper.xacro

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur5e_with_gripper">
+
+  <!-- 
+    STEP 1: Include the UR5e robot.
+    (这会加载 ur_description 包中的 ur.urdf.xacro)
+  -->
+  <xacro:include filename="$(find ur_description)/urdf/ur.urdf.xacro" />
+  
+  <!-- 
+    实例化 UR5e 机器人。
+    这里的参数是从 UR 官方包中复制的。
+  -->
+  <xacro:ur
+    prefix=""
+    joint_limit_params="$(find ur_description)/config/ur5e/joint_limits.yaml"
+    kinematics_params="$(find ur_description)/config/ur5e/default_kinematics.yaml"
+    physical_params="$(find ur_description)/config/ur5e/physical_parameters.yaml"
+    visual_params="$(find ur_description)/config/ur5e/visual_parameters.yaml"
+    transmission_hw_interface="hardware_interface/PositionJointInterface"
+    safety_limits="false"
+    safety_pos_margin="0.15"
+    safety_k_position="20"
+    use_fake_hardware="true"
+    fake_sensor_commands="false"
+    sim_gazebo="false"
+    sim_ignition="false"
+    use_tool_communication="false"
+    controller_config_name="ur5e_controllers"
+    ros2_control_params_file="$(find ur_controllers)/config/ur_controllers.yaml"
+    />
+
+  <!-- 
+    STEP 2: Include 你的夹爪模型。
+    (这会加载你现有的 my_gripper_description 包)
+  -->
+  <xacro:include filename="$(find ur5e_with_gripper_description)/urdf/my_gripper.xacro" />
+
+  <!-- 
+    STEP 3: 添加“胶水”关节 (固定)。
+    这将你的 'gripper_base_link' 连接到 UR5e 的 'tool0' 连杆。
+  -->
+  <joint name="gripper_attach_joint" type="fixed">
+    <parent link="tool0" />
+    <child link="gripper_base_link" />
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </joint>
+
+</robot>
+
