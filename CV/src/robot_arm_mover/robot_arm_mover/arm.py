@@ -157,7 +157,7 @@ class ArmMover(Node):
         
         # IGNORE the detected Z-value. (Fix for GOAL_IN_COLLISION error)
         table_top_z = 0.075 # From (0.05 center + 0.05/2 height)
-        hover_offset = 0.10
+        hover_offset = 0.15
         target_pose.position.z = table_top_z + hover_offset # This will be 0.175
         
         self.get_logger().info(f"Targeting X={target_pose.position.x:.3f}, Y={target_pose.position.y:.3f}, Z={target_pose.position.z:.3f}")
@@ -206,7 +206,7 @@ class ArmMover(Node):
         # A small tolerance box
         box_primitive = SolidPrimitive()
         box_primitive.type = box_primitive.BOX
-        box_primitive.dimensions = [0.01, 0.01, 0.01] # 1cm tolerance
+        box_primitive.dimensions = [0.02, 0.02, 0.02] # 1cm tolerance
         p_constraint.constraint_region.primitives.append(box_primitive)
         p_constraint.constraint_region.primitive_poses.append(pose_stamped.pose)
         p_constraint.weight = 1.0
@@ -216,8 +216,8 @@ class ArmMover(Node):
         o_constraint.header.frame_id = pose_stamped.header.frame_id
         o_constraint.link_name = "tool0"
         o_constraint.orientation = pose_stamped.pose.orientation
-        o_constraint.absolute_x_axis_tolerance = 0.1
-        o_constraint.absolute_y_axis_tolerance = 0.1
+        o_constraint.absolute_x_axis_tolerance = 0.5
+        o_constraint.absolute_y_axis_tolerance = 0.5
         o_constraint.absolute_z_axis_tolerance = 3.14 # Allow full rotation around tool Z
         o_constraint.weight = 1.0
 
@@ -303,5 +303,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
-
