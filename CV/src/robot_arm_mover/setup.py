@@ -24,7 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'move_to_piece = robot_arm_mover.move_to_piece:main',
+           'robot_arm_mover = robot_arm_mover.arm:main',
         ],
     },
 )
