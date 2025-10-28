@@ -19,7 +19,7 @@ class ObjectRecognizer(Node):
         self.static_tf_broadcaster = StaticTransformBroadcaster(self)
         self.publish_static_transform()
 
-        self.roi = [100, 50, 600, 400]  # Format: [x_start, y_start, width, height]
+        self.roi = [250, 50, 300, 400]  # Format: [x_start, y_start, width, height]
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -29,16 +29,45 @@ class ObjectRecognizer(Node):
         self.info_sub = self.create_subscription(CameraInfo, '/camera/camera/aligned_depth_to_color/camera_info', self.info_callback, 10)
 
         # Publishers
-        self.chessboard_pub = self.create_publisher(PointStamped, '~/detected/chessboard', 10)
-        self.pieces_pub = self.create_publisher(PoseArray, '~/detected/pieces', 10)
-        self.debug_image_pub = self.create_publisher(Image, '~/debug_image', 10)
+        self.chessboard_pub = self.create_publisher(PointStamped, '/detected/chessboard', 10)
+        self.pieces_pub = self.create_publisher(PoseArray, '/detected/pieces', 10)
+        self.debug_image_pub = self.create_publisher(Image, '/debug_image', 10)
+
+        timer_period = 2  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.tf_broadcaster = TransformBroadcaster(self)
 
         self.cv_bridge = CvBridge()
         self.depth_image = None
         self.intrinsics = None
+        self.pieces_pose_array_all = []
         self.get_logger().info("Object Recognizer node has started.")
+
+    def timer_callback(self):
+        # EXAMPLE:
+            # 5 arrays with lengths 2 3 3 3 2
+            # we want to publish 3 pieces in this case
+
+            # 7 arrays with lengths 2 3 3 3 2 2 2
+            # we want to publish 2 pieces
+
+            # First plan:
+                # take the average of the lengths of the arrays DONE
+                # then just find an array with that average
+                # then publish that array
+        if self.pieces_pose_array_all is not None:
+            total = 0
+            for arr in self.pieces_pose_array_all:
+                total += len(arr.poses)
+            average = round(total / len(self.pieces_pose_array_all))
+
+            self.pieces_pub.publish(self.pieces_pose_array_all[0]) # fix this to actually publish the average
+            self.get_logger().info(f"Published {average} pieces.")
+        else:
+            self.get_logger().info(f"Published no pieces.")
+
+        self.pieces_pose_array_all = []
 
     def publish_static_transform(self):
         t = TransformStamped()
@@ -93,8 +122,9 @@ class ObjectRecognizer(Node):
         self.find_white_pieces(cv_image, debug_image, pieces_pose_array)
         self.find_black_pieces(cv_image, debug_image, pieces_pose_array)
 
-        self.pieces_pub.publish(pieces_pose_array)
-        self.get_logger().info(f"Published {len(pieces_pose_array.poses)} pieces.")
+        #self.pieces_pub.publish(pieces_pose_array)
+        #self.get_logger().info(f"Published {len(pieces_pose_array.poses)} pieces.")
+        self.pieces_pose_array_all.append(pieces_pose_array)
 
         cv2.rectangle(cv_image_full, (x, y), (x+w, y+h), (255, 255, 0), 2)
         cv_image_full[y:y+h, x:x+w] = debug_image
@@ -145,7 +175,7 @@ class ObjectRecognizer(Node):
     def find_black_pieces(self, image, debug_image, pose_array):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 50])
+        upper_black = np.array([200, 255, 70])
         mask = cv2.inRange(hsv, lower_black, upper_black)
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
