@@ -4,7 +4,7 @@
   <name>robot_arm_mover</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="noreply">mtrn</maintainer>
+  <maintainer email="guoshanrui07@gmail.com">mtrn</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
