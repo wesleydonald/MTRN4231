@@ -97,7 +97,7 @@ class move_to_marker : public rclcpp::Node
     void tfCallback()
     {
       // Check if the transformation is between "ball_frame" and "base_link" 
-      std::string fromFrameRel = "chessboard";
+      std::string fromFrameRel = "OOI_tf";
       std::string toFrameRel = "base_link";
       geometry_msgs::msg::TransformStamped t;
 
