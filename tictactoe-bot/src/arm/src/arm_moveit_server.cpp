@@ -114,19 +114,48 @@ class move_to_marker : public rclcpp::Node
 
       moveit::planning_interface::MoveGroupInterface::Plan planMessage;
 
+
+      moveit_msgs::msg::OrientationConstraint orientation_constraint;
+      orientation_constraint.header.frame_id = move_group_interface->getPoseReferenceFrame();
+      orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
+
+      /*
+      tf2::Quaternion q;
+      q.setRPY(M_PI, 0, M_PI);
+      tf2::toMsg(q);
+      orientation_constraint.orientation = tf2::toMsg(q);
+      */
+
+      auto current_pose = move_group_interface->getCurrentPose();
+      orientation_constraint.orientation = current_pose.pose.orientation;
+      
+      orientation_constraint.absolute_x_axis_tolerance = 0.4;
+      orientation_constraint.absolute_y_axis_tolerance = 0.4;
+      orientation_constraint.absolute_z_axis_tolerance = 0.4;
+      orientation_constraint.weight = 1.0;
+      moveit_msgs::msg::Constraints orientation_constraints;
+      orientation_constraints.orientation_constraints.emplace_back(orientation_constraint);
+
       auto const target_pose = generatePoseMsg(
           t.transform.translation.x, 
           t.transform.translation.y, 
           t.transform.translation.z, 
-          t.transform.rotation.x,
-          t.transform.rotation.y,
-          t.transform.rotation.z,
-          t.transform.rotation.w
+          current_pose.pose.orientation.x,
+          current_pose.pose.orientation.y,
+          current_pose.pose.orientation.z,
+          current_pose.pose.orientation.w
       );
 
+      // move_group_interface->setPathConstraints(orientation_constraints);
       move_group_interface->setPoseTarget(target_pose);
+      // move_group_interface->setPlannerId("TRRTkConfigDefault");
+      move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      move_group_interface->setPathConstraints(orientation_constraints);
+      move_group_interface->setNumPlanningAttempts(10);
+      move_group_interface->setMaxAccelerationScalingFactor(0.1);
+      move_group_interface->setMaxVelocityScalingFactor(0.1);
+      move_group_interface->setPlanningTime(10.0);
       move_group_interface->plan(planMessage);
-      move_group_interface->execute(planMessage);
     }
 
 
