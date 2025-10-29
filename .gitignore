@@ -1,5 +1,6 @@
 lab4-main/rosbag*
 build/
-install/
 log/
+install/
+.cache/
 .vscode/

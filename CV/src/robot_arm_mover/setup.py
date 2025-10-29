@@ -17,14 +17,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='your_name',
-    maintainer_email='mtrn@todo.todo',
+    maintainer='sherry',
+    maintainer_email='guoshanrui07@gmail.com',
     description='A package to move a robot arm to a detected piece using MoveIt 2.',
     license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'move_to_piece = robot_arm_mover.move_to_piece:main',
+           'robot_arm_mover = robot_arm_mover.arm:main',
         ],
     },
 )
