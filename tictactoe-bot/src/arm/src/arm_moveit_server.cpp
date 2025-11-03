@@ -136,7 +136,7 @@ private:
         }
     }
 
-    reponse->success = success;
+    response->success = success;
     if (success) {
       response->message = "Planning successful.";
       move_group_interface->execute(plan);

@@ -59,10 +59,18 @@ public:
         RCLCPP_INFO(get_logger(), "Gripper service not available, waiting...");
     }
     RCLCPP_INFO(this->get_logger(), "Brain node started and waiting for game input...");
+
+    home_pose_.position.x = 0.0;
+    home_pose_.position.y = 0.5;
+    home_pose_.position.z = 0.5;
+    home_pose_.orientation.x = 1.0;
+    home_pose_.orientation.y = 0.0;
+    home_pose_.orientation.z = 0.0;
+    home_pose_.orientation.w = 0.0;
   }
 
 private:
-  void chessboardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+  void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
     board_origin_ = *msg;
     RCLCPP_INFO_ONCE(get_logger(),
                      "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
@@ -126,12 +134,10 @@ private:
 
     double ox = board_origin_.point.x;
     double oy = board_origin_.point.y;
-    double oz = board_origin_.point.z;
 
     for (const auto &p : poses) {
         double dx = p.position.x - ox;
         double dy = p.position.y - oy;
-        double dz = p.position.z - oz;
 
         if (std::fabs(dx) > half_span || std::fabs(dy) > half_span) continue;
 
@@ -172,8 +178,7 @@ private:
     auto req = std::make_shared<interfaces::srv::MoveArm::Request>();
     req->target_pose = pose;
     req->move_home = move_home;
-    arm_client_->async_send_request(req,
-        std::bind(&Brain::handleArmResponse, this, std::placeholders::_1));
+    arm_client_->async_send_request(req, std::bind(&Brain::handleArmResponse, this, std::placeholders::_1));
   }
 
   void handleArmResponse(rclcpp::Client<interfaces::srv::MoveArm>::SharedFuture future) {
@@ -211,12 +216,12 @@ private:
 
   void sendGripperRequest(bool close) {
     auto req = std::make_shared<interfaces::srv::CloseGripper::Request>();
-    req->close = close;
-    gripper_client_->async_send_request(req,
-        std::bind(&Brain::handleGripperResponse, this, std::placeholders::_1, close));
+    req->command = close ? "close" : "open";
+
+    gripper_client_->async_send_request(req, std::bind(&Brain::handleGripperResponse, this, std::placeholders::_1));
   }
 
-  void handleGripperResponse(rclcpp::Client<interfaces::srv::CloseGripper>::SharedFuture future, bool closed) {
+  void handleGripperResponse(rclcpp::Client<interfaces::srv::CloseGripper>::SharedFuture future) {
     auto response = future.get();
     if (!response->success) {
         RCLCPP_ERROR(get_logger(), "Gripper action failed: %s", response->message.c_str());
@@ -224,7 +229,7 @@ private:
         return;
     }
 
-    if (closed) {
+    if (current_action_ == CLOSE_GRIPPER) {
         RCLCPP_INFO(get_logger(), "Gripper closed, moving to target cell");
         current_action_ = MOVE_TO_PLACE;
         sendArmRequest(target_cell_, false);
@@ -239,13 +244,10 @@ private:
   enum State { PLAYER_TURN, ROBOT_TURN, FINISHED };
   enum RobotAction { IDLE, MOVE_TO_PICK, CLOSE_GRIPPER, MOVE_TO_PLACE, OPEN_GRIPPER, MOVE_TO_HOME };
 
-  State game_state_;
-  geometry_msgs::msg::Pose home_pose_{
-    {0.0, 0.5, 0.5},
-    {1.0, 0.0, 0.0, 0.0}
-  };
+  geometry_msgs::msg::Pose home_pose_;
 
   std::unique_ptr<TicTacToe> game_play_;
+  enum State game_state_;
   
   RobotAction current_action_ = IDLE;
   geometry_msgs::msg::Pose target_piece_;

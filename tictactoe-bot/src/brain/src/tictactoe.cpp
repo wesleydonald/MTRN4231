@@ -12,6 +12,7 @@ public:
     static constexpr int EMPTY = 2;
     static constexpr int WHITE = 1; // Computer
     static constexpr int BLACK = 0; // Human
+    static constexpr double CELL_SIZE = 0.1;
 
     TicTacToe() {
         resetBoard();

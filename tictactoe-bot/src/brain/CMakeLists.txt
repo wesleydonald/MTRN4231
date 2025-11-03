@@ -23,7 +23,9 @@ ament_target_dependencies(brain
   rclcpp
   geometry_msgs
   std_srvs
+  interfaces
 )
+
 
 # --- install targets ---
 install(TARGETS brain

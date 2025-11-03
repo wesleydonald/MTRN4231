@@ -1,5 +1,5 @@
 # CloseGripper.srv
-bool close
+string command
 ---
 bool success
 string message
