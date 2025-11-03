@@ -12,8 +12,8 @@
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
-constexpr double PLANNING_TIME = 300.0;
-constexpr int PLANNING_ATTEMPTS = 50;
+constexpr double PLANNING_TIME = 0.1;
+constexpr int PLANNING_ATTEMPTS = 500;
 
 //Function to generate a collision object
 auto generateCollisionObject(float sx,float sy, float sz, float x, float y, float z, std::string frame_id, std::string id) {
@@ -54,6 +54,19 @@ auto generatePoseMsg(float x,float y, float z,float qx,float qy,float qz,float q
     return msg;
 }
 
+auto generateAttachedEECollisionObject(
+    float sx, float sy, float sz, 
+    float x, float y, float z, 
+    std::string ee_link, std::string id) 
+{
+    moveit_msgs::msg::AttachedCollisionObject attached_object;
+
+    attached_object.link_name = ee_link;
+    attached_object.object = generateCollisionObject(sx, sy, sz, x, y, z, ee_link, id);
+
+    return attached_object;
+}
+
 using std::placeholders::_1;
 
 class arm : public rclcpp::Node {
@@ -68,9 +81,13 @@ public:
       timer_ = this->create_wall_timer( std::chrono::milliseconds(200), std::bind(&arm::tfCallback, this));
 
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
-      //move_group_interface->setPlannerId("RRTConnectkConfigDefault");
       move_group_interface->setPlanningTime(PLANNING_TIME);
       move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
+      // move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      // move_group_interface->setPlannerId("RRTConnect");
+      //move_group_interface->setPlannerId("BKPIECEkConfigDefault");
+      move_group_interface->setPlannerId("TRRTkConfigDefault");
+      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
@@ -82,6 +99,17 @@ public:
       planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
+      
+      moveit_msgs::msg::AttachedCollisionObject attached_object;
+      attached_object.link_name = move_group_interface->getEndEffectorLink();
+      attached_object.object = generateCollisionObject(
+          0.1, 0.1, 0.15,
+          0.0, 0.0, 0.10,
+          attached_object.link_name,
+          "end_effector"
+      );
+      planning_scene_interface.applyAttachedCollisionObject(attached_object);
+
       moveToPose();
     }
 
@@ -89,6 +117,7 @@ private:
 
   void moveToPose() {
     auto current_pose = move_group_interface->getCurrentPose();
+
     auto target_pose = generatePoseMsg(
        0.4, 0.2, 0.3,
        1.0, 0.0, 0.0, 0.0 
@@ -101,11 +130,23 @@ private:
     // Plan to that pose
     moveit::planning_interface::MoveGroupInterface::Plan plan;
 
-    moveit_msgs::msg::Constraints constraints = set_constraint();
-    move_group_interface->setPathConstraints(constraints);
     move_group_interface->setStartStateToCurrentState();
     move_group_interface->setPoseTarget(target_pose, "tool0");
-    bool success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    moveit_msgs::msg::Constraints constraints = set_constraint();
+    move_group_interface->setPathConstraints(constraints);
+
+    bool success = false;
+    double planningTime = 0.1;
+    const double maxPlanningTime = 60.0;
+
+    while (!success && planningTime <= maxPlanningTime) {
+        move_group_interface->setPlanningTime(planningTime);
+        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
+        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        if (!success) {
+            planningTime *= 2;
+        }
+    }
 
     if (success) {
       RCLCPP_INFO(this->get_logger(), "Planning successful, executing...");
@@ -123,22 +164,29 @@ private:
   }
 
   moveit_msgs::msg::OrientationConstraint set_orientation_constraint() {
-    auto current_pose = move_group_interface->getCurrentPose(); 
     moveit_msgs::msg::OrientationConstraint orientation_constraint;
 
     orientation_constraint.header.frame_id = move_group_interface->getPlanningFrame();
     orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
-    orientation_constraint.absolute_x_axis_tolerance = 0.4; // works when I make these 5
-    orientation_constraint.absolute_y_axis_tolerance = 0.4;
-    orientation_constraint.absolute_z_axis_tolerance = 0.4;
-    orientation_constraint.weight = 1; 
-    orientation_constraint.orientation.x = 1.0;
-    orientation_constraint.orientation.y = 0.0;
-    orientation_constraint.orientation.z = 0.0;
-    orientation_constraint.orientation.w = 0.0;
-    orientation_constraint.orientation = current_pose.pose.orientation;
+
+    // Absolute tolerances in radians
+    orientation_constraint.absolute_x_axis_tolerance = 0.4; // ~3°
+    orientation_constraint.absolute_y_axis_tolerance = 0.4; 
+    orientation_constraint.absolute_z_axis_tolerance = 3.14; // allow free rotation around Z
+
+    orientation_constraint.weight = 1.0;
+
+    // Straight down quaternion (tool Z pointing down)
+    tf2::Quaternion q;
+    q.setRPY(M_PI, 0, 0); // flip X-axis by 180° if your tool frame Z points forward
+    orientation_constraint.orientation.x = q.x();
+    orientation_constraint.orientation.y = q.y();
+    orientation_constraint.orientation.z = q.z();
+    orientation_constraint.orientation.w = q.w();
+
     return orientation_constraint;
   }
+
 
   moveit_msgs::msg::JointConstraint set_joint_constraint() {
     moveit_msgs::msg::JointConstraint elbow_constraint;
