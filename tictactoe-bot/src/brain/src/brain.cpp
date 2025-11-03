@@ -11,12 +11,13 @@ IS A CLIENT TO -> gripper node
 ASSUMPTIONS    -> Human plays first with X's
                -> The /detected topics publish in the robot base frame
 
-The idea is we are the PLAYER_TURN state until we see a piece has moved
+The idea is we are in the PLAYER_TURN state until we see a piece has moved
 onto the board. Then we calculate the best move. We then enter the ROBOT_TURN state
 where we send a service request to the arm to move to a certain x, y 
 location. When we recieve the completed response from the arm node we
 send a service request to the gripper node to close the gripper. Then 
-a similar thing for lifting the piece and placing it on the board.   
+a similar thing for lifting the piece and placing it on the board. 
+Lastly we return to home_pose.  
 */
 
 #include <chrono>
@@ -240,7 +241,7 @@ private:
 
   State game_state_;
   geometry_msgs::msg::Pose home_pose_{
-    {0.2, 0.4, 0.5},
+    {0.0, 0.5, 0.5},
     {1.0, 0.0, 0.0, 0.0}
   };
 

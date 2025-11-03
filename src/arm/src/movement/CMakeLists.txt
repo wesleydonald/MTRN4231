@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
-
+find_package(interfaces REQUIRED)
 
 add_executable(arm src/arm.cpp)
 target_include_directories(arm PUBLIC

@@ -7,8 +7,9 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(moveit_ros_planning_interface REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(interfaces REQUIRED)
 
 add_executable(arm_moveit_server src/arm_moveit_server.cpp)
 target_include_directories(arm_moveit_server PUBLIC
@@ -21,6 +22,12 @@ ament_target_dependencies(
   "rclcpp"
   "tf2"
   "tf2_ros"
+  "std_srvs"
+)
+
+include_directories(
+  include
+  ${interfaces_INCLUDE_DIRS}
 )
 
 install(TARGETS 
@@ -32,5 +39,12 @@ install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
 )
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  set(ament_cmake_copyright_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
