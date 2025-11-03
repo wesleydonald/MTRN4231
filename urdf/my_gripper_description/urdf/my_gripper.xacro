@@ -1,23 +1,20 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="my_gripper">
 
-  <!--
-    LINKS
-    These are the three rigid bodies: the base and the two claws.
-  -->
+ 
 
-  <!-- 1. Base Link (This attaches to the robot arm) -->
+  
   <link name="gripper_base_link">
     <visual>
       <geometry>
-        <!-- A simple box for the gripper's main body -->
+       
         <box size="0.06 0.1 0.03" />
       </geometry>
       <material name="grey">
         <color rgba="0.5 0.5 0.5 1"/>
       </material>
     </visual>
-    <!-- Add collision and inertial tags here for physics -->
+   
     <collision>
       <geometry>
         <box size="0.06 0.1 0.03" />
@@ -29,13 +26,9 @@
     </inertial>
   </link>
 
-  <!-- 2. Left Claw Link -->
   <link name="left_claw_link">
     <visual>
-      <!-- The claw's geometry.
-           IMPORTANT: The <origin> tag below offsets the visual
-           shape from the joint's pivot point.
-      -->
+    
       <origin xyz="0.035 0 0" rpy="0 0 0"/>
       <geometry>
         <box size="0.07 0.015 0.02" />
@@ -56,7 +49,7 @@
     </inertial>
   </link>
 
-  <!-- 3. Right Claw Link -->
+ 
   <link name="right_claw_link">
     <visual>
       <origin xyz="0.035 0 0" rpy="0 0 0"/>
@@ -77,44 +70,33 @@
     </inertial>
   </link>
 
-  <!--
-    JOINTS
-    These connect the links. We use 'revolute' (hinge) joints.
-  -->
 
-  <!-- 4. Left Claw Joint (Movable Hinge) -->
-  <joint name="left_claw_joint" type="revolute"> <!-- 'revolute' for pivoting -->
+
+ 
+  <joint name="left_claw_joint" type="revolute">
     <parent link="gripper_base_link"/>
     <child link="left_claw_link"/>
-    <!-- This is the pivot point for the left claw -->
+   
     <origin xyz="0 0.04 0" rpy="0 0 0"/>
-    <!-- The axis it rotates around (the Z-axis) -->
+    
     <axis xyz="0 0 1"/>
-    <!-- Limits are now in RADIANS (approx 60 degrees) -->
+   
     <limit lower="-0.4" upper="1.0" effort="100" velocity="0.5"/>
   </joint>
 
-  <!-- 5. Right Claw Joint (Movable Hinge) -->
+  
   <joint name="right_claw_joint" type="revolute">
     <parent link="gripper_base_link"/>
     <child link="right_claw_link"/>
-    <!-- This is the pivot point for the right claw -->
+   
     <origin xyz="0 -0.04 0" rpy="0 0 0"/>
-    <!-- The axis it rotates around (the Z-axis) -->
-    <axis xyz="0 0 -1"/> <!-- Note: Rotates on the *negative* Z-axis -->
+   
+    <axis xyz="0 0 -1"/> 
 
-    <!-- 
-      FIX: Added this <limit> tag to satisfy the strict parser.
-      Its values are redundant because of the <mimic> tag below,
-      but its presence stops the parser from crashing.
-    -->
+    
     <limit lower="-0.4" upper="1.0" effort="100" velocity="0.5"/>
 
-    <!--
-      THE MAGIC: This joint will MIMIC the 'left_claw_joint'.
-      Because their axes are opposite (0 0 1) and (0 0 -1),
-      a multiplier of 1.0 will make them close symmetrically.
-    -->
+  
     <mimic joint="left_claw_joint" multiplier="1.0" offset="0"/>
   </joint>
 
