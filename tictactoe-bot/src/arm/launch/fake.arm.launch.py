@@ -24,11 +24,11 @@ def generate_launch_description():
         'use_fake_hardware': 'true', 
         'launch_rviz': 'false'
       }.items()
-    ),
-    Node(
-        package='arm',
-        namespace='',
-        executable='arm_moveit_server',
-        name='fake_arm_moveit_server'
-    ),
+    )
+    # Node(
+    #     package='arm',
+    #     namespace='',
+    #     executable='arm_moveit_server',
+    #     name='fake_arm_moveit_server'
+    # ),
   ])

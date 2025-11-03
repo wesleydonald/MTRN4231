@@ -25,10 +25,10 @@ def generate_launch_description():
         'launch_rviz': 'false'
       }.items()
     ),
-    Node(
-        package='arm',
-        namespace='',
-        executable='arm_moveit_server',
-        name='real_arm_moveit_server'
-    ),
+    # Node(
+    #     package='arm',
+    #     namespace='',
+    #     executable='arm_moveit_server',
+    #     name='real_arm_moveit_server'
+    # ),
   ])
