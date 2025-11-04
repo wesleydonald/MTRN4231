@@ -1,0 +1,3 @@
+[console_scripts]
+attach_gripper = visualization.attach_gripper:main
+
