@@ -1,7 +1,0 @@
-Metadata-Version: 2.1
-Name: my-gripper-pkg
-Version: 0.0.0
-Summary: Package to control an Arduino gripper
-Maintainer: your_name
-Maintainer-email: your_email@example.com
-License: Apache-2.0
