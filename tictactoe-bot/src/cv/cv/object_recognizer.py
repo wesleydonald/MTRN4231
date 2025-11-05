@@ -17,6 +17,22 @@ from tf2_ros.transform_listener import TransformListener
 from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 from visualization_msgs.msg import Marker, MarkerArray
 
+# CONSTANTS
+BLACK_PIECE_COLOUR_THRESHOLD = 85
+BLACK_PIECE_MIN_AREA = 350
+BLACK_PIECE_MAX_AREA = 1300
+BLACK_PIECE_MIN_SOLIDITY = 0.40
+
+WHITE_PIECE_MIN_AREA = 500
+WHITE_PIECE_MAX_AREA = 2500
+WHITE_PIECE_MIN_SOLIDITY = 0.85
+WHITE_PIECE_COLOUR_MIN = 210
+WHITE_DILATION_KERNEL_SIZE = 9
+
+BOARD_COLOUR_THRESHOLD_MAX = 75
+BOARD_COLOUR_THRESHOLD_MIN = 0
+BOARD_ERODE_KERNEL_SIZE = 1
+
 class ObjectRecognizer(Node):
     def __init__(self):
         super().__init__('object_recognizer')
@@ -37,7 +53,9 @@ class ObjectRecognizer(Node):
 
         # Publishers
         self.debug_image_pub = self.create_publisher(Image, '/debug/image', 10)
-        self.debug_black_and_white_pub = self.create_publisher(Image, '/debug/black_and_white', 10)
+        self.debug_black_piece_pub = self.create_publisher(Image, '/debug/black_piece_detection', 10)
+        self.debug_white_piece_pub = self.create_publisher(Image, '/debug/white_piece_detection', 10)
+        self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
         self.board_marker_pub = self.create_publisher(Marker, '/detected/board_marker', 10)
         self.pieces_marker_pub = self.create_publisher(MarkerArray, '/detected/pieces_markers', 10)
 
@@ -200,10 +218,20 @@ class ObjectRecognizer(Node):
         self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_image_full, 'bgr8'))
 
     def find_board(self, image, debug_image):
+        # Image processing
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Threshold to detect black
+        _, mask = cv2.threshold(gray, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
+
+        kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
+        mask = cv2.erode(mask, kernel, iterations=1)
+        mask = cv2.medianBlur(mask, 11)
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Debugging
+        self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
 
         if contours:
             largest_contour = max(contours, key=cv2.contourArea)
@@ -242,35 +270,27 @@ class ObjectRecognizer(Node):
         return None
 
     def find_white_pieces(self, image, debug_image, pose_array):
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=10, maxRadius=40)
-        if circles is not None:
-            circles = np.uint16(np.around(circles))
-            for i, c in enumerate(circles[0, :]):
-                center = (c[0], c[1])
-                cv2.circle(debug_image, center, c[2], (255, 0, 0), 2)
-                point_base_link = self.get_3d_point_and_broadcast_tf(center[0], center[1], f'white_piece_{i}')
-                if point_base_link:
-                    pose = Pose()
-                    pose.position = point_base_link
-                    pose.orientation.w = 1.0
-                    pose_array.poses.append(pose)
-                    coord_text = f"W:({point_base_link.x:.2f},{point_base_link.y:.2f})"
-                    cv2.putText(debug_image, coord_text, (c[0] - 30, c[1] - c[2] - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=10, maxRadius=40)
 
-    def find_black_pieces(self, image, debug_image, pose_array):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([179, 255, 85])
-        mask = cv2.inRange(hsv, lower_black, upper_black)
+        lower_white = np.array([0, 0, WHITE_PIECE_COLOUR_MIN])
+        upper_white = np.array([179, 255, 255])
+        mask = cv2.inRange(hsv, lower_white, upper_white)
 
-        # Debugging
-        self.debug_black_and_white_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+        kernel = np.ones((WHITE_DILATION_KERNEL_SIZE,WHITE_DILATION_KERNEL_SIZE), np.uint8)
+        # Apply dilation
+        mask = cv2.dilate(mask, kernel, iterations=1)
+        mask = cv2.medianBlur(mask, 21)
+
+        circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, dp=1.5, minDist=100, param1=80, param2=30, minRadius=10, maxRadius=75)
+
+        self.debug_white_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
             area = cv2.contourArea(cnt) # Get area first
-            if 100 < area < 2000: # Check area
+            if WHITE_PIECE_MIN_AREA < area < WHITE_PIECE_MAX_AREA: # Check area
                 hull = cv2.convexHull(cnt) # Get convex hull
                 hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
 
@@ -278,7 +298,42 @@ class ObjectRecognizer(Node):
                 if hull_area > 0: # Now this comparison should be safe
                     solidity = float(area) / hull_area
                 
-                if 0.4 < solidity < 0.7:
+                if solidity > WHITE_PIECE_MIN_SOLIDITY:
+                    cv2.drawContours(debug_image, [cnt], -1, (255, 0, 0), 2)
+                    M = cv2.moments(cnt)
+                    if M["m00"] != 0:
+                        cx = int(M["m10"] / M["m00"])
+                        cy = int(M["m01"] / M["m00"])
+                        point_base_link = self.get_3d_point_and_broadcast_tf(cx, cy, f'white_piece{i}')
+                        if point_base_link:
+                            pose = Pose()
+                            pose.position = point_base_link
+                            pose.orientation.w = 1.0
+                            pose_array.poses.append(pose)
+                            coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
+                            cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
+
+    def find_black_pieces(self, image, debug_image, pose_array):
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        lower_black = np.array([0, 0, 0])
+        upper_black = np.array([179, 255, BLACK_PIECE_COLOUR_THRESHOLD])
+        mask = cv2.inRange(hsv, lower_black, upper_black)
+
+        # Debugging
+        self.debug_black_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for i, cnt in enumerate(contours):
+            area = cv2.contourArea(cnt) # Get area first
+            if BLACK_PIECE_MIN_AREA < area < BLACK_PIECE_MAX_AREA: # Check area
+                hull = cv2.convexHull(cnt) # Get convex hull
+                hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
+
+                solidity = 0.0 # Initialize solidity
+                if hull_area > 0: # Now this comparison should be safe
+                    solidity = float(area) / hull_area
+                
+                if solidity > BLACK_PIECE_MIN_SOLIDITY:
                     cv2.drawContours(debug_image, [cnt], -1, (0, 0, 255), 2)
                     M = cv2.moments(cnt)
                     if M["m00"] != 0:
