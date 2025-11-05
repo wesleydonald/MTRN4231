@@ -19,6 +19,6 @@ def generate_launch_description():
         package='computer_vision',
         namespace='',
         executable='object_recognizer',
-        name='computer_vision'
+        name='cv'
     ),
   ])

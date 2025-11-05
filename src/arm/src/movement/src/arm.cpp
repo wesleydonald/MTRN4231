@@ -112,7 +112,7 @@ public:
       );
       planning_scene_interface.applyAttachedCollisionObject(attached_object);
 
-      moveToPose();
+      // moveToPose();
     }
 
 private:
@@ -155,10 +155,10 @@ private:
   }
 
   void moveToTargetPiece() {
-    if (!has_target_) return;
+    if (!has_target_ || moved) return;
 
     geometry_msgs::msg::Pose target_pose = first_white_piece_;
-    target_pose.position.z = 0.2;
+    target_pose.position.z = 0.25;
     target_pose.orientation.x = 1.0;
     target_pose.orientation.y = 0.0;
     target_pose.orientation.z = 0.0;
@@ -194,6 +194,7 @@ private:
     // Reset path constraints after planning
     move_group_interface->clearPathConstraints();
     has_target_ = false;
+    moved = true;
 }
 
   moveit_msgs::msg::Constraints set_constraint() { 
@@ -248,6 +249,7 @@ private:
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
   geometry_msgs::msg::Pose first_white_piece_;
   bool has_target_ = false;
+  bool moved = false;
 };
 
 
