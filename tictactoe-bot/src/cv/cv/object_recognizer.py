@@ -1,19 +1,21 @@
 import rclpy
 import cv2
+import tf2_ros
+import os
 import numpy as np
 import pyrealsense2 as rs
-import rclpy.duration
+import tf2_geometry_msgs
+from collections import Counter # Import Counter for finding most common detection
+from cv_bridge import CvBridge, CvBridgeError
+
 from rclpy.node import Node
-from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PointStamped, TransformStamped, PoseArray, Pose
+from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseArray, Point
 from tf2_ros import TransformBroadcaster
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
-import tf2_geometry_msgs
 from visualization_msgs.msg import Marker, MarkerArray
-from collections import Counter # Import Counter for finding most common detection
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -24,67 +26,30 @@ class ObjectRecognizer(Node):
 
         self.roi = [250, 50, 300, 400]  # Format: [x_start, y_start, width, height]
 
+        # Tf listener
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        self.image_sub = self.create_subscription(Image, '/camera/camera/color/image_raw', self.image_callback, 10)
-        self.depth_sub = self.create_subscription(Image, '/camera/camera/aligned_depth_to_color/image_raw', self.depth_callback, 10)
-        self.info_sub = self.create_subscription(CameraInfo, '/camera/camera/aligned_depth_to_color/camera_info', self.info_callback, 10)
+        # Subscribers
+        self.image_sub = self.create_subscription( Image, '/camera/camera/color/image_raw', self.image_callback, 10)
+        self.point_cloud_sub = self.create_subscription( Image, '/camera/camera/aligned_depth_to_color/image_raw', self.depth_callback, 10)
+        self.cam_info_sub = self.create_subscription( CameraInfo, '/camera/camera/aligned_depth_to_color/camera_info', self.info_callback,10)
 
         # Publishers
-        self.chessboard_pub = self.create_publisher(PointStamped, '/detected/chessboard', 10)
-        self.pieces_pub = self.create_publisher(PoseArray, '/detected/pieces', 10)
-        self.debug_image_pub = self.create_publisher(Image, '/debug_image', 10)
-<<<<<<< HEAD
-
-        timer_period = 2  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-=======
-        
-        # --- New Marker Publishers for RViz ---
-        self.chessboard_marker_pub = self.create_publisher(Marker, '/detected/chessboard_marker', 10)
+        self.debug_image_pub = self.create_publisher(Image, '/debug/image', 10)
+        self.debug_black_and_white_pub = self.create_publisher(Image, '/debug/black_and_white', 10)
+        self.board_marker_pub = self.create_publisher(Marker, '/detected/board_marker', 10)
         self.pieces_marker_pub = self.create_publisher(MarkerArray, '/detected/pieces_markers', 10)
-        # --- End New Publishers ---
 
-        timer_period = 2  # seconds
+        # Update the position of the broadcasted markers
+        timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.timer_period_duration_msg = rclpy.duration.Duration(seconds=timer_period * 1.5).to_msg() # Lifetime for markers
->>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
         self.tf_broadcaster = TransformBroadcaster(self)
 
         self.cv_bridge = CvBridge()
         self.depth_image = None
         self.intrinsics = None
-<<<<<<< HEAD
-        self.pieces_pose_array_all = []
-        self.get_logger().info("Object Recognizer node has started.")
-
-    def timer_callback(self):
-        # EXAMPLE:
-            # 5 arrays with lengths 2 3 3 3 2
-            # we want to publish 3 pieces in this case
-
-            # 7 arrays with lengths 2 3 3 3 2 2 2
-            # we want to publish 2 pieces
-
-            # First plan:
-                # take the average of the lengths of the arrays DONE
-                # then just find an array with that average
-                # then publish that array
-        if self.pieces_pose_array_all is not None:
-            total = 0
-            for arr in self.pieces_pose_array_all:
-                total += len(arr.poses)
-            average = round(total / len(self.pieces_pose_array_all))
-
-            self.pieces_pub.publish(self.pieces_pose_array_all[0]) # fix this to actually publish the average
-            self.get_logger().info(f"Published {average} pieces.")
-        else:
-            self.get_logger().info(f"Published no pieces.")
-
-        self.pieces_pose_array_all = []
-=======
         
         # --- Modified state to store white and black pieces separately ---
         self.detected_pieces_all = [] # Will store tuples of (white_pose_array, black_pose_array)
@@ -97,7 +62,7 @@ class ObjectRecognizer(Node):
         if not self.detected_pieces_all:
             # Publish empty arrays to clear RViz if no detections
             self.publish_piece_markers(PoseArray(), PoseArray())
-            self.pieces_pub.publish(PoseArray())
+            # self.pieces_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no detections).")
             self.detected_pieces_all = [] # Clear list
             return
@@ -129,7 +94,7 @@ class ObjectRecognizer(Node):
             combined_pa.poses.extend(best_white_pa.poses)
             combined_pa.poses.extend(best_black_pa.poses)
             
-            self.pieces_pub.publish(combined_pa)
+            # self.pieces_pub.publish(combined_pa)
             
             # Publish markers for RViz
             self.publish_piece_markers(best_white_pa, best_black_pa)
@@ -138,12 +103,11 @@ class ObjectRecognizer(Node):
         else:
             # This case is unlikely if list wasn't empty, but good to handle
             self.publish_piece_markers(PoseArray(), PoseArray())
-            self.pieces_pub.publish(PoseArray())
+            # self.pieces_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no best_pose_array found).")
 
         self.detected_pieces_all = [] # Clear list for next cycle
         # --- End Updated logic ---
->>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
     def publish_static_transform(self):
         t = TransformStamped()
@@ -160,20 +124,41 @@ class ObjectRecognizer(Node):
         self.static_tf_broadcaster.sendTransform(t)
         self.get_logger().info("Published static transform from 'base_link' to 'camera_link'.")
 
-    def info_callback(self, msg):
-        if self.intrinsics is None:
+    def info_callback(self, cameraInfo):
+        try:
+            if self.intrinsics:
+                return
             self.intrinsics = rs.intrinsics()
-            self.intrinsics.width = msg.width
-            self.intrinsics.height = msg.height
-            self.intrinsics.ppx = msg.k[2]
-            self.intrinsics.ppy = msg.k[5]
-            self.intrinsics.fx = msg.k[0]
-            self.intrinsics.fy = msg.k[4]
-            self.intrinsics.model = rs.distortion.none
-            self.get_logger().info("Camera intrinsics received.")
+            self.intrinsics.width = cameraInfo.width
+            self.intrinsics.height = cameraInfo.height
+            self.intrinsics.ppx = cameraInfo.k[2]
+            self.intrinsics.ppy = cameraInfo.k[5]
+            self.intrinsics.fx = cameraInfo.k[0]
+            self.intrinsics.fy = cameraInfo.k[4]
+            if cameraInfo.distortion_model == 'plumb_bob':
+                self.intrinsics.model = rs.distortion.brown_conrady
+            elif cameraInfo.distortion_model == 'equidistant':
+                self.intrinsics.model = rs.distortion.kannala_brandt4
+            self.intrinsics.coeffs = [i for i in cameraInfo.d]
+        except CvBridgeError as e:
+            print(e)
+            return
 
+    # This gets depth_frame aligned with RGB image
     def depth_callback(self, msg):
-        self.depth_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='16UC1')
+        try:
+            self.depth_image = self.cv_bridge.imgmsg_to_cv2(msg, msg.encoding)
+                
+        except Exception as e:
+            self.get_logger().error(f"Error in point_cloud_callback: {str(e)}")
+
+
+    def pixel_2_global(self, pixel_pt):
+        if self.depth_image is not None and self.intrinsics is not None:
+            [x,y,z] = rs.rs2_deproject_pixel_to_point(self.intrinsics, (pixel_pt[0],pixel_pt[1] ), self.depth_image[pixel_pt[0],pixel_pt[1] ]*0.001)
+            return [x, y,z]
+        else:
+            return None
 
     def image_callback(self, msg):
         if self.depth_image is None or self.intrinsics is None:
@@ -184,10 +169,10 @@ class ObjectRecognizer(Node):
         cv_image = cv_image_full[y:y+h, x:x+w]
         debug_image = cv_image.copy()
 
-        chessboard_center_roi = self.find_chessboard(cv_image, debug_image)
+        board_center_roi = self.find_board(cv_image, debug_image)
 
-        if chessboard_center_roi is None:
-            self.get_logger().warn("No chessboard detected in the ROI.")
+        if board_center_roi is None:
+            self.get_logger().warn("No board detected in the ROI.")
             self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(debug_image, 'bgr8'))
             return
 
@@ -206,21 +191,15 @@ class ObjectRecognizer(Node):
         self.find_black_pieces(cv_image, debug_image, black_pieces_pa)
         # --- End PoseArray separation ---
 
-<<<<<<< HEAD
-        #self.pieces_pub.publish(pieces_pose_array)
-        #self.get_logger().info(f"Published {len(pieces_pose_array.poses)} pieces.")
-        self.pieces_pose_array_all.append(pieces_pose_array)
-=======
         # --- Store detections for timer callback to process ---
         self.detected_pieces_all.append((white_pieces_pa, black_pieces_pa))
         # --- End storage ---
->>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
         cv2.rectangle(cv_image_full, (x, y), (x+w, y+h), (255, 255, 0), 2)
         cv_image_full[y:y+h, x:x+w] = debug_image
         self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_image_full, 'bgr8'))
 
-    def find_chessboard(self, image, debug_image):
+    def find_board(self, image, debug_image):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
         _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
@@ -232,19 +211,13 @@ class ObjectRecognizer(Node):
                 x, y, w, h = cv2.boundingRect(largest_contour)
                 cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 center_x, center_y = x + w // 2, y + h // 2
-                point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'chessboard')
+                point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
                 if point_base_link:
-                    point_msg = PointStamped()
-                    point_msg.header.stamp = self.get_clock().now().to_msg()
-                    point_msg.header.frame_id = 'base_link'
-                    point_msg.point = point_base_link
-                    self.chessboard_pub.publish(point_msg)
-                    
-                    # --- Publish Chessboard Marker ---
+                    # --- Publish board Marker ---
                     marker_msg = Marker()
                     marker_msg.header.frame_id = 'base_link'
-                    marker_msg.header.stamp = point_msg.header.stamp
-                    marker_msg.ns = "chessboard"
+                    marker_msg.header.stamp = self.get_clock().now().to_msg()
+                    marker_msg.ns = "board"
                     marker_msg.id = 0
                     marker_msg.type = Marker.CUBE
                     marker_msg.action = Marker.ADD
@@ -260,8 +233,7 @@ class ObjectRecognizer(Node):
                     marker_msg.color.g = 1.0
                     marker_msg.color.b = 0.0
                     marker_msg.color.a = 0.5 # Semi-transparent
-                    marker_msg.lifetime = self.timer_period_duration_msg
-                    self.chessboard_marker_pub.publish(marker_msg)
+                    self.board_marker_pub.publish(marker_msg)
                     # --- End Marker Publish ---
                     
                     coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
@@ -289,8 +261,12 @@ class ObjectRecognizer(Node):
     def find_black_pieces(self, image, debug_image, pose_array):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([200, 255, 70])
+        upper_black = np.array([179, 255, 85])
         mask = cv2.inRange(hsv, lower_black, upper_black)
+
+        # Debugging
+        self.debug_black_and_white_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
             area = cv2.contourArea(cnt) # Get area first
@@ -357,7 +333,6 @@ class ObjectRecognizer(Node):
             marker.color.g = 1.0
             marker.color.b = 1.0
             marker.color.a = 1.0
-            marker.lifetime = self.timer_period_duration_msg
             marker_array.markers.append(marker)
 
         # Add black piece markers
@@ -378,7 +353,6 @@ class ObjectRecognizer(Node):
             marker.color.g = 0.1
             marker.color.b = 0.1
             marker.color.a = 1.0
-            marker.lifetime = self.timer_period_duration_msg
             marker_array.markers.append(marker)
             
         self.pieces_marker_pub.publish(marker_array)
@@ -403,7 +377,9 @@ class ObjectRecognizer(Node):
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
         point_camera.header.frame_id = 'camera_color_optical_frame'
-        point_camera.point.x, point_camera.point.y, point_camera.point.z = point_3d_camera
+        point_camera.point.x = point_3d_camera[0]
+        point_camera.point.y = point_3d_camera[1]
+        point_camera.point.z = point_3d_camera[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
 
         try:
             # Wait for the transform to be available
