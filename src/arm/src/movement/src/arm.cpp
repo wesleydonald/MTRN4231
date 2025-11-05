@@ -90,6 +90,7 @@ class move_to_marker : public rclcpp::Node
       planning_scene_interface.applyCollisionObject(col_object_sideWall);
       planning_scene_interface.applyCollisionObject(col_object_table);
 
+      // moveToPose();
     }
 
   private:
@@ -119,32 +120,56 @@ class move_to_marker : public rclcpp::Node
       orientation_constraint.header.frame_id = move_group_interface->getPoseReferenceFrame();
       orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
 
-      /*
-      tf2::Quaternion q;
-      q.setRPY(M_PI, 0, M_PI);
-      tf2::toMsg(q);
-      orientation_constraint.orientation = tf2::toMsg(q);
-      */
+    if (success) {
+      RCLCPP_INFO(this->get_logger(), "Planning successful, executing...");
+      move_group_interface->execute(plan);
+    } else {
+      RCLCPP_WARN(this->get_logger(), "Planning failed.");
+    }
+  }
 
-      auto current_pose = move_group_interface->getCurrentPose();
-      orientation_constraint.orientation = current_pose.pose.orientation;
-      
-      orientation_constraint.absolute_x_axis_tolerance = 0.4;
-      orientation_constraint.absolute_y_axis_tolerance = 0.4;
-      orientation_constraint.absolute_z_axis_tolerance = 0.4;
-      orientation_constraint.weight = 1.0;
-      moveit_msgs::msg::Constraints orientation_constraints;
-      orientation_constraints.orientation_constraints.emplace_back(orientation_constraint);
+  void moveToTargetPiece() {
+    if (!has_target_ || moved) return;
 
-      auto const target_pose = generatePoseMsg(
-          t.transform.translation.x, 
-          t.transform.translation.y, 
-          t.transform.translation.z, 
-          current_pose.pose.orientation.x,
-          current_pose.pose.orientation.y,
-          current_pose.pose.orientation.z,
-          current_pose.pose.orientation.w
-      );
+    geometry_msgs::msg::Pose target_pose = first_white_piece_;
+    target_pose.position.z = 0.25;
+    target_pose.orientation.x = 1.0;
+    target_pose.orientation.y = 0.0;
+    target_pose.orientation.z = 0.0;
+    target_pose.orientation.w = 0.0;
+
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+
+    move_group_interface->setStartStateToCurrentState();
+    move_group_interface->setPoseTarget(target_pose, "tool0");
+    moveit_msgs::msg::Constraints constraints = set_constraint();
+    move_group_interface->setPathConstraints(constraints);
+
+    bool success = false;
+    double planningTime = 0.1;
+    const double maxPlanningTime = 60.0;
+
+    while (!success && planningTime <= maxPlanningTime) {
+        move_group_interface->setPlanningTime(planningTime);
+        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
+        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        if (!success) {
+            planningTime *= 2;
+        }
+    }
+
+    if (success) {
+      RCLCPP_INFO(this->get_logger(), "Planning successful, executing...");
+      move_group_interface->execute(plan);
+    } else {
+      RCLCPP_WARN(this->get_logger(), "Planning failed.");
+    }
+
+    // Reset path constraints after planning
+    move_group_interface->clearPathConstraints();
+    has_target_ = false;
+    moved = true;
+}
 
       // move_group_interface->setPathConstraints(orientation_constraints);
       move_group_interface->setPoseTarget(target_pose);
@@ -164,6 +189,9 @@ class move_to_marker : public rclcpp::Node
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
+  geometry_msgs::msg::Pose first_white_piece_;
+  bool has_target_ = false;
+  bool moved = false;
 };
 
 
