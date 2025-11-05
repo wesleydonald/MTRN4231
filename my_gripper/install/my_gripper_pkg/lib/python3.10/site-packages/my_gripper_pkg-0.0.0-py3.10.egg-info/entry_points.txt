@@ -1,0 +1,3 @@
+[console_scripts]
+arduino_serial_node = my_gripper_pkg.arduino_serial_node:main
+end_effector_node = my_gripper_pkg.end_effector_node:main
