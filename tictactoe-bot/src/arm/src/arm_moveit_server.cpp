@@ -1,15 +1,21 @@
 #include <memory>
-#include <rclcpp/rclcpp.hpp>
-#include "std_msgs/msg/string.hpp"
 #include <chrono>
 #include <functional>
 #include <string>
+#include <cmath>
+
+#include <rclcpp/rclcpp.hpp>
+#include "geometry_msgs/msg/pose_array.hpp"
+#include "std_msgs/msg/string.hpp"
 #include "tf2/exceptions.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
+#include <interfaces/srv/move_arm.hpp>
 
+constexpr double PLANNING_TIME = 0.1;
+constexpr int PLANNING_ATTEMPTS = 500;
 
 //Function to generate a collision object
 auto generateCollisionObject(float sx,float sy, float sz, float x, float y, float z, std::string frame_id, std::string id) {
@@ -50,127 +56,135 @@ auto generatePoseMsg(float x,float y, float z,float qx,float qy,float qz,float q
     return msg;
 }
 
+auto generateAttachedEECollisionObject(
+    float sx, float sy, float sz, 
+    float x, float y, float z, 
+    std::string ee_link, std::string id) 
+{
+    moveit_msgs::msg::AttachedCollisionObject attached_object;
+
+    attached_object.link_name = ee_link;
+    attached_object.object = generateCollisionObject(sx, sy, sz, x, y, z, ee_link, id);
+
+    return attached_object;
+}
 
 using std::placeholders::_1;
 
-class move_to_marker : public rclcpp::Node
-{
-  public:
-    move_to_marker() : Node("move_to_marker")
-    {
+class arm : public rclcpp::Node {
+public:
+    arm() : Node("arm") {
+      move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
 
-      // Initalise the transformation listener
-      tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
-      tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
-      // Look up the transformation ever 200 milliseconds
-      timer_ = this->create_wall_timer( std::chrono::milliseconds(5000), std::bind(&move_to_marker::tfCallback, this));
-
-
-      // Generate the movegroup interface
-      move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(
-          std::shared_ptr<rclcpp::Node>(this),
-          "ur_manipulator"
-      );
-
+      move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
+      move_group_interface->setPlanningTime(PLANNING_TIME);
+      move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
       move_group_interface->setPlannerId("TRRTkConfigDefault");
-      move_group_interface->setPlanningTime(5.0);
+      // move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      // move_group_interface->setPlannerId("RRTConnect");
+      //move_group_interface->setPlannerId("BKPIECEkConfigDefault");
+      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
       // Generate the objects to avoid
-      // Generate a table collision object based on the lab task
-      auto col_object_backWall = generateCollisionObject( 2.4, 0.04, 1.0, 0.85, -0.30, 0.5, frame_id, "backWall");
-      auto col_object_sideWall = generateCollisionObject( 0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall");
-      auto col_object_table = generateCollisionObject( 2.4, 1.2, 0.04, 0.90, 0.25, 0.02, frame_id, "table");
-
       moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-      // Apply table as a collision object
-      planning_scene_interface.applyCollisionObject(col_object_backWall);
-      planning_scene_interface.applyCollisionObject(col_object_sideWall);
-      planning_scene_interface.applyCollisionObject(col_object_table);
-
-    }
-
-  private:
-
-    void tfCallback()
-    {
-      // Check if the transformation is between "ball_frame" and "base_link" 
-      std::string fromFrameRel = "OOI_tf";
-      std::string toFrameRel = "base_link";
-      geometry_msgs::msg::TransformStamped t;
-
-      // PLACE LISTENER CODE HERE
-      try {
-          t = tf_buffer_->lookupTransform(toFrameRel, fromFrameRel, tf2::TimePointZero);
-      } catch (const tf2::TransformException & ex) {
-            RCLCPP_INFO( this->get_logger(), "Could not transform %s to %s: %s", toFrameRel.c_str(), fromFrameRel.c_str(), ex.what());
-            return;
-      }
-
-      std::cout << "transformation found" <<std::endl;
-      std::cout << " [ " << t.transform.translation.x << " , " << t.transform.translation.y << " , " << t.transform.translation.z << " ] " << std::endl;
-
-      moveit::planning_interface::MoveGroupInterface::Plan planMessage;
-
-
-      moveit_msgs::msg::OrientationConstraint orientation_constraint;
-      orientation_constraint.header.frame_id = move_group_interface->getPoseReferenceFrame();
-      orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
-
-      /*
-      tf2::Quaternion q;
-      q.setRPY(M_PI, 0, M_PI);
-      tf2::toMsg(q);
-      orientation_constraint.orientation = tf2::toMsg(q);
-      */
-
-      auto current_pose = move_group_interface->getCurrentPose();
-      orientation_constraint.orientation = current_pose.pose.orientation;
+      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 0.04, 1.0, 0.85, -0.30, 0.5, frame_id, "backWall"));
+      planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
+      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
+      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
       
-      orientation_constraint.absolute_x_axis_tolerance = 0.4;
-      orientation_constraint.absolute_y_axis_tolerance = 0.4;
-      orientation_constraint.absolute_z_axis_tolerance = 0.4;
-      orientation_constraint.weight = 1.0;
-      moveit_msgs::msg::Constraints orientation_constraints;
-      orientation_constraints.orientation_constraints.emplace_back(orientation_constraint);
-
-      auto const target_pose = generatePoseMsg(
-          t.transform.translation.x, 
-          t.transform.translation.y, 
-          t.transform.translation.z, 
-          current_pose.pose.orientation.x,
-          current_pose.pose.orientation.y,
-          current_pose.pose.orientation.z,
-          current_pose.pose.orientation.w
+      moveit_msgs::msg::AttachedCollisionObject attached_object;
+      attached_object.link_name = move_group_interface->getEndEffectorLink();
+      attached_object.object = generateCollisionObject(
+          0.1, 0.1, 0.15,
+          0.0, 0.0, 0.10,
+          attached_object.link_name,
+          "end_effector"
       );
-
-      // move_group_interface->setPathConstraints(orientation_constraints);
-      move_group_interface->setPoseTarget(target_pose);
-      // move_group_interface->setPlannerId("TRRTkConfigDefault");
-      move_group_interface->setPlannerId("RRTConnectkConfigDefault");
-      move_group_interface->setPathConstraints(orientation_constraints);
-      move_group_interface->setNumPlanningAttempts(10);
-      move_group_interface->setMaxAccelerationScalingFactor(0.1);
-      move_group_interface->setMaxVelocityScalingFactor(0.1);
-      move_group_interface->setPlanningTime(10.0);
-      move_group_interface->plan(planMessage);
+      planning_scene_interface.applyAttachedCollisionObject(attached_object);
     }
 
+private:
+  void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
+           std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
 
-  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
-  rclcpp::TimerBase::SharedPtr timer_;
-  std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
-  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+    geometry_msgs::msg::Pose target_pose = request->target_pose;
+    if (!request->move_home) target_pose.position.z = 0.2;
+    target_pose.orientation.x = 1.0;
+    target_pose.orientation.y = 0.0;
+    target_pose.orientation.z = 0.0;
+    target_pose.orientation.w = 0.0;
+
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+
+    move_group_interface->setStartStateToCurrentState();
+    move_group_interface->setPoseTarget(target_pose, "tool0");
+    moveit_msgs::msg::Constraints constraints = set_constraint();
+    move_group_interface->setPathConstraints(constraints);
+
+    bool success = false;
+    double planningTime = 0.1;
+    const double maxPlanningTime = 60.0;
+
+    while (!success && planningTime <= maxPlanningTime) {
+        move_group_interface->setPlanningTime(planningTime);
+        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
+        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        if (!success) {
+            planningTime *= 2;
+        }
+    }
+
+    response->success = success;
+    if (success) {
+      response->message = "Planning successful.";
+      move_group_interface->execute(plan);
+    } else {
+      response->message = "Planning failed.";
+    }
+
+    move_group_interface->clearPathConstraints();
+}
+
+  moveit_msgs::msg::Constraints set_constraint() { 
+    moveit_msgs::msg::Constraints constraints;
+    constraints.orientation_constraints.emplace_back(set_orientation_constraint());
+    return constraints;
+  }
+
+  moveit_msgs::msg::OrientationConstraint set_orientation_constraint() {
+    moveit_msgs::msg::OrientationConstraint orientation_constraint;
+
+    orientation_constraint.header.frame_id = move_group_interface->getPlanningFrame();
+    orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
+
+    // Absolute tolerances in RADIANS
+    orientation_constraint.absolute_x_axis_tolerance = 0.4;
+    orientation_constraint.absolute_y_axis_tolerance = 0.4; 
+    orientation_constraint.absolute_z_axis_tolerance = 3.14; 
+
+    orientation_constraint.weight = 1.0;
+
+    tf2::Quaternion q;
+    q.setRPY(M_PI, 0, 0);
+    orientation_constraint.orientation.x = q.x();
+    orientation_constraint.orientation.y = q.y();
+    orientation_constraint.orientation.z = q.z();
+    orientation_constraint.orientation.w = q.w();
+
+    return orientation_constraint;
+  }
+
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
+  rclcpp::Service<interfaces::srv::MoveArm>::SharedPtr move_request_;
 };
 
 
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<move_to_marker>());
+  rclcpp::spin(std::make_shared<arm>());
   rclcpp::shutdown();
   return 0;
 }

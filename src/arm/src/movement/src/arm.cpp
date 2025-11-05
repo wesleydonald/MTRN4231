@@ -1,20 +1,15 @@
 #include <memory>
+#include <rclcpp/rclcpp.hpp>
+#include "std_msgs/msg/string.hpp"
 #include <chrono>
 #include <functional>
 #include <string>
-#include <cmath>
-
-#include <rclcpp/rclcpp.hpp>
-#include "geometry_msgs/msg/pose_array.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "tf2/exceptions.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
-constexpr double PLANNING_TIME = 0.1;
-constexpr int PLANNING_ATTEMPTS = 500;
 
 //Function to generate a collision object
 auto generateCollisionObject(float sx,float sy, float sz, float x, float y, float z, std::string frame_id, std::string id) {
@@ -55,96 +50,75 @@ auto generatePoseMsg(float x,float y, float z,float qx,float qy,float qz,float q
     return msg;
 }
 
-auto generateAttachedEECollisionObject(
-    float sx, float sy, float sz, 
-    float x, float y, float z, 
-    std::string ee_link, std::string id) 
-{
-    moveit_msgs::msg::AttachedCollisionObject attached_object;
-
-    attached_object.link_name = ee_link;
-    attached_object.object = generateCollisionObject(sx, sy, sz, x, y, z, ee_link, id);
-
-    return attached_object;
-}
 
 using std::placeholders::_1;
 
-class arm : public rclcpp::Node {
-public:
-    arm() : Node("arm") {
+class move_to_marker : public rclcpp::Node
+{
+  public:
+    move_to_marker() : Node("move_to_marker")
+    {
 
       // Initalise the transformation listener
       tf_buffer_ = std::make_unique<tf2_ros::Buffer>(this->get_clock());
       tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-      pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces", 10, std::bind(&arm::piecesCallback, this, std::placeholders::_1));
 
-      // Look up the transformation every 200 milliseconds
-      timer_ = this->create_wall_timer( std::chrono::milliseconds(200), std::bind(&arm::tfCallback, this));
+      // Look up the transformation ever 200 milliseconds
+      timer_ = this->create_wall_timer( std::chrono::milliseconds(5000), std::bind(&move_to_marker::tfCallback, this));
 
-      move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
-      move_group_interface->setPlanningTime(PLANNING_TIME);
-      move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
-      // move_group_interface->setPlannerId("RRTConnectkConfigDefault");
-      // move_group_interface->setPlannerId("RRTConnect");
-      //move_group_interface->setPlannerId("BKPIECEkConfigDefault");
+
+      // Generate the movegroup interface
+      move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(
+          std::shared_ptr<rclcpp::Node>(this),
+          "ur_manipulator"
+      );
+
       move_group_interface->setPlannerId("TRRTkConfigDefault");
-      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
+      move_group_interface->setPlanningTime(5.0);
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
       // Generate the objects to avoid
+      // Generate a table collision object based on the lab task
+      auto col_object_backWall = generateCollisionObject( 2.4, 0.04, 1.0, 0.85, -0.30, 0.5, frame_id, "backWall");
+      auto col_object_sideWall = generateCollisionObject( 0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall");
+      auto col_object_table = generateCollisionObject( 2.4, 1.2, 0.04, 0.90, 0.25, 0.02, frame_id, "table");
+
       moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-      
-      // Apply collision objects
-      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 0.04, 1.0, 0.85, -0.30, 0.5, frame_id, "backWall"));
-      planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
-      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
-      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
-      
-      moveit_msgs::msg::AttachedCollisionObject attached_object;
-      attached_object.link_name = move_group_interface->getEndEffectorLink();
-      attached_object.object = generateCollisionObject(
-          0.1, 0.1, 0.15,
-          0.0, 0.0, 0.10,
-          attached_object.link_name,
-          "end_effector"
-      );
-      planning_scene_interface.applyAttachedCollisionObject(attached_object);
+      // Apply table as a collision object
+      planning_scene_interface.applyCollisionObject(col_object_backWall);
+      planning_scene_interface.applyCollisionObject(col_object_sideWall);
+      planning_scene_interface.applyCollisionObject(col_object_table);
 
       // moveToPose();
     }
 
-private:
+  private:
 
-  void moveToPose() {
-    auto current_pose = move_group_interface->getCurrentPose();
+    void tfCallback()
+    {
+      // Check if the transformation is between "ball_frame" and "base_link" 
+      std::string fromFrameRel = "OOI_tf";
+      std::string toFrameRel = "base_link";
+      geometry_msgs::msg::TransformStamped t;
 
-    auto target_pose = generatePoseMsg(
-       0.4, 0.2, 0.3,
-       1.0, 0.0, 0.0, 0.0 
-    );
+      // PLACE LISTENER CODE HERE
+      try {
+          t = tf_buffer_->lookupTransform(toFrameRel, fromFrameRel, tf2::TimePointZero);
+      } catch (const tf2::TransformException & ex) {
+            RCLCPP_INFO( this->get_logger(), "Could not transform %s to %s: %s", toFrameRel.c_str(), fromFrameRel.c_str(), ex.what());
+            return;
+      }
 
-    // Plan to that pose
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
+      std::cout << "transformation found" <<std::endl;
+      std::cout << " [ " << t.transform.translation.x << " , " << t.transform.translation.y << " , " << t.transform.translation.z << " ] " << std::endl;
 
-    move_group_interface->setStartStateToCurrentState();
-    move_group_interface->setPoseTarget(target_pose, "tool0");
-    moveit_msgs::msg::Constraints constraints = set_constraint();
-    move_group_interface->setPathConstraints(constraints);
+      moveit::planning_interface::MoveGroupInterface::Plan planMessage;
 
-    bool success = false;
-    double planningTime = 0.1;
-    const double maxPlanningTime = 60.0;
 
-    while (!success && planningTime <= maxPlanningTime) {
-        move_group_interface->setPlanningTime(planningTime);
-        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
-        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        if (!success) {
-            planningTime *= 2;
-        }
-    }
+      moveit_msgs::msg::OrientationConstraint orientation_constraint;
+      orientation_constraint.header.frame_id = move_group_interface->getPoseReferenceFrame();
+      orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
 
     if (success) {
       RCLCPP_INFO(this->get_logger(), "Planning successful, executing...");
@@ -197,52 +171,20 @@ private:
     moved = true;
 }
 
-  moveit_msgs::msg::Constraints set_constraint() { 
-    moveit_msgs::msg::Constraints constraints;
-    constraints.orientation_constraints.emplace_back(set_orientation_constraint());
-    return constraints;
-  }
-
-  moveit_msgs::msg::OrientationConstraint set_orientation_constraint() {
-    moveit_msgs::msg::OrientationConstraint orientation_constraint;
-
-    orientation_constraint.header.frame_id = move_group_interface->getPlanningFrame();
-    orientation_constraint.link_name = move_group_interface->getEndEffectorLink();
-
-    // Absolute tolerances in RADIANS
-    orientation_constraint.absolute_x_axis_tolerance = 0.4;
-    orientation_constraint.absolute_y_axis_tolerance = 0.4; 
-    orientation_constraint.absolute_z_axis_tolerance = 3.14; 
-
-    orientation_constraint.weight = 1.0;
-
-    tf2::Quaternion q;
-    q.setRPY(M_PI, 0, 0);
-    orientation_constraint.orientation.x = q.x();
-    orientation_constraint.orientation.y = q.y();
-    orientation_constraint.orientation.z = q.z();
-    orientation_constraint.orientation.w = q.w();
-
-    return orientation_constraint;
-  }
-
-  void piecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
-    if (!msg->poses.empty()) {
-        first_white_piece_ = msg->poses[0];  // Take the first white piece
-        has_target_ = true;
-        RCLCPP_INFO(this->get_logger(), "Received target piece at x: %.3f, y: %.3f, z: %.3f",
-                    first_white_piece_.position.x,
-                    first_white_piece_.position.y,
-                    first_white_piece_.position.z);
-        moveToTargetPiece();
+      // move_group_interface->setPathConstraints(orientation_constraints);
+      move_group_interface->setPoseTarget(target_pose);
+      // move_group_interface->setPlannerId("TRRTkConfigDefault");
+      move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      move_group_interface->setPathConstraints(orientation_constraints);
+      move_group_interface->setNumPlanningAttempts(10);
+      move_group_interface->setMaxAccelerationScalingFactor(0.1);
+      move_group_interface->setMaxVelocityScalingFactor(0.1);
+      move_group_interface->setPlanningTime(10.0);
+      move_group_interface->plan(planMessage);
     }
-  }
 
-  void tfCallback() {
-    // Check if the transformation is between "ball_frame" and "base_link" 
-  }
 
-  rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr pieces_sub_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription_;
   rclcpp::TimerBase::SharedPtr timer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_{nullptr};
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -256,7 +198,7 @@ private:
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<arm>());
+  rclcpp::spin(std::make_shared<move_to_marker>());
   rclcpp::shutdown();
   return 0;
 }

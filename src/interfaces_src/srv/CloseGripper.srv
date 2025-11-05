@@ -1,0 +1,5 @@
+# CloseGripper.srv
+bool close
+---
+bool success
+string message
