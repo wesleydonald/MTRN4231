@@ -1,0 +1,24 @@
+[0.729s] Invoking command in '/home/mtrn/MTRN4231-sherry_urdf/visualization': PYTHONPATH=/home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/visualization build --build-base /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/build install --record /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/install.log --single-version-externally-managed install_data
+[0.979s] running egg_info
+[0.979s] writing build/visualization/visualization.egg-info/PKG-INFO
+[0.980s] writing dependency_links to build/visualization/visualization.egg-info/dependency_links.txt
+[0.980s] writing entry points to build/visualization/visualization.egg-info/entry_points.txt
+[0.980s] writing requirements to build/visualization/visualization.egg-info/requires.txt
+[0.980s] writing top-level names to build/visualization/visualization.egg-info/top_level.txt
+[0.981s] reading manifest file 'build/visualization/visualization.egg-info/SOURCES.txt'
+[0.982s] writing manifest file 'build/visualization/visualization.egg-info/SOURCES.txt'
+[0.982s] running build
+[0.982s] running build_py
+[0.983s] copying visualization/attach_gripper.py -> /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/build/lib/visualization
+[0.983s] running install
+[0.983s] running install_lib
+[0.984s] copying /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/build/lib/visualization/attach_gripper.py -> /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization
+[0.984s] byte-compiling /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization/attach_gripper.py to attach_gripper.cpython-310.pyc
+[0.984s] running install_data
+[0.985s] running install_egg_info
+[0.986s] removing '/home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization-0.0.0-py3.10.egg-info' (and everything under it)
+[0.986s] Copying build/visualization/visualization.egg-info to /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization-0.0.0-py3.10.egg-info
+[0.987s] running install_scripts
+[1.006s] Installing attach_gripper script to /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/visualization
+[1.006s] writing list of installed files to '/home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/install.log'
+[1.036s] Invoked command in '/home/mtrn/MTRN4231-sherry_urdf/visualization' returned '0': PYTHONPATH=/home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated setup.py egg_info --egg-base build/visualization build --build-base /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/build install --record /home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/install.log --single-version-externally-managed install_data

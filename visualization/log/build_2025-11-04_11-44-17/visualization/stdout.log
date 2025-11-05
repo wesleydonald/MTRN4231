@@ -1,0 +1,20 @@
+running egg_info
+writing build/visualization/visualization.egg-info/PKG-INFO
+writing dependency_links to build/visualization/visualization.egg-info/dependency_links.txt
+writing entry points to build/visualization/visualization.egg-info/entry_points.txt
+writing requirements to build/visualization/visualization.egg-info/requires.txt
+writing top-level names to build/visualization/visualization.egg-info/top_level.txt
+reading manifest file 'build/visualization/visualization.egg-info/SOURCES.txt'
+writing manifest file 'build/visualization/visualization.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+copying launch/visualization.launch.py -> /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/share/visualization/launch
+running install_egg_info
+removing '/home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization-0.0.0-py3.10.egg-info' (and everything under it)
+Copying build/visualization/visualization.egg-info to /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/python3.10/site-packages/visualization-0.0.0-py3.10.egg-info
+running install_scripts
+Installing attach_gripper script to /home/mtrn/MTRN4231-sherry_urdf/visualization/install/visualization/lib/visualization
+writing list of installed files to '/home/mtrn/MTRN4231-sherry_urdf/visualization/build/visualization/install.log'

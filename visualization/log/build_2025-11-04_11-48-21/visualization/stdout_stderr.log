@@ -1,0 +1,7 @@
+running egg_info
+writing build/visualization/visualization.egg-info/PKG-INFO
+writing dependency_links to build/visualization/visualization.egg-info/dependency_links.txt
+writing entry points to build/visualization/visualization.egg-info/entry_points.txt
+writing requirements to build/visualization/visualization.egg-info/requires.txt
+writing top-level names to build/visualization/visualization.egg-info/top_level.txt
+error: package directory 'visualization/scripts' does not exist
