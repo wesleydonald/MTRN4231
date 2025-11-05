@@ -2,6 +2,7 @@ import rclpy
 import cv2
 import numpy as np
 import pyrealsense2 as rs
+import rclpy.duration
 from rclpy.node import Node
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image, CameraInfo
@@ -11,6 +12,8 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 import tf2_geometry_msgs
+from visualization_msgs.msg import Marker, MarkerArray
+from collections import Counter # Import Counter for finding most common detection
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -32,15 +35,28 @@ class ObjectRecognizer(Node):
         self.chessboard_pub = self.create_publisher(PointStamped, '/detected/chessboard', 10)
         self.pieces_pub = self.create_publisher(PoseArray, '/detected/pieces', 10)
         self.debug_image_pub = self.create_publisher(Image, '/debug_image', 10)
+<<<<<<< HEAD
 
         timer_period = 2  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
+=======
+        
+        # --- New Marker Publishers for RViz ---
+        self.chessboard_marker_pub = self.create_publisher(Marker, '/detected/chessboard_marker', 10)
+        self.pieces_marker_pub = self.create_publisher(MarkerArray, '/detected/pieces_markers', 10)
+        # --- End New Publishers ---
+
+        timer_period = 2  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.timer_period_duration_msg = rclpy.duration.Duration(seconds=timer_period * 1.5).to_msg() # Lifetime for markers
+>>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
         self.tf_broadcaster = TransformBroadcaster(self)
 
         self.cv_bridge = CvBridge()
         self.depth_image = None
         self.intrinsics = None
+<<<<<<< HEAD
         self.pieces_pose_array_all = []
         self.get_logger().info("Object Recognizer node has started.")
 
@@ -68,6 +84,66 @@ class ObjectRecognizer(Node):
             self.get_logger().info(f"Published no pieces.")
 
         self.pieces_pose_array_all = []
+=======
+        
+        # --- Modified state to store white and black pieces separately ---
+        self.detected_pieces_all = [] # Will store tuples of (white_pose_array, black_pose_array)
+        # --- End Modified state ---
+        
+        self.get_logger().info("Object Recognizer node has started.")
+
+    def timer_callback(self):
+        # --- Updated logic to find the most stable detection count ---
+        if not self.detected_pieces_all:
+            # Publish empty arrays to clear RViz if no detections
+            self.publish_piece_markers(PoseArray(), PoseArray())
+            self.pieces_pub.publish(PoseArray())
+            self.get_logger().info(f"Published no pieces (no detections).")
+            self.detected_pieces_all = [] # Clear list
+            return
+
+        # Find the most common *total* number of pieces detected
+        lengths = [len(wp.poses) + len(bp.poses) for wp, bp in self.detected_pieces_all]
+        if not lengths:
+             self.detected_pieces_all = [] # Clear list
+             return
+             
+        length_counts = Counter(lengths)
+        most_common_length = length_counts.most_common(1)[0][0]
+
+        best_white_pa = None
+        best_black_pa = None
+
+        # Find the first detection set that matches the most common count
+        for wp, bp in self.detected_pieces_all:
+            if len(wp.poses) + len(bp.poses) == most_common_length:
+                best_white_pa = wp
+                best_black_pa = bp
+                break
+
+        if best_white_pa is not None and best_black_pa is not None:
+            # Create a combined PoseArray for the original topic
+            combined_pa = PoseArray()
+            combined_pa.header.stamp = self.get_clock().now().to_msg()
+            combined_pa.header.frame_id = 'base_link'
+            combined_pa.poses.extend(best_white_pa.poses)
+            combined_pa.poses.extend(best_black_pa.poses)
+            
+            self.pieces_pub.publish(combined_pa)
+            
+            # Publish markers for RViz
+            self.publish_piece_markers(best_white_pa, best_black_pa)
+            
+            self.get_logger().info(f"Published {most_common_length} pieces.")
+        else:
+            # This case is unlikely if list wasn't empty, but good to handle
+            self.publish_piece_markers(PoseArray(), PoseArray())
+            self.pieces_pub.publish(PoseArray())
+            self.get_logger().info(f"Published no pieces (no best_pose_array found).")
+
+        self.detected_pieces_all = [] # Clear list for next cycle
+        # --- End Updated logic ---
+>>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
     def publish_static_transform(self):
         t = TransformStamped()
@@ -115,16 +191,30 @@ class ObjectRecognizer(Node):
             self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(debug_image, 'bgr8'))
             return
 
-        pieces_pose_array = PoseArray()
-        pieces_pose_array.header.stamp = self.get_clock().now().to_msg()
-        pieces_pose_array.header.frame_id = 'base_link'
+        # --- Create separate PoseArrays for white and black pieces ---
+        current_stamp = self.get_clock().now().to_msg()
+        
+        white_pieces_pa = PoseArray()
+        white_pieces_pa.header.stamp = current_stamp
+        white_pieces_pa.header.frame_id = 'base_link' # Poses are in base_link frame
+        
+        black_pieces_pa = PoseArray()
+        black_pieces_pa.header.stamp = current_stamp
+        black_pieces_pa.header.frame_id = 'base_link' # Poses are in base_link frame
 
-        self.find_white_pieces(cv_image, debug_image, pieces_pose_array)
-        self.find_black_pieces(cv_image, debug_image, pieces_pose_array)
+        self.find_white_pieces(cv_image, debug_image, white_pieces_pa)
+        self.find_black_pieces(cv_image, debug_image, black_pieces_pa)
+        # --- End PoseArray separation ---
 
+<<<<<<< HEAD
         #self.pieces_pub.publish(pieces_pose_array)
         #self.get_logger().info(f"Published {len(pieces_pose_array.poses)} pieces.")
         self.pieces_pose_array_all.append(pieces_pose_array)
+=======
+        # --- Store detections for timer callback to process ---
+        self.detected_pieces_all.append((white_pieces_pa, black_pieces_pa))
+        # --- End storage ---
+>>>>>>> ea993efef24448509e975f8a7262a0a5f21ed32f
 
         cv2.rectangle(cv_image_full, (x, y), (x+w, y+h), (255, 255, 0), 2)
         cv_image_full[y:y+h, x:x+w] = debug_image
@@ -149,6 +239,30 @@ class ObjectRecognizer(Node):
                     point_msg.header.frame_id = 'base_link'
                     point_msg.point = point_base_link
                     self.chessboard_pub.publish(point_msg)
+                    
+                    # --- Publish Chessboard Marker ---
+                    marker_msg = Marker()
+                    marker_msg.header.frame_id = 'base_link'
+                    marker_msg.header.stamp = point_msg.header.stamp
+                    marker_msg.ns = "chessboard"
+                    marker_msg.id = 0
+                    marker_msg.type = Marker.CUBE
+                    marker_msg.action = Marker.ADD
+                    marker_msg.pose.position = point_base_link
+                    marker_msg.pose.orientation.x = 0.0
+                    marker_msg.pose.orientation.y = 0.0
+                    marker_msg.pose.orientation.z = 0.0
+                    marker_msg.pose.orientation.w = 1.0
+                    marker_msg.scale.x = 0.3 # 30cm
+                    marker_msg.scale.y = 0.3 # 30cm
+                    marker_msg.scale.z = 0.01 # 1cm thick
+                    marker_msg.color.r = 0.0
+                    marker_msg.color.g = 1.0
+                    marker_msg.color.b = 0.0
+                    marker_msg.color.a = 0.5 # Semi-transparent
+                    marker_msg.lifetime = self.timer_period_duration_msg
+                    self.chessboard_marker_pub.publish(marker_msg)
+                    # --- End Marker Publish ---
                     
                     coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
                     cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -179,9 +293,15 @@ class ObjectRecognizer(Node):
         mask = cv2.inRange(hsv, lower_black, upper_black)
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
-            if 100 < cv2.contourArea(cnt) < 2000:
-                area, hull_area = cv2.contourArea(cnt), cv2.contourArea(cv2.convexHull(cnt))
-                solidity = float(area) / hull_area if hull_area > 0 else 0
+            area = cv2.contourArea(cnt) # Get area first
+            if 100 < area < 2000: # Check area
+                hull = cv2.convexHull(cnt) # Get convex hull
+                hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
+
+                solidity = 0.0 # Initialize solidity
+                if hull_area > 0: # Now this comparison should be safe
+                    solidity = float(area) / hull_area
+                
                 if 0.4 < solidity < 0.7:
                     cv2.drawContours(debug_image, [cnt], -1, (0, 0, 255), 2)
                     M = cv2.moments(cnt)
@@ -197,11 +317,85 @@ class ObjectRecognizer(Node):
                             coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
 
+    # --- New Helper Function to Publish Piece Markers ---
+    def publish_piece_markers(self, white_pa, black_pa):
+        marker_array = MarkerArray()
+        current_stamp = self.get_clock().now().to_msg()
+        
+        # Add a DELETEALL marker for white pieces to clear old ones
+        delete_marker_white = Marker()
+        delete_marker_white.header.frame_id = 'base_link'
+        delete_marker_white.header.stamp = current_stamp
+        delete_marker_white.ns = "white_pieces"
+        delete_marker_white.id = 0 # ID 0 for deleteall
+        delete_marker_white.action = Marker.DELETEALL
+        marker_array.markers.append(delete_marker_white)
+        
+        # Add a DELETEALL marker for black pieces to clear old ones
+        delete_marker_black = Marker()
+        delete_marker_black.header.frame_id = 'base_link'
+        delete_marker_black.header.stamp = current_stamp
+        delete_marker_black.ns = "black_pieces"
+        delete_marker_black.id = 0 # ID 0 for deleteall
+        delete_marker_black.action = Marker.DELETEALL
+        marker_array.markers.append(delete_marker_black)
+
+        # Add white piece markers
+        for i, pose in enumerate(white_pa.poses):
+            marker = Marker()
+            marker.header.frame_id = 'base_link'
+            marker.header.stamp = current_stamp
+            marker.ns = "white_pieces"
+            marker.id = i + 1 # Start IDs from 1 to avoid conflict with deleteall
+            marker.type = Marker.CYLINDER
+            marker.action = Marker.ADD
+            marker.pose = pose
+            marker.scale.x = 0.03 # 3cm diameter
+            marker.scale.y = 0.03 # 3cm diameter
+            marker.scale.z = 0.05 # 5cm height
+            marker.color.r = 1.0
+            marker.color.g = 1.0
+            marker.color.b = 1.0
+            marker.color.a = 1.0
+            marker.lifetime = self.timer_period_duration_msg
+            marker_array.markers.append(marker)
+
+        # Add black piece markers
+        offset_id = len(white_pa.poses) + 1
+        for i, pose in enumerate(black_pa.poses):
+            marker = Marker()
+            marker.header.frame_id = 'base_link'
+            marker.header.stamp = current_stamp
+            marker.ns = "black_pieces"
+            marker.id = i + offset_id
+            marker.type = Marker.CYLINDER
+            marker.action = Marker.ADD
+            marker.pose = pose
+            marker.scale.x = 0.03 # 3cm diameter
+            marker.scale.y = 0.03 # 3cm diameter
+            marker.scale.z = 0.05 # 5cm height
+            marker.color.r = 0.1
+            marker.color.g = 0.1
+            marker.color.b = 0.1
+            marker.color.a = 1.0
+            marker.lifetime = self.timer_period_duration_msg
+            marker_array.markers.append(marker)
+            
+        self.pieces_marker_pub.publish(marker_array)
+    # --- End New Helper Function ---
+
     def get_3d_point_and_broadcast_tf(self, u_roi, v_roi, frame_id):
         roi_x, roi_y, _, _ = self.roi
         u_full, v_full = u_roi + roi_x, v_roi + roi_y
+        
+        # Check image bounds
+        if not (0 <= v_full < self.depth_image.shape[0] and 0 <= u_full < self.depth_image.shape[1]):
+            self.get_logger().warn(f"Pixel ({u_full}, {v_full}) for {frame_id} out of bounds.")
+            return None
+            
         depth = self.depth_image[v_full, u_full]
         if depth == 0:
+            self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({u_full}, {v_full}).")
             return None
 
         point_3d_camera = rs.rs2_deproject_pixel_to_point(self.intrinsics, [u_full, v_full], depth / 1000.0)
@@ -212,7 +406,8 @@ class ObjectRecognizer(Node):
         point_camera.point.x, point_camera.point.y, point_camera.point.z = point_3d_camera
 
         try:
-            transform = self.tf_buffer.lookup_transform('base_link', 'camera_color_optical_frame', rclpy.time.Time())
+            # Wait for the transform to be available
+            transform = self.tf_buffer.lookup_transform('base_link', 'camera_color_optical_frame', rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=0.1))
             point_world = tf2_geometry_msgs.do_transform_point(point_camera, transform)
         except Exception as e:
             self.get_logger().error(f"Could not transform point for {frame_id}: {e}")
@@ -231,9 +426,13 @@ class ObjectRecognizer(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = ObjectRecognizer()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
