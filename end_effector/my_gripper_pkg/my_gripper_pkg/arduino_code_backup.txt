@@ -1,0 +1,54 @@
+// This code is for the ARDUINO
+
+#include <Servo.h> // Include the servo library
+
+Servo myGripperServo; // Create a servo object
+
+// --- Gripper Positions ---
+// You will need to change these numbers!
+// Find these by testing what numbers make your gripper
+// fully open and fully closed.
+int OPEN_POSITION = 120; // Angle for "open"
+int CLOSE_POSITION = 30; // Angle for "closed"
+// -------------------------
+
+void setup() {
+  // Start the serial connection at 9600 baud (must match your Python script)
+  Serial.begin(9600); 
+
+  // Attach the servo to pin 9
+  myGripperServo.attach(9);
+  
+  // Start with the gripper open
+  release(); 
+}
+
+void loop() {
+  // Check if there is any data from the computer
+  if (Serial.available() > 0) {
+    // Read the incoming command as a string, removing whitespace
+    String command = Serial.readString();
+    command.trim();
+
+    // Check what the command is
+    if (command == "GRASP") {
+      grasp();
+    } 
+    else if (command == "RELEASE") {
+      release();
+    }
+    // You can add more commands here, like "HOME", "TEST", etc.
+  }
+}
+
+// --- Gripper Functions ---
+
+void grasp() {
+  // Send the "grasp" command to the servo
+  myGripperServo.write(CLOSE_POSITION); 
+}
+
+void release() {
+  // Send the "release" command to the servo
+  myGripperServo.write(OPEN_POSITION);
+}
