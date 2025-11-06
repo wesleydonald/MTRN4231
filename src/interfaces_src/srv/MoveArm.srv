@@ -1,6 +1,0 @@
-# MoveArm.srv
-geometry_msgs/Pose target_pose
-bool move_home
----
-bool success
-string message

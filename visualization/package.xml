@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>visualization</name>
   <version>0.0.0</version>
+<<<<<<< HEAD:visualization/package.xml
   <description>TODO: Package description</description>
   <maintainer email="nickojbell@gmail.com">mtrn</maintainer>
   <license>TODO: License declaration</license>
@@ -21,8 +21,22 @@
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
   <test_depend>python3-pytest</test_depend>
+=======
+  <description>Visualisation node for chess/tic-tac-toe robot markers in RViz</description>
+  <maintainer email="wesleydonaldnz@gmail.com">mtrn</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+>>>>>>> 619cb0053a64f2e6119de0a67633fc1b15b5f9e8:tictactoe-bot/src/visualisation/package.xml
 
   <export>
-    <build_type>ament_python</build_type>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>
