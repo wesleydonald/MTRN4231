@@ -33,22 +33,24 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 * Wesley
 
 ### Bugs/TODOs
-- TODO: (Brain Node) Make sure the gripper node can handle error cases such as when the robot fails to plan a valid path
-- TODO: (CV Node) The computer vision node should detect unknown objects, publish them to a topic and the arm node should subscribe to dyamically create obstacles.
 - TODO: (Arm Node)The arm planning is still way too slow ~1 minute to make a move and get back home, need to speed this up.
-- TODO: (Brain Node) The robot should lift the piece higher off the ground before moving to place it.
+- TODO: (Arm Node) Stop the z axis rotating during movements.
+- TODO: (Arm Node) I wonder if there is a way to preplan paths like query moveit in advance to speed up the process.
 - TODO: (Arm Node) Still shows the attached object geometry (found this really hard to remove).
+- TODO: (Brain Node) The robot should lift the piece higher off the ground before moving to place it.
 - TODO: (Brain Node) Increase the cell size to factor in borders ~110mm instead of ~100mm.
+- TODO: (Brain Node) Make sure the gripper node can handle error cases such as when the robot fails to plan a valid path.
 - TODO: (End Effector Node) Ensure there is protections against closing or opening the gripper twice in a row.
 - TODO: (End Effector Node) Make the marker dynamically update to show the robot picking up a piece in rviz.
 - TODO: (End Effector Node) Currently the GripperOpen.stl file is in the wrong orientation (not sure why) so need to fix that.
-- TODO: (README) Make sure all the publisher/subscriber relationships show the message types. (Maybe making custom types could decrease the number of publisher/subscriber relationships we need.
-- TODO: (General) Write a script to simplify the startup process (instead of running each package in a new terminal) need one for in and out of the lab.
 - TODO: (Simulation) Change the comment in the simulator node (currently its just the brain nodes comment).
 - TODO: (Simulation) Make sure the simulation node doesn't run when we are in the lab.
+- TODO: (CV Node) The computer vision node should detect unknown objects, publish them to a topic and the arm node should subscribe to dyamically create obstacles.
+- TODO: (General) Write a script to simplify the startup process (instead of running each package in a new terminal) need one for in and out of the lab.
 - TODO: (General) Change "chessboard" to "board" everywhere.
 - TODO: (General) Account for the fact that the board can start at any rotation (assume it doesnt move during the game though).
 - TODO: (README) Write up the computer vision and depth camera sections.
+- TODO: (README) Make sure all the publisher/subscriber relationships show the message types. Maybe making custom types could decrease the number of publisher/subscriber relationships we need.
 
 ### Recent Updates
 - [Date][Name] feature.
