@@ -18,10 +18,13 @@ from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 from visualization_msgs.msg import Marker, MarkerArray
 
 # CONSTANTS
-BLACK_PIECE_COLOUR_THRESHOLD = 85
-BLACK_PIECE_MIN_AREA = 350
-BLACK_PIECE_MAX_AREA = 1300
-BLACK_PIECE_MIN_SOLIDITY = 0.40
+BLACK_PIECE_COLOUR_THRESHOLD = 60
+BLACK_PIECE_MIN_AREA = 200
+BLACK_PIECE_MAX_AREA = 1000
+BLACK_PIECE_MIN_SOLIDITY = 0.60
+BLACK_PIECE_ERODE_KERNEL_SIZE = 5
+BLACK_PIECE_DILATE_KERNEL_SIZE = 5
+BLACK_PIECE_BLUR_SIZE = 3
 
 WHITE_PIECE_MIN_AREA = 500
 WHITE_PIECE_MAX_AREA = 2500
@@ -29,9 +32,12 @@ WHITE_PIECE_MIN_SOLIDITY = 0.85
 WHITE_PIECE_COLOUR_MIN = 210
 WHITE_DILATION_KERNEL_SIZE = 9
 
-BOARD_COLOUR_THRESHOLD_MAX = 75
+BOARD_COLOUR_THRESHOLD_MAX = 80
 BOARD_COLOUR_THRESHOLD_MIN = 0
-BOARD_ERODE_KERNEL_SIZE = 1
+BOARD_ERODE_KERNEL_SIZE = 5
+BOARD_MEDIAN_BLUR = 5
+BOARD_GAUSSIAN_BLUR = 5
+BOARD_MIN_AREA = 3500
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -226,16 +232,21 @@ class ObjectRecognizer(Node):
 
         kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
         mask = cv2.erode(mask, kernel, iterations=1)
-        mask = cv2.medianBlur(mask, 11)
+        mask = cv2.medianBlur(mask, BOARD_MEDIAN_BLUR)
+        mask = cv2.GaussianBlur(mask, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
 
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        edges = cv2.Canny(mask, 100, 200, apertureSize=3)
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        bgr_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        cv2.drawContours(bgr_image, contours, -1, (0, 255, 0), 2)
 
         # Debugging
-        self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+        self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(bgr_image, 'bgr8'))
 
         if contours:
             largest_contour = max(contours, key=cv2.contourArea)
-            if cv2.contourArea(largest_contour) > 5000:
+            if cv2.contourArea(largest_contour) > BOARD_MIN_AREA:
                 x, y, w, h = cv2.boundingRect(largest_contour)
                 cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 center_x, center_y = x + w // 2, y + h // 2
@@ -270,20 +281,16 @@ class ObjectRecognizer(Node):
         return None
 
     def find_white_pieces(self, image, debug_image, pose_array):
-        # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        # circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1, 20, param1=50, param2=30, minRadius=10, maxRadius=40)
-
+        # HSV Seems to work quite well for white instead of grayscale, not sure why
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         lower_white = np.array([0, 0, WHITE_PIECE_COLOUR_MIN])
         upper_white = np.array([179, 255, 255])
         mask = cv2.inRange(hsv, lower_white, upper_white)
 
+        # Filtering and Smoothing 
         kernel = np.ones((WHITE_DILATION_KERNEL_SIZE,WHITE_DILATION_KERNEL_SIZE), np.uint8)
-        # Apply dilation
         mask = cv2.dilate(mask, kernel, iterations=1)
         mask = cv2.medianBlur(mask, 21)
-
-        circles = cv2.HoughCircles(mask, cv2.HOUGH_GRADIENT, dp=1.5, minDist=100, param1=80, param2=30, minRadius=10, maxRadius=75)
 
         self.debug_white_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
 
@@ -314,10 +321,16 @@ class ObjectRecognizer(Node):
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
     def find_black_pieces(self, image, debug_image, pose_array):
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        lower_black = np.array([0, 0, 0])
-        upper_black = np.array([179, 255, BLACK_PIECE_COLOUR_THRESHOLD])
-        mask = cv2.inRange(hsv, lower_black, upper_black)
+        # Image processing
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Threshold to detect black
+        _, mask = cv2.threshold(gray, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
+        erode_kernel = np.ones((BLACK_PIECE_ERODE_KERNEL_SIZE, BLACK_PIECE_ERODE_KERNEL_SIZE), np.uint8)
+        dilate_kernel = np.ones((BLACK_PIECE_DILATE_KERNEL_SIZE,BLACK_PIECE_DILATE_KERNEL_SIZE), np.uint8)
+        mask = cv2.erode(mask, erode_kernel, iterations=1)
+        mask = cv2.dilate(mask, dilate_kernel, iterations=1)
+        mask = cv2.medianBlur(mask, BLACK_PIECE_BLUR_SIZE)
 
         # Debugging
         self.debug_black_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
