@@ -35,9 +35,10 @@ WHITE_DILATION_KERNEL_SIZE = 9
 BOARD_COLOUR_THRESHOLD_MAX = 80
 BOARD_COLOUR_THRESHOLD_MIN = 0
 BOARD_ERODE_KERNEL_SIZE = 5
+BOARD_DILATE_KERNEL_SIZE = 3
 BOARD_MEDIAN_BLUR = 5
 BOARD_GAUSSIAN_BLUR = 5
-BOARD_MIN_AREA = 3500
+BOARD_MIN_AREA = 2500
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -232,10 +233,12 @@ class ObjectRecognizer(Node):
 
         kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
         mask = cv2.erode(mask, kernel, iterations=1)
+        kernel = np.ones((BOARD_DILATE_KERNEL_SIZE, BOARD_DILATE_KERNEL_SIZE), np.uint8)
+        mask = cv2.dilate(mask, kernel, iterations=1)
         mask = cv2.medianBlur(mask, BOARD_MEDIAN_BLUR)
         mask = cv2.GaussianBlur(mask, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
 
-        edges = cv2.Canny(mask, 100, 200, apertureSize=3)
+        edges = cv2.Canny(mask, 50, 150, apertureSize=3)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         bgr_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
@@ -244,10 +247,20 @@ class ObjectRecognizer(Node):
         # Debugging
         self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(bgr_image, 'bgr8'))
 
+        # Calculate the convex hull area for each contour (min sized convex polygon)
+        # to find the largest one which should be the board
         if contours:
-            largest_contour = max(contours, key=cv2.contourArea)
-            if cv2.contourArea(largest_contour) > BOARD_MIN_AREA:
-                x, y, w, h = cv2.boundingRect(largest_contour)
+            hull_sizes = []
+            for cnt in contours:
+                hull = cv2.convexHull(cnt) # Get convex hull
+                hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
+                hull_sizes.append(hull_area) 
+
+            # Get the largest convex hull contour
+            largest_hull_cnt = contours[hull_sizes.index(max(hull_sizes))]
+
+            if cv2.contourArea(largest_hull_cnt) > BOARD_MIN_AREA:
+                x, y, w, h = cv2.boundingRect(largest_hull_cnt)
                 cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 center_x, center_y = x + w // 2, y + h // 2
                 point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
