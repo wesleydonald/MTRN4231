@@ -39,6 +39,8 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
+constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+
 class Brain : public rclcpp::Node {
 public:
   Brain() : Node("brain_node"), game_state_(PLAYER_TURN) {
@@ -55,7 +57,7 @@ public:
         RCLCPP_INFO(get_logger(), "Arm service not available, waiting...");
     }
     gripper_client_ = this->create_client<interfaces::srv::CloseGripper>("gripper_service");
-    while (!gripper_client_->wait_for_service(std::chrono::seconds(1))) {
+    while (!gripper_client_->wait_for_service(std::chrono::seconds(1)) && using_gripper) {
         RCLCPP_INFO(get_logger(), "Gripper service not available, waiting...");
     }
     RCLCPP_INFO(this->get_logger(), "Brain node started and waiting for game input...");
@@ -72,8 +74,7 @@ public:
 private:
   void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
     board_origin_ = *msg;
-    RCLCPP_INFO_ONCE(get_logger(),
-                     "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
+    RCLCPP_INFO_ONCE(get_logger(), "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
   }
 
   void blackPiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
@@ -107,8 +108,8 @@ private:
         }
     }
 
-    RCLCPP_INFO(get_logger(), "White pieces on board: %zu, off board: %zu",
-                last_white_on_board_.size(), last_white_off_board_.size());
+    //RCLCPP_INFO(get_logger(), "White pieces on board: %zu, off board: %zu",
+    //           last_white_on_board_.size(), last_white_off_board_.size());
   }
 
   // Movement logic
@@ -117,7 +118,7 @@ private:
       game_state_ = ROBOT_TURN;
 
       int computerMove = game_play_->findBestMove();
-      RCLCPP_INFO(get_logger(), "AI selected move %d", computerMove);
+      RCLCPP_INFO(get_logger(), "Computer selected move %d", computerMove);
 
       moveRobotToCell(computerMove);
       game_play_->makeMove(computerMove, TicTacToe::WHITE);
@@ -167,8 +168,8 @@ private:
     double cell_x = (cell_index % 3 - 1) * TicTacToe::CELL_SIZE;
     double cell_y = (cell_index / 3 - 1) * TicTacToe::CELL_SIZE;
     target_cell_ = target_piece_;
-    target_cell_.position.x += cell_x;
-    target_cell_.position.y += cell_y;
+    target_cell_.position.x = board_origin_.point.x - cell_x;
+    target_cell_.position.y = board_origin_.point.y - cell_y;
 
     current_action_ = MOVE_TO_PICK;
     sendArmRequest(target_piece_, false);
@@ -188,18 +189,31 @@ private:
         current_action_ = IDLE;
         return;
     }
+    RCLCPP_INFO(get_logger(), "Arm move succeeded: %s", response->message.c_str());
 
     switch (current_action_) {
         case MOVE_TO_PICK:
             RCLCPP_INFO(get_logger(), "Reached piece, closing gripper");
             current_action_ = CLOSE_GRIPPER;
-            sendGripperRequest(true);
+            if (using_gripper) {
+                sendGripperRequest(true);
+            }
+            else {
+                current_action_ = MOVE_TO_PLACE;
+                sendArmRequest(target_cell_, false);
+            }
             break;
 
         case MOVE_TO_PLACE:
             RCLCPP_INFO(get_logger(), "Reached target cell, opening gripper");
             current_action_ = OPEN_GRIPPER;
-            sendGripperRequest(false);
+            if (using_gripper) {
+                sendGripperRequest(false);
+            } else {
+                current_action_ = MOVE_TO_HOME;
+                sendArmRequest(home_pose_, true);
+                game_state_ = PLAYER_TURN;
+            }
             break;
 
         case MOVE_TO_HOME:

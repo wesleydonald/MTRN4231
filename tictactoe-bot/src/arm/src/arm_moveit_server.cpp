@@ -56,19 +56,6 @@ auto generatePoseMsg(float x,float y, float z,float qx,float qy,float qz,float q
     return msg;
 }
 
-auto generateAttachedEECollisionObject(
-    float sx, float sy, float sz, 
-    float x, float y, float z, 
-    std::string ee_link, std::string id) 
-{
-    moveit_msgs::msg::AttachedCollisionObject attached_object;
-
-    attached_object.link_name = ee_link;
-    attached_object.object = generateCollisionObject(sx, sy, sz, x, y, z, ee_link, id);
-
-    return attached_object;
-}
-
 using std::placeholders::_1;
 
 class arm : public rclcpp::Node {
