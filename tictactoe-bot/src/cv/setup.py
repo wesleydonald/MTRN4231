@@ -23,7 +23,7 @@ setup(
     extras_require={'test': ['pytest']},
     entry_points={
         'console_scripts': [
-             'object_recognizer = cv.object_recognizer:main',
+             'object_detection = cv.object_detection:main',
         ],
     },
 )

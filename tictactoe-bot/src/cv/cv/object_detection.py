@@ -40,6 +40,13 @@ BOARD_MEDIAN_BLUR = 5
 BOARD_GAUSSIAN_BLUR = 5
 BOARD_MIN_AREA = 2500
 
+ROI_TOP = 0.1
+ROI_BOTTOM = 0.8
+ROI_LEFT_TOP = 0.4
+ROI_LEFT_BOTTOM = 0.3
+ROI_RIGHT_TOP = 0.98
+ROI_RIGHT_BOTTOM = 1
+
 class ObjectRecognizer(Node):
     def __init__(self):
         super().__init__('object_recognizer')
@@ -47,7 +54,7 @@ class ObjectRecognizer(Node):
         self.static_tf_broadcaster = StaticTransformBroadcaster(self)
         self.publish_static_transform()
 
-        self.roi = [250, 50, 300, 400]  # Format: [x_start, y_start, width, height]
+        # self.roi = [250, 50, 300, 400]  # Format: [x_start, y_start, width, height]
 
         # Tf listener
         self.tf_buffer = Buffer()
@@ -59,7 +66,7 @@ class ObjectRecognizer(Node):
         self.cam_info_sub = self.create_subscription( CameraInfo, '/camera/camera/aligned_depth_to_color/camera_info', self.info_callback,10)
 
         # Publishers
-        self.debug_image_pub = self.create_publisher(Image, '/debug/image', 10)
+        self.debug_image_pub = self.create_publisher(Image, '/debug/detection_image', 10)
         self.debug_black_piece_pub = self.create_publisher(Image, '/debug/black_piece_detection', 10)
         self.debug_white_piece_pub = self.create_publisher(Image, '/debug/white_piece_detection', 10)
         self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
@@ -189,12 +196,25 @@ class ObjectRecognizer(Node):
         if self.depth_image is None or self.intrinsics is None:
             return
 
-        cv_image_full = self.cv_bridge.imgmsg_to_cv2(msg, 'bgr8')
-        x, y, w, h = self.roi
-        cv_image = cv_image_full[y:y+h, x:x+w]
-        debug_image = cv_image.copy()
+        # Image from the depth camera
+        camera_img = self.cv_bridge.imgmsg_to_cv2(msg, 'bgr8')
+        img_height, img_width = camera_img.shape[:2]
 
-        board_center_roi = self.find_board(cv_image, debug_image)
+        # Only detect items within the ROI (calibrated to be the table space)
+        trapezoid_vertices = np.array([
+            [(int(img_width * ROI_LEFT_BOTTOM), img_height * ROI_BOTTOM),     # Bottom-left
+            (int(img_width * ROI_LEFT_TOP), int(img_height * ROI_TOP)), # Top-left
+            (int(img_width * ROI_RIGHT_TOP), int(img_height * ROI_TOP)), # Top-right
+            (int(img_width * ROI_RIGHT_BOTTOM), img_height * ROI_BOTTOM)]    # Bottom-right
+        ], dtype=np.int32)
+
+        roi_mask = np.zeros((img_height, img_width), dtype=np.uint8)
+        cv2.fillPoly(roi_mask, trapezoid_vertices, 255)
+        # roi_img = cv2.bitwise_and(camera_img, camera_img, mask=roi_mask)
+
+        debug_image = camera_img.copy()
+
+        board_center_roi = self.find_board(camera_img, roi_mask, debug_image)
 
         if board_center_roi is None:
             self.get_logger().warn("No board detected in the ROI.")
@@ -212,36 +232,50 @@ class ObjectRecognizer(Node):
         black_pieces_pa.header.stamp = current_stamp
         black_pieces_pa.header.frame_id = 'base_link' # Poses are in base_link frame
 
-        self.find_white_pieces(cv_image, debug_image, white_pieces_pa)
-        self.find_black_pieces(cv_image, debug_image, black_pieces_pa)
+        self.find_white_pieces(camera_img, roi_mask, debug_image, white_pieces_pa)
+        self.find_black_pieces(camera_img, roi_mask, debug_image, black_pieces_pa)
         # --- End PoseArray separation ---
 
         # --- Store detections for timer callback to process ---
         self.detected_pieces_all.append((white_pieces_pa, black_pieces_pa))
         # --- End storage ---
 
-        cv2.rectangle(cv_image_full, (x, y), (x+w, y+h), (255, 255, 0), 2)
-        cv_image_full[y:y+h, x:x+w] = debug_image
-        self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_image_full, 'bgr8'))
+        # Draw the polygon outline
+        # Arguments: image, vertices, closed=True, color=(Blue, Green, Red), thickness=2
+        cv2.polylines(
+            debug_image,
+            trapezoid_vertices,
+            isClosed=True,
+            color=(0, 255, 0),  # Green BGR color
+            thickness=4
+        )
 
-    def find_board(self, image, debug_image):
-        # Image processing
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        # cv2.rectangle(cv_image_full, (x, y), (x+w, y+h), (255, 255, 0), 2)
+        # cv_image_full[y:y+h, x:x+w] = debug_image
+        self.debug_image_pub.publish(self.cv_bridge.cv2_to_imgmsg(debug_image, 'bgr8'))
+
+    def find_board(self, camera_img, roi_mask, debug_image):
 
         # Threshold to detect black
-        _, mask = cv2.threshold(gray, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
+        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
+        _, cv_img = cv2.threshold(cv_img, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
 
+        # Apply ROI to make area outside ROI black
+        cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
+
+        # Image processing to remove noise and smooth
         kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
-        mask = cv2.erode(mask, kernel, iterations=1)
+        cv_img = cv2.erode(cv_img, kernel, iterations=1)
         kernel = np.ones((BOARD_DILATE_KERNEL_SIZE, BOARD_DILATE_KERNEL_SIZE), np.uint8)
-        mask = cv2.dilate(mask, kernel, iterations=1)
-        mask = cv2.medianBlur(mask, BOARD_MEDIAN_BLUR)
-        mask = cv2.GaussianBlur(mask, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
+        cv_img = cv2.dilate(cv_img, kernel, iterations=1)
+        cv_img = cv2.medianBlur(cv_img, BOARD_MEDIAN_BLUR)
+        cv_img = cv2.GaussianBlur(cv_img, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
 
-        edges = cv2.Canny(mask, 50, 150, apertureSize=3)
+        # Edge / contour detection
+        edges = cv2.Canny(cv_img, 50, 150, apertureSize=3)
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        bgr_image = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        bgr_image = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2BGR)
         cv2.drawContours(bgr_image, contours, -1, (0, 255, 0), 2)
 
         # Debugging
@@ -293,21 +327,24 @@ class ObjectRecognizer(Node):
                 return (center_x, center_y)
         return None
 
-    def find_white_pieces(self, image, debug_image, pose_array):
+    def find_white_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # HSV Seems to work quite well for white instead of grayscale, not sure why
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
         lower_white = np.array([0, 0, WHITE_PIECE_COLOUR_MIN])
         upper_white = np.array([179, 255, 255])
-        mask = cv2.inRange(hsv, lower_white, upper_white)
+        cv_img = cv2.inRange(cv_img, lower_white, upper_white)
+
+        # Apply ROI to make area outside ROI black
+        cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Filtering and Smoothing 
         kernel = np.ones((WHITE_DILATION_KERNEL_SIZE,WHITE_DILATION_KERNEL_SIZE), np.uint8)
-        mask = cv2.dilate(mask, kernel, iterations=1)
-        mask = cv2.medianBlur(mask, 21)
+        cv_img = cv2.dilate(cv_img, kernel, iterations=1)
+        cv_img = cv2.medianBlur(cv_img, 21)
 
-        self.debug_white_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+        self.debug_white_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_img, 'mono8'))
 
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(cv_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
             area = cv2.contourArea(cnt) # Get area first
             if WHITE_PIECE_MIN_AREA < area < WHITE_PIECE_MAX_AREA: # Check area
@@ -333,22 +370,25 @@ class ObjectRecognizer(Node):
                             coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
-    def find_black_pieces(self, image, debug_image, pose_array):
+    def find_black_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # Image processing
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
+        _, cv_img = cv2.threshold(cv_img, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
+
+        # Apply ROI to make area outside ROI black
+        cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Threshold to detect black
-        _, mask = cv2.threshold(gray, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
         erode_kernel = np.ones((BLACK_PIECE_ERODE_KERNEL_SIZE, BLACK_PIECE_ERODE_KERNEL_SIZE), np.uint8)
         dilate_kernel = np.ones((BLACK_PIECE_DILATE_KERNEL_SIZE,BLACK_PIECE_DILATE_KERNEL_SIZE), np.uint8)
-        mask = cv2.erode(mask, erode_kernel, iterations=1)
-        mask = cv2.dilate(mask, dilate_kernel, iterations=1)
-        mask = cv2.medianBlur(mask, BLACK_PIECE_BLUR_SIZE)
+        cv_img = cv2.erode(cv_img, erode_kernel, iterations=1)
+        cv_img = cv2.dilate(cv_img, dilate_kernel, iterations=1)
+        cv_img = cv2.medianBlur(cv_img, BLACK_PIECE_BLUR_SIZE)
 
         # Debugging
-        self.debug_black_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(mask, 'mono8'))
+        self.debug_black_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_img, 'mono8'))
 
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(cv_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for i, cnt in enumerate(contours):
             area = cv2.contourArea(cnt) # Get area first
             if BLACK_PIECE_MIN_AREA < area < BLACK_PIECE_MAX_AREA: # Check area
@@ -439,26 +479,27 @@ class ObjectRecognizer(Node):
         self.pieces_marker_pub.publish(marker_array)
     # --- End New Helper Function ---
 
-    def get_3d_point_and_broadcast_tf(self, u_roi, v_roi, frame_id):
-        roi_x, roi_y, _, _ = self.roi
-        u_full, v_full = u_roi + roi_x, v_roi + roi_y
+    def get_3d_point_and_broadcast_tf(self, x_px, y_px, frame_id):
         
         # Check image bounds
-        if not (0 <= v_full < self.depth_image.shape[0] and 0 <= u_full < self.depth_image.shape[1]):
-            self.get_logger().warn(f"Pixel ({u_full}, {v_full}) for {frame_id} out of bounds.")
+        depth_height, depth_width = self.depth_image.shape[:2]
+        self.get_logger().warn(f"Depth image width ({depth_width}, height {depth_height}). Img x {x_px} Img y {y_px}.")
+
+        if not (0 <= y_px < depth_height and 0 <= x_px < depth_width):
+            self.get_logger().warn(f"Pixel ({x_px}, {y_px}) for {frame_id} out of bounds.")
             return None
             
-        depth = self.depth_image[v_full, u_full]
+        depth = self.depth_image[y_px, x_px]
         if depth == 0:
-            self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({u_full}, {v_full}).")
+            self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({x_px}, {y_px}).")
             return None
 
-        point_3d_camera = rs.rs2_deproject_pixel_to_point(self.intrinsics, [u_full, v_full], depth / 1000.0)
+        point_3d_camera = rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
 
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
         point_camera.header.frame_id = 'camera_color_optical_frame'
-        point_camera.point.x = point_3d_camera[0]
+        point_camera.point.x = point_3d_camera[0] - 0.038 # Offset for x (given from labs, may need tuning)
         point_camera.point.y = point_3d_camera[1]
         point_camera.point.z = point_3d_camera[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
 
