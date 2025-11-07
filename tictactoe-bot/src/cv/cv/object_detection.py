@@ -483,7 +483,6 @@ class ObjectRecognizer(Node):
         
         # Check image bounds
         depth_height, depth_width = self.depth_image.shape[:2]
-        self.get_logger().warn(f"Depth image width ({depth_width}, height {depth_height}). Img x {x_px} Img y {y_px}.")
 
         if not (0 <= y_px < depth_height and 0 <= x_px < depth_width):
             self.get_logger().warn(f"Pixel ({x_px}, {y_px}) for {frame_id} out of bounds.")

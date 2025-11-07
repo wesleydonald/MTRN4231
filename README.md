@@ -125,11 +125,37 @@ Used for custom messages and services.
 
 ### Computer Vision
 
-TODO
+Object detection and pose approximation using the depth camera. Subscribes to the depth camera information then publishes piece and baord markers to the calculated pose of the pieces and board.
+
+Subscribes to:
+  - `/camera/camera/color/image_raw`
+  - `/camera/camera/aligned_depth_to_color/image_raw`
+  - `/camera/camera/aligned_depth_to_color/camera_info`
+
+Publishes to:
+  - `/detected/white_markers` (marker array)
+  - `/detected/black_markers` (marker array)
+  - `/detected/board_marker` (single marker)
+  - `/detected/gripper_marker` (single marker)
+
+To run the object detection and realsense camera setup (best for real robot) use:
+
+``` bash
+ros2 launch cv cv_real.launch.py
+```
+
+To run the object detection on its own and provide video manaully (best for simulation) use:
+``` bash
+ros2 run cv object_detection.py
+```
 
 ### Depth Camera
 
-TODO
+Realsense camera launch script: 
+
+```
+ros2 launch realsense2_camera rs_launch.py align_depth.enable:=true enable_color:=true enable_depth:=true
+```
 
 ## Feature Overview
 
