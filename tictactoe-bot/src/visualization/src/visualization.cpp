@@ -1,7 +1,7 @@
 /*
 VISUALISATION NODE -> Publishes markers to rviz for system visualisation
 
-SUBSCRIBES TO  -> /detected/chessboard (point_stamped message?)
+SUBSCRIBES TO  -> /detected/board (point_stamped message?)
                -> /detected/white/pieces (pose array)
                -> /detected/black/pieces (pose array)
 
@@ -35,7 +35,7 @@ class Visualisation : public rclcpp::Node {
 public:
   Visualisation() : Node("visualisation") {
     // Subscriptions
-    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/chessboard", 10, std::bind(&Visualisation::boardCallback, this, std::placeholders::_1));
+    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Visualisation::boardCallback, this, std::placeholders::_1));
     white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/white/pieces", 10, std::bind(&Visualisation::whitePiecesCallback, this, std::placeholders::_1));
     black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/black/pieces", 10, std::bind(&Visualisation::blackPiecesCallback, this, std::placeholders::_1));
 
@@ -68,7 +68,7 @@ private:
     marker.id = id;
     marker.type = visualization_msgs::msg::Marker::MESH_RESOURCE;
 
-    marker.mesh_resource = "package://visualisation/meshes/" + mesh_file;  // e.g. "GripperOpen.stl"
+    marker.mesh_resource = "package://visualization/meshes/" + mesh_file;  // e.g. "GripperOpen.stl"
     marker.action = visualization_msgs::msg::Marker::ADD;
 
     marker.pose.position.x = x;

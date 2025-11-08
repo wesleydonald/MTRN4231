@@ -71,7 +71,7 @@ class ObjectRecognizer(Node):
         self.debug_white_piece_pub = self.create_publisher(Image, '/debug/white_piece_detection', 10)
         self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
         # (object positions)
-        self.board_pose_pub = self.create_publisher(PointStamped, '/detected/board', 10)
+        self.board_point_pub = self.create_publisher(PointStamped, '/detected/board', 10)
         self.white_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/white', 10)
         self.black_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
@@ -95,8 +95,7 @@ class ObjectRecognizer(Node):
         # --- Updated logic to find the most stable detection count ---
         if not self.detected_pieces_all:
             # Publish empty arrays to clear RViz if no detections
-            self.publish_piece_markers(PoseArray(), PoseArray())
-            # self.pieces_pub.publish(PoseArray())
+            self.white_pieces_posearray_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no detections).")
             self.detected_pieces_all = [] # Clear list
             return
@@ -128,16 +127,12 @@ class ObjectRecognizer(Node):
             combined_pa.poses.extend(best_white_pa.poses)
             combined_pa.poses.extend(best_black_pa.poses)
             
-            # self.pieces_pub.publish(combined_pa)
-            
-            # Publish markers for RViz
-            self.publish_piece_markers(best_white_pa, best_black_pa)
+            self.white_pieces_posearray_pub.publish(combined_pa)
             
             self.get_logger().info(f"Published {most_common_length} pieces.")
         else:
             # This case is unlikely if list wasn't empty, but good to handle
-            self.publish_piece_markers(PoseArray(), PoseArray())
-            # self.pieces_pub.publish(PoseArray())
+            self.white_pieces_posearray_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no best_pose_array found).")
 
         self.detected_pieces_all = [] # Clear list for next cycle
@@ -195,17 +190,17 @@ class ObjectRecognizer(Node):
         camera_img = self.cv_bridge.imgmsg_to_cv2(msg, 'bgr8')
         img_height, img_width = camera_img.shape[:2]
 
-        # Only detect items within the ROI (calibrated to be the table space)
+        # Only detect items within the ROI (calibrated to be the table space),
+        # the mask is passed to the detection functions as it needs to be applied after 
+        # colour thresholding to work properly.
         trapezoid_vertices = np.array([
             [(int(img_width * ROI_LEFT_BOTTOM), img_height * ROI_BOTTOM),     # Bottom-left
             (int(img_width * ROI_LEFT_TOP), int(img_height * ROI_TOP)), # Top-left
             (int(img_width * ROI_RIGHT_TOP), int(img_height * ROI_TOP)), # Top-right
             (int(img_width * ROI_RIGHT_BOTTOM), img_height * ROI_BOTTOM)]    # Bottom-right
         ], dtype=np.int32)
-
         roi_mask = np.zeros((img_height, img_width), dtype=np.uint8)
         cv2.fillPoly(roi_mask, trapezoid_vertices, 255)
-        # roi_img = cv2.bitwise_and(camera_img, camera_img, mask=roi_mask)
 
         debug_image = camera_img.copy()
 
@@ -296,9 +291,10 @@ class ObjectRecognizer(Node):
 
                 if point_base_link:
                     point_msg = PointStamped()
-                    point_msg.header = point_base_link.header
-                    point_msg.position = point_base_link.position
-                    self.board_pose_pub(point_msg)
+                    point_msg.header.stamp = self.get_clock().now().to_msg()
+                    point_msg.header.frame_id = 'base_link'
+                    point_msg.point = point_base_link
+                    self.board_point_pub.publish(point_msg)
                     
                     coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
                     cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -391,71 +387,6 @@ class ObjectRecognizer(Node):
                             pose_array.poses.append(pose)
                             coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
-
-    # --- New Helper Function to Publish Piece Markers ---
-    def publish_piece_markers(self, white_pa, black_pa):
-        marker_array = MarkerArray()
-        current_stamp = self.get_clock().now().to_msg()
-        
-        # Add a DELETEALL marker for white pieces to clear old ones
-        delete_marker_white = Marker()
-        delete_marker_white.header.frame_id = 'base_link'
-        delete_marker_white.header.stamp = current_stamp
-        delete_marker_white.ns = "white_pieces"
-        delete_marker_white.id = 0 # ID 0 for deleteall
-        delete_marker_white.action = Marker.DELETEALL
-        marker_array.markers.append(delete_marker_white)
-        
-        # Add a DELETEALL marker for black pieces to clear old ones
-        delete_marker_black = Marker()
-        delete_marker_black.header.frame_id = 'base_link'
-        delete_marker_black.header.stamp = current_stamp
-        delete_marker_black.ns = "black_pieces"
-        delete_marker_black.id = 0 # ID 0 for deleteall
-        delete_marker_black.action = Marker.DELETEALL
-        marker_array.markers.append(delete_marker_black)
-
-        # Add white piece markers
-        for i, pose in enumerate(white_pa.poses):
-            marker = Marker()
-            marker.header.frame_id = 'base_link'
-            marker.header.stamp = current_stamp
-            marker.ns = "white_pieces"
-            marker.id = i + 1 # Start IDs from 1 to avoid conflict with deleteall
-            marker.type = Marker.CYLINDER
-            marker.action = Marker.ADD
-            marker.pose = pose
-            marker.scale.x = 0.03 # 3cm diameter
-            marker.scale.y = 0.03 # 3cm diameter
-            marker.scale.z = 0.05 # 5cm height
-            marker.color.r = 1.0
-            marker.color.g = 1.0
-            marker.color.b = 1.0
-            marker.color.a = 1.0
-            marker_array.markers.append(marker)
-
-        # Add black piece markers
-        offset_id = len(white_pa.poses) + 1
-        for i, pose in enumerate(black_pa.poses):
-            marker = Marker()
-            marker.header.frame_id = 'base_link'
-            marker.header.stamp = current_stamp
-            marker.ns = "black_pieces"
-            marker.id = i + offset_id
-            marker.type = Marker.CYLINDER
-            marker.action = Marker.ADD
-            marker.pose = pose
-            marker.scale.x = 0.03 # 3cm diameter
-            marker.scale.y = 0.03 # 3cm diameter
-            marker.scale.z = 0.05 # 5cm height
-            marker.color.r = 0.1
-            marker.color.g = 0.1
-            marker.color.b = 0.1
-            marker.color.a = 1.0
-            marker_array.markers.append(marker)
-            
-        self.pieces_marker_pub.publish(marker_array)
-    # --- End New Helper Function ---
 
     def get_3d_point_and_broadcast_tf(self, x_px, y_px, frame_id):
         
