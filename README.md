@@ -65,9 +65,9 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 Controls the ur5 to play a game of tictactoe. The idea is we are in the PLAYER_TURN state until we see a piece has moved onto the board. Then we calculate the best move. We then enter the ROBOT_TURN state where we send a service request to the arm to move to a certain x, y ocation. When we recieve the completed response from the arm node we send a service request to the gripper node to close the gripper. Then a similar thing for lifting the piece and placing it on the board. Lastly we return to home_pose and wait for the next move. A TicTacToe class is implemented for the gameplay logic. NOTE THIS NODE IS NOT FULLY TESTED.
 
 Subscribes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 A client to:
   - gripper node
@@ -100,9 +100,9 @@ Assumptions
 Publishes markers to rviz for system visualisation. Currently this node just publishes the markers and end effector to their positions. Will later add a more dynamic visualisation that can show the piece being picked up with the end effector (exciting).
 
 Subscribes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 Publishes to:
   - /tictactoe/white_markers (marker array)
@@ -114,9 +114,9 @@ Publishes to:
 This package publishes to the board and pieces topic, so we can use this when we are out of the lab. A timer can be used to "move a piece" which can then test that the visualisation and brain node is working I think this will be useful for future developments as well.
 
 Publishes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 ### Interfaces
 
@@ -135,9 +135,9 @@ Object detection and pose approximation using the depth camera. Subscribes to th
 
 #### Publishers -
 **Detection**
-  - `/detected/white_markers` (marker array)
-  - `/detected/black_markers` (marker array)
-  - `/detected/board_marker` (single marker)
+  - `/detected/board` (point)
+  - `/detected/pieces/white` (pose array)
+  - `/detected/pieces/black` (pose marker)
 
 **Debugging**
   - `/debug/white_piece_detection` (image)
