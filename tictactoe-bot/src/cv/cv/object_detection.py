@@ -72,8 +72,8 @@ class ObjectRecognizer(Node):
         self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
         # (object positions)
         self.board_point_pub = self.create_publisher(PointStamped, '/detected/board', 10)
-        self.white_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/white', 10)
-        self.black_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
+        self.white_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/white', 10)
+        self.black_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
         # Update the position of the broadcasted markers
         timer_period = 0.5  # seconds
@@ -95,7 +95,7 @@ class ObjectRecognizer(Node):
         # --- Updated logic to find the most stable detection count ---
         if not self.detected_pieces_all:
             # Publish empty arrays to clear RViz if no detections
-            self.white_pieces_posearray_pub.publish(PoseArray())
+            self.white_pieces_pose_array_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no detections).")
             self.detected_pieces_all = [] # Clear list
             return
@@ -120,19 +120,25 @@ class ObjectRecognizer(Node):
                 break
 
         if best_white_pa is not None and best_black_pa is not None:
-            # Create a combined PoseArray for the original topic
-            combined_pa = PoseArray()
-            combined_pa.header.stamp = self.get_clock().now().to_msg()
-            combined_pa.header.frame_id = 'base_link'
-            combined_pa.poses.extend(best_white_pa.poses)
-            combined_pa.poses.extend(best_black_pa.poses)
-            
-            self.white_pieces_posearray_pub.publish(combined_pa)
+            # Publish white pieces pose array
+            white_pieces_pose_array = PoseArray()
+            white_pieces_pose_array.header.stamp = self.get_clock().now().to_msg()
+            white_pieces_pose_array.header.frame_id = 'base_link'
+            white_pieces_pose_array.poses.extend(best_white_pa.poses)
+            self.white_pieces_pose_array_pub.publish(white_pieces_pose_array)
+
+            # Publish black pieces pose array
+            black_pieces_pose_array = PoseArray()
+            black_pieces_pose_array.header.stamp = self.get_clock().now().to_msg()
+            black_pieces_pose_array.header.frame_id = 'base_link'
+            black_pieces_pose_array.poses.extend(best_black_pa.poses)
+            self.black_pieces_pose_array_pub.publish(black_pieces_pose_array)
             
             self.get_logger().info(f"Published {most_common_length} pieces.")
         else:
             # This case is unlikely if list wasn't empty, but good to handle
-            self.white_pieces_posearray_pub.publish(PoseArray())
+            self.white_pieces_pose_array_pub.publish(PoseArray())
+            self.black_pieces_pose_array_pub.publish(PoseArray())
             self.get_logger().info(f"Published no pieces (no best_pose_array found).")
 
         self.detected_pieces_all = [] # Clear list for next cycle

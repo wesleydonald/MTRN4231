@@ -36,8 +36,8 @@ public:
   Visualisation() : Node("visualisation") {
     // Subscriptions
     board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Visualisation::boardCallback, this, std::placeholders::_1));
-    white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/white/pieces", 10, std::bind(&Visualisation::whitePiecesCallback, this, std::placeholders::_1));
-    black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/black/pieces", 10, std::bind(&Visualisation::blackPiecesCallback, this, std::placeholders::_1));
+    white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10, std::bind(&Visualisation::whitePiecesCallback, this, std::placeholders::_1));
+    black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10, std::bind(&Visualisation::blackPiecesCallback, this, std::placeholders::_1));
 
     // Publishers
     white_piece_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("tictactoe/white_markers", 1);
