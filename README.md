@@ -54,6 +54,7 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 
 ### Recent Updates
 - [Date][Name] feature.
+- [Week 8 Friday][Ryan] Updated CV to use more effective detection methods, resulting in smoother pose estimation for pieces.
 - [Week 8 Thu][Wesley] Created the simulation package to tested the brain and visualisation nodes.
 - [Week 8 Wed][Wesley] Created the visualisation package to represented the system in rviz.
 - [Week 8 Tue][Wesley] Created the brain package to implement gameplay logic and control the system.
@@ -127,16 +128,22 @@ Used for custom messages and services.
 
 Object detection and pose approximation using the depth camera. Subscribes to the depth camera information then publishes piece and baord markers to the calculated pose of the pieces and board.
 
-Subscribes to:
+#### Subscribers -  
   - `/camera/camera/color/image_raw`
   - `/camera/camera/aligned_depth_to_color/image_raw`
   - `/camera/camera/aligned_depth_to_color/camera_info`
 
-Publishes to:
+#### Publishers -
+**Detection**
   - `/detected/white_markers` (marker array)
   - `/detected/black_markers` (marker array)
   - `/detected/board_marker` (single marker)
-  - `/detected/gripper_marker` (single marker)
+
+**Debugging**
+  - `/debug/white_piece_detection` (image)
+  - `/debug/black_piece_detection` (image)
+  - `/debug/board_detection` (image)
+  - `/debug/detection_image` (image)
 
 To run the object detection and realsense camera setup (best for real robot) use:
 

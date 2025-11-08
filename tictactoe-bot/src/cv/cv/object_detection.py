@@ -10,7 +10,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseArray, Point
+from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseStamped, PoseArray 
 from tf2_ros import TransformBroadcaster
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
@@ -60,18 +60,20 @@ class ObjectRecognizer(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        # Subscribers
+        # Subscribers (depth camera info)
         self.image_sub = self.create_subscription( Image, '/camera/camera/color/image_raw', self.image_callback, 10)
         self.point_cloud_sub = self.create_subscription( Image, '/camera/camera/aligned_depth_to_color/image_raw', self.depth_callback, 10)
         self.cam_info_sub = self.create_subscription( CameraInfo, '/camera/camera/aligned_depth_to_color/camera_info', self.info_callback,10)
 
-        # Publishers
+        # Publishers (debug images)
         self.debug_image_pub = self.create_publisher(Image, '/debug/detection_image', 10)
         self.debug_black_piece_pub = self.create_publisher(Image, '/debug/black_piece_detection', 10)
         self.debug_white_piece_pub = self.create_publisher(Image, '/debug/white_piece_detection', 10)
         self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
-        self.board_marker_pub = self.create_publisher(Marker, '/detected/board_marker', 10)
-        self.pieces_marker_pub = self.create_publisher(MarkerArray, '/detected/pieces_markers', 10)
+        # (object positions)
+        self.board_pose_pub = self.create_publisher(PointStamped, '/detected/board', 10)
+        self.white_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/white', 10)
+        self.black_pieces_posearray_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
         # Update the position of the broadcasted markers
         timer_period = 0.5  # seconds
@@ -185,13 +187,6 @@ class ObjectRecognizer(Node):
             self.get_logger().error(f"Error in point_cloud_callback: {str(e)}")
 
 
-    def pixel_2_global(self, pixel_pt):
-        if self.depth_image is not None and self.intrinsics is not None:
-            [x,y,z] = rs.rs2_deproject_pixel_to_point(self.intrinsics, (pixel_pt[0],pixel_pt[1] ), self.depth_image[pixel_pt[0],pixel_pt[1] ]*0.001)
-            return [x, y,z]
-        else:
-            return None
-
     def image_callback(self, msg):
         if self.depth_image is None or self.intrinsics is None:
             return
@@ -298,29 +293,12 @@ class ObjectRecognizer(Node):
                 cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 center_x, center_y = x + w // 2, y + h // 2
                 point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
+
                 if point_base_link:
-                    # --- Publish board Marker ---
-                    marker_msg = Marker()
-                    marker_msg.header.frame_id = 'base_link'
-                    marker_msg.header.stamp = self.get_clock().now().to_msg()
-                    marker_msg.ns = "board"
-                    marker_msg.id = 0
-                    marker_msg.type = Marker.CUBE
-                    marker_msg.action = Marker.ADD
-                    marker_msg.pose.position = point_base_link
-                    marker_msg.pose.orientation.x = 0.0
-                    marker_msg.pose.orientation.y = 0.0
-                    marker_msg.pose.orientation.z = 0.0
-                    marker_msg.pose.orientation.w = 1.0
-                    marker_msg.scale.x = 0.3 # 30cm
-                    marker_msg.scale.y = 0.3 # 30cm
-                    marker_msg.scale.z = 0.01 # 1cm thick
-                    marker_msg.color.r = 0.0
-                    marker_msg.color.g = 1.0
-                    marker_msg.color.b = 0.0
-                    marker_msg.color.a = 0.5 # Semi-transparent
-                    self.board_marker_pub.publish(marker_msg)
-                    # --- End Marker Publish ---
+                    point_msg = PointStamped()
+                    point_msg.header = point_base_link.header
+                    point_msg.position = point_base_link.position
+                    self.board_pose_pub(point_msg)
                     
                     coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
                     cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
