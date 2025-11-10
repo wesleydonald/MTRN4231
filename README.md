@@ -54,6 +54,7 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 
 ### Recent Updates
 - [Date][Name] feature.
+- [Week 8 Friday][Ryan] Updated CV to use more effective detection methods, resulting in smoother pose estimation for pieces.
 - [Week 8 Thu][Wesley] Created the simulation package to tested the brain and visualisation nodes.
 - [Week 8 Wed][Wesley] Created the visualisation package to represented the system in rviz.
 - [Week 8 Tue][Wesley] Created the brain package to implement gameplay logic and control the system.
@@ -64,9 +65,9 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 Controls the ur5 to play a game of tictactoe. The idea is we are in the PLAYER_TURN state until we see a piece has moved onto the board. Then we calculate the best move. We then enter the ROBOT_TURN state where we send a service request to the arm to move to a certain x, y ocation. When we recieve the completed response from the arm node we send a service request to the gripper node to close the gripper. Then a similar thing for lifting the piece and placing it on the board. Lastly we return to home_pose and wait for the next move. A TicTacToe class is implemented for the gameplay logic. NOTE THIS NODE IS NOT FULLY TESTED.
 
 Subscribes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 A client to:
   - gripper node
@@ -99,9 +100,9 @@ Assumptions
 Publishes markers to rviz for system visualisation. Currently this node just publishes the markers and end effector to their positions. Will later add a more dynamic visualisation that can show the piece being picked up with the end effector (exciting).
 
 Subscribes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 Publishes to:
   - /tictactoe/white_markers (marker array)
@@ -113,9 +114,9 @@ Publishes to:
 This package publishes to the board and pieces topic, so we can use this when we are out of the lab. A timer can be used to "move a piece" which can then test that the visualisation and brain node is working I think this will be useful for future developments as well.
 
 Publishes to:
-  - /detected/chessboard
-  - /detected/white/pieces
-  - /detected/black/pieces
+  - /detected/board
+  - /detected/pieces/white
+  - /detected/pieces/black
 
 ### Interfaces
 
@@ -125,11 +126,43 @@ Used for custom messages and services.
 
 ### Computer Vision
 
-TODO
+Object detection and pose approximation using the depth camera. Subscribes to the depth camera information then publishes piece and baord markers to the calculated pose of the pieces and board.
+
+#### Subscribers -  
+  - `/camera/camera/color/image_raw`
+  - `/camera/camera/aligned_depth_to_color/image_raw`
+  - `/camera/camera/aligned_depth_to_color/camera_info`
+
+#### Publishers -
+**Detection**
+  - `/detected/board` (point)
+  - `/detected/pieces/white` (pose array)
+  - `/detected/pieces/black` (pose marker)
+
+**Debugging**
+  - `/debug/white_piece_detection` (image)
+  - `/debug/black_piece_detection` (image)
+  - `/debug/board_detection` (image)
+  - `/debug/detection_image` (image)
+
+To run the object detection and realsense camera setup (best for real robot) use:
+
+``` bash
+ros2 launch cv cv_real.launch.py
+```
+
+To run the object detection on its own and provide video manaully (best for simulation) use:
+``` bash
+ros2 run cv object_detection.py
+```
 
 ### Depth Camera
 
-TODO
+Realsense camera launch script: 
+
+```
+ros2 launch realsense2_camera rs_launch.py align_depth.enable:=true enable_color:=true enable_depth:=true
+```
 
 ## Feature Overview
 

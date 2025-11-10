@@ -2,7 +2,7 @@
 SIMULATOR NODE -> Publishes piece and board locations when away from the lab
                   used for testing other packages.
 
-PUBLISHES TO   -> /detected/chessboard
+PUBLISHES TO   -> /detected/board
                -> /detected/white/pieces
                -> /detected/black/pieces
 
@@ -30,9 +30,9 @@ class Simulator : public rclcpp::Node {
 public:
   Simulator() : Node("simulator") {
     // Publishers
-    board_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>("/detected/chessboard", 10);
-    white_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/white/pieces", 10);
-    black_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/black/pieces", 10);
+    board_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>("/detected/board", 10);
+    white_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10);
+    black_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10);
 
     // Timer
     timer_ = this->create_wall_timer(500ms, std::bind(&Simulator::timer_callback, this));
