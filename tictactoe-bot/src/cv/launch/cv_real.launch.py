@@ -16,7 +16,7 @@ def generate_launch_description():
       }.items()
     ),
     Node(
-        package='computer_vision',
+        package='cv',
         namespace='',
         executable='object_detection',
         name='cv'
