@@ -76,7 +76,7 @@ class ObjectRecognizer(Node):
         self.black_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
         # Update the position of the broadcasted markers
-        timer_period = 0.5  # seconds
+        timer_period = 2  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -253,8 +253,13 @@ class ObjectRecognizer(Node):
     def find_board(self, camera_img, roi_mask, debug_image):
 
         # Threshold to detect black
-        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
-        _, cv_img = cv2.threshold(cv_img, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
+        # cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
+        # _, cv_img = cv2.threshold(cv_img, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
+
+        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
+        lower = np.array([80, 200, 90])
+        upper = np.array([120, 255, 180])
+        cv_img = cv2.inRange(cv_img, lower, upper)
 
         # Apply ROI to make area outside ROI black
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
@@ -352,8 +357,13 @@ class ObjectRecognizer(Node):
 
     def find_black_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # Image processing
-        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
-        _, cv_img = cv2.threshold(cv_img, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
+        # cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
+        # _, cv_img = cv2.threshold(cv_img, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
+
+        cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
+        lower = np.array([60, 100, 0])
+        upper = np.array([130, 230, 130])
+        cv_img = cv2.inRange(cv_img, lower, upper)
 
         # Apply ROI to make area outside ROI black
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
@@ -413,7 +423,7 @@ class ObjectRecognizer(Node):
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
         point_camera.header.frame_id = 'camera_color_optical_frame'
-        point_camera.point.x = point_3d_camera[0] - 0.038 # Offset for x (given from labs, may need tuning)
+        point_camera.point.x = point_3d_camera[0] # - 0.038 # Offset for x (given from labs, may need tuning)
         point_camera.point.y = point_3d_camera[1]
         point_camera.point.z = point_3d_camera[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
 

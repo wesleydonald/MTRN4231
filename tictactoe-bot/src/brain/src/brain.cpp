@@ -47,9 +47,9 @@ public:
     game_play_ = std::make_unique<TicTacToe>();
 
     // Subscriptions for board and pieces
-    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/chessboard", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1));
-    white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/white/pieces", 10, std::bind(&Brain::whitePiecesCallback, this, std::placeholders::_1));
-    black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/black/pieces", 10, std::bind(&Brain::blackPiecesCallback, this, std::placeholders::_1));
+    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1));
+    white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10, std::bind(&Brain::whitePiecesCallback, this, std::placeholders::_1));
+    black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10, std::bind(&Brain::blackPiecesCallback, this, std::placeholders::_1));
 
     // Clients
     arm_client_ = this->create_client<interfaces::srv::MoveArm>("arm_service");

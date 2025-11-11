@@ -26,10 +26,13 @@ ament_target_dependencies(brain
   interfaces
 )
 
-
 # --- install targets ---
 install(TARGETS brain
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}/
 )
 
 # --- ament package ---
