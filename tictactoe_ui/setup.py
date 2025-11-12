@@ -1,0 +1,28 @@
+from setuptools import setup, find_packages
+import os
+from glob import glob
+
+package_name = 'tictactoe_ui'
+
+setup(
+    name=package_name,
+    version='0.0.1',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='Your Name',
+    maintainer_email='you@email.com',
+    description='Python GUI package for the Tic-Tac-Toe robot.',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'gui_node = tictactoe_ui.gui_node:main',
+        ],
+    },
+)
