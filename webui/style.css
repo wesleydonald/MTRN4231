@@ -1,0 +1,86 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+h1, h2 {
+    color: #1a535c;
+    border-bottom: 2px solid #f9a03f;
+    padding-bottom: 5px;
+}
+
+.status-box {
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.status-box span.connected {
+    color: #2a9d8f;
+}
+
+.status-box span.disconnected {
+    color: #e76f51;
+}
+
+.controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f9a03f;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #e88c2b;
+}
+
+button.danger {
+    background-color: #e76f51;
+}
+
+button.danger:hover {
+    background-color: #d65c3e;
+}
+
+.metrics-box {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.metrics-box p {
+    font-size: 1.1em;
+    line-height: 1.5;
+}
+
+.metrics-box strong {
+    color: #1a535c;
+    font-size: 1.2em;
+}
+
+#game-status {
+    font-size: 1.2em;
+    font-style: italic;
+    font-weight: bold;
+    color: #4e8d7c;
+}
