@@ -38,7 +38,7 @@ class Gripper(Node):
         super().__init__('gripper_node')
 
         try:
-            self.serial_port = serial.Serial('/dev/ttyUSB0', 9600)
+            self.serial_port = serial.Serial('/dev/ttyS4', 9600)
             self.serial_connected = True
             self.get_logger().info("Serial port opened successfully")
         except SerialException:
@@ -46,7 +46,7 @@ class Gripper(Node):
             self.serial_connected = False
             self.get_logger().warn("Arduino not connected")
 
-        self.srv = self.create_service(CloseGripper, 'end_effector_srv', self.handle_end_effector_command)
+        self.srv = self.create_service(CloseGripper, 'gripper_service', self.handle_end_effector_command)
 
     def handle_end_effector_command(self, request, response):
         command = request.command.strip().lower()

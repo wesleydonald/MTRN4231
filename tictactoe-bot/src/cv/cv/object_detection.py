@@ -2,6 +2,7 @@ import rclpy
 import cv2
 import tf2_ros
 import os
+import time
 import numpy as np
 import pyrealsense2 as rs
 import tf2_geometry_msgs
@@ -415,7 +416,7 @@ class ObjectRecognizer(Node):
             
         depth = self.depth_image[y_px, x_px]
         if depth == 0:
-            self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({x_px}, {y_px}).")
+            # self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({x_px}, {y_px}).")
             return None
 
         point_3d_camera = rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
@@ -446,6 +447,7 @@ class ObjectRecognizer(Node):
         return point_world.point
 
 def main(args=None):
+    time.sleep(5)
     rclpy.init(args=args)
     node = ObjectRecognizer()
     try:

@@ -100,7 +100,7 @@ private:
     auto current_pose = move_group_interface->getCurrentPose();
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    if (!request->move_home) target_pose.position.z = 0.2;
+    if (!request->move_home) target_pose.position.z = 0.27;
     target_pose.orientation.x = 1.0;
     target_pose.orientation.y = 0.0;
     target_pose.orientation.z = 0.0;

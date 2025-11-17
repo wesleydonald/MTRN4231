@@ -39,7 +39,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -57,7 +57,7 @@ public:
         RCLCPP_INFO(get_logger(), "Arm service not available, waiting...");
     }
     gripper_client_ = this->create_client<interfaces::srv::CloseGripper>("gripper_service");
-    while (!gripper_client_->wait_for_service(std::chrono::seconds(1)) && using_gripper) {
+    while ((!gripper_client_->wait_for_service(std::chrono::seconds(1))) && using_gripper) {
         RCLCPP_INFO(get_logger(), "Gripper service not available, waiting...");
     }
     RCLCPP_INFO(this->get_logger(), "Brain node started and waiting for game input...");
@@ -69,6 +69,8 @@ public:
     home_pose_.orientation.y = 0.0;
     home_pose_.orientation.z = 0.0;
     home_pose_.orientation.w = 0.0;
+
+    sendArmRequest(home_pose_, true);
   }
 
 private:
