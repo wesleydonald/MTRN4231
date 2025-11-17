@@ -96,6 +96,9 @@ private:
   void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
            std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
 
+    move_group_interface->setStartStateToCurrentState();
+    auto current_pose = move_group_interface->getCurrentPose();
+
     geometry_msgs::msg::Pose target_pose = request->target_pose;
     if (!request->move_home) target_pose.position.z = 0.2;
     target_pose.orientation.x = 1.0;
@@ -103,9 +106,9 @@ private:
     target_pose.orientation.z = 0.0;
     target_pose.orientation.w = 0.0;
 
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    // target_pose.orientation = current_pose.pose.orientation;
 
-    move_group_interface->setStartStateToCurrentState();
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
     move_group_interface->setPoseTarget(target_pose, "tool0");
     moveit_msgs::msg::Constraints constraints = set_constraint();
     move_group_interface->setPathConstraints(constraints);
@@ -153,12 +156,13 @@ private:
 
     orientation_constraint.weight = 1.0;
 
-    tf2::Quaternion q;
-    q.setRPY(M_PI, 0, 0);
-    orientation_constraint.orientation.x = q.x();
-    orientation_constraint.orientation.y = q.y();
-    orientation_constraint.orientation.z = q.z();
-    orientation_constraint.orientation.w = q.w();
+    // tf2::Quaternion q;
+    // q.setRPY(M_PI, 0, 0);
+    // auto current_pose = move_group_interface->getCurrentPose();
+    orientation_constraint.orientation.x = 1.0;
+    orientation_constraint.orientation.y = 0.0;
+    orientation_constraint.orientation.z = 0.0;
+    orientation_constraint.orientation.w = 0.0;
 
     return orientation_constraint;
   }

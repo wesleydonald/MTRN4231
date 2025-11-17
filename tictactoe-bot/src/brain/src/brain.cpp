@@ -62,9 +62,9 @@ public:
     }
     RCLCPP_INFO(this->get_logger(), "Brain node started and waiting for game input...");
 
-    home_pose_.position.x = 0.0;
-    home_pose_.position.y = 0.5;
-    home_pose_.position.z = 0.5;
+    home_pose_.position.x = 0.458;
+    home_pose_.position.y = 0.133;
+    home_pose_.position.z = 0.552;
     home_pose_.orientation.x = 1.0;
     home_pose_.orientation.y = 0.0;
     home_pose_.orientation.z = 0.0;
