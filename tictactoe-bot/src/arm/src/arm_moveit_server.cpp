@@ -109,9 +109,17 @@ private:
     // target_pose.orientation = current_pose.pose.orientation;
 
     moveit::planning_interface::MoveGroupInterface::Plan plan;
-    move_group_interface->setPoseTarget(target_pose, "tool0");
-    moveit_msgs::msg::Constraints constraints = set_constraint();
-    move_group_interface->setPathConstraints(constraints);
+
+    // Moving to home pre-defined as joint angles
+    // Moving to other position requires IK
+    if(request->move_home) {
+      std::vector<double> home_joint_goal = {-0.03908, -1.39322, 1.49321, -1.67181, -1.56997, 4.67281};
+      move_group_interface->setJointValueTarget(home_joint_goal);
+    } else {
+      move_group_interface->setPoseTarget(target_pose, "tool0");
+      moveit_msgs::msg::Constraints constraints = set_constraint();
+      move_group_interface->setPathConstraints(constraints);
+    }
 
     bool success = false;
     double planningTime = 0.1;
