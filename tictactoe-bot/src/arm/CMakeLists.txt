@@ -7,6 +7,8 @@ endif()
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(moveit REQUIRED)
+find_package(moveit_msgs REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -29,6 +31,8 @@ ament_target_dependencies(arm_moveit_server
   tf2_ros
   std_srvs
   interfaces
+  moveit
+  moveit_msgs
 )
 
 install(TARGETS arm_moveit_server

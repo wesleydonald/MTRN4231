@@ -10,9 +10,12 @@
 #include "tf2/exceptions.h"
 #include "tf2_ros/transform_listener.h"
 #include "tf2_ros/buffer.h"
+#include <interfaces/srv/move_arm.hpp>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
-#include <interfaces/srv/move_arm.hpp>
+#include <moveit_msgs/msg/orientation_constraint.h>
+#include <moveit_msgs/msg/joint_constraint.h>
+#include <moveit_msgs/msg/constraints.h>
 
 constexpr double PLANNING_TIME = 0.1;
 constexpr int PLANNING_ATTEMPTS = 500;
@@ -55,6 +58,24 @@ auto generatePoseMsg(float x,float y, float z,float qx,float qy,float qz,float q
     msg.position.z = z;
     return msg;
 }
+
+struct JointConstraintConfig {
+  std::string joint_name;
+  double position;
+  double tolerance_above;
+  double tolerance_below;
+};
+
+const std::vector<JointConstraintConfig> JOINT_CONSTRAINTS = {
+    { "shoulder_pan_joint",  0,  M_PI / 2,  M_PI / 2 },
+    { "shoulder_lift_joint",  -M_PI / 2,  M_PI /2,  M_PI /2},
+    // { "elbow_joint",          0,  M_PI,  M_PI },
+    { "wrist_1_joint",           M_PI/2,      M_PI*4/5,      M_PI*4/5},
+    { "wrist_2_joint",              0,  M_PI/1.5,  M_PI/1.5 },
+    { "wrist_3_joint",        M_PI / 2,  M_PI / 1.5,  M_PI / 1.5 }
+};
+
+const std::vector<double> HOME_JOINT_CONFIG = { -0.03908, -1.39322, 1.49321, -1.67181, -1.56997, 4.67281};
 
 using std::placeholders::_1;
 
@@ -110,17 +131,23 @@ private:
 
     moveit::planning_interface::MoveGroupInterface::Plan plan;
 
-    // Moving to home pre-defined as joint angles
-    // Moving to other position requires IK
+    // Set target position
     if(request->move_home) {
-      std::vector<double> home_joint_goal = {-0.03908, -1.39322, 1.49321, -1.67181, -1.56997, 4.67281};
-      move_group_interface->setJointValueTarget(home_joint_goal);
+      // Moving to home pre-defined as joint angles
+      move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
     } else {
+      // Moving to any other position requires IK
       move_group_interface->setPoseTarget(target_pose, "tool0");
-      moveit_msgs::msg::Constraints constraints = set_constraint();
-      move_group_interface->setPathConstraints(constraints);
     }
 
+    // Constraint setting
+    // For the moment set constraints on all desired positions
+    moveit_msgs::msg::Constraints constraints;
+    // set_joint_constraints(constraints);
+    // set_orientation_constraints(constraints);
+    move_group_interface->setPathConstraints(constraints);
+
+    // Planning and execution
     bool success = false;
     double planningTime = 0.1;
     const double maxPlanningTime = 60.0;
@@ -145,13 +172,19 @@ private:
     move_group_interface->clearPathConstraints();
 }
 
-  moveit_msgs::msg::Constraints set_constraint() { 
-    moveit_msgs::msg::Constraints constraints;
-    constraints.orientation_constraints.emplace_back(set_orientation_constraint());
-    return constraints;
+  void set_joint_constraints(moveit_msgs::msg::Constraints &constraints) {
+    for (const auto& config : JOINT_CONSTRAINTS) {
+      moveit_msgs::msg::JointConstraint constraint;
+      constraint.joint_name = config.joint_name;
+      constraint.position = config.position;
+      constraint.tolerance_above = config.tolerance_above;
+      constraint.tolerance_below = config.tolerance_below;
+      constraint.weight = 1.0;
+      constraints.joint_constraints.push_back(constraint);
+    }
   }
 
-  moveit_msgs::msg::OrientationConstraint set_orientation_constraint() {
+  void set_orientation_constraints(moveit_msgs::msg::Constraints &constraints) {
     moveit_msgs::msg::OrientationConstraint orientation_constraint;
 
     orientation_constraint.header.frame_id = move_group_interface->getPlanningFrame();
@@ -172,7 +205,7 @@ private:
     orientation_constraint.orientation.z = 0.0;
     orientation_constraint.orientation.w = 0.0;
 
-    return orientation_constraint;
+    constraints.orientation_constraints.emplace_back(orientation_constraint);
   }
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
