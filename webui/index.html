@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UR5e Tic-Tac-Toe</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <h1>UR5e Tic-Tac-Toe</h1>
+
+    <div class="status-box">
+        ROS Bridge: <span id="ros-status" class="disconnected">Disconnected</span>
+    </div>
+
+    <div class="controls">
+        <button id="start-btn">Start Game</button>
+        <button id="end-btn">End Session</button>
+        <button id="estop-btn" class="danger">E-STOP</button>
+    </div>
+
+    <div class="metrics-box">
+        <h2>Game Status</h2>
+        <p id="game-status">Waiting to start...</p>
+
+        <h2>Session Metrics</h2>
+        <p>Robot Wins: <strong id="wins">0</strong></p>
+        <p>Your Wins: <strong id="losses">0</strong></p>
+        <p>Ties: <strong id="ties">0</strong></p>
+    </div>
+
+   <script src="roslib.min.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
