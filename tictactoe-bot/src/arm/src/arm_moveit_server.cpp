@@ -67,15 +67,22 @@ struct JointConstraintConfig {
 };
 
 const std::vector<JointConstraintConfig> JOINT_CONSTRAINTS = {
-    { "shoulder_pan_joint",  0,  M_PI / 2,  M_PI / 2 },
-    { "shoulder_lift_joint",  -M_PI / 2,  M_PI /2,  M_PI /2},
-    // { "elbow_joint",          0,  M_PI,  M_PI },
-    { "wrist_1_joint",           M_PI/2,      M_PI*4/5,      M_PI*4/5},
-    { "wrist_2_joint",              0,  M_PI/1.5,  M_PI/1.5 },
-    { "wrist_3_joint",        M_PI / 2,  M_PI / 1.5,  M_PI / 1.5 }
+    { "shoulder_pan_joint",   0,          M_PI / 2,     M_PI / 1.5 },
+    { "shoulder_lift_joint",  -M_PI / 2,  M_PI /2,      M_PI /2},
+    // { "elbow_joint",       0,          M_PI,         M_PI },
+    { "wrist_1_joint",        -M_PI/2,    M_PI*4/5,     M_PI*4/5},
+    { "wrist_2_joint",        -M_PI/2,    M_PI/1.5,     M_PI/1.5 },
+    { "wrist_3_joint",        0,   M_PI / 1.5,   M_PI / 1.5 }
 };
 
-const std::vector<double> HOME_JOINT_CONFIG = { -0.03908, -1.39322, 1.49321, -1.67181, -1.56997, 4.67281};
+const std::vector<double> HOME_JOINT_CONFIG = { 
+  0.0,                    // 0    deg   shoulder_pan
+  -80.0*(M_PI/180.0),     // -80  deg   shoulder_lift
+  80.0*(M_PI/180.0),      // 80   deg   elbow_joint
+  -M_PI/2.0,              // -90  deg   wrist_1_joint
+  -M_PI/2.0,              // -90  deg   wrist_2_joint
+  0.0                     // 0    deg   wrist_3_joint
+};
 
 using std::placeholders::_1;
 
@@ -122,8 +129,9 @@ private:
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
     if (!request->move_home) target_pose.position.z = 0.27;
-    target_pose.orientation.x = 1.0;
-    target_pose.orientation.y = 0.0;
+    // Orientation for wrist3 / tool0 to face down
+    target_pose.orientation.x = - std::sqrt(2) / 2;
+    target_pose.orientation.y = std::sqrt(2) / 2;
     target_pose.orientation.z = 0.0;
     target_pose.orientation.w = 0.0;
 
@@ -200,8 +208,8 @@ private:
     // tf2::Quaternion q;
     // q.setRPY(M_PI, 0, 0);
     // auto current_pose = move_group_interface->getCurrentPose();
-    orientation_constraint.orientation.x = 1.0;
-    orientation_constraint.orientation.y = 0.0;
+    orientation_constraint.orientation.x = - std::sqrt(2) / 2;
+    orientation_constraint.orientation.y = std::sqrt(2) / 2;
     orientation_constraint.orientation.z = 0.0;
     orientation_constraint.orientation.w = 0.0;
 
