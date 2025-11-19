@@ -57,7 +57,10 @@ public:
     while (!gripper_client_->wait_for_service(std::chrono::seconds(1)) && using_gripper) {
         RCLCPP_INFO(get_logger(), "Gripper service not available, waiting...");
     }
-
+    arm_stop_client_ = this->create_client<std_srvs::srv::Trigger>("arm_stop_service");
+    if (!arm_stop_client_->wait_for_service(1s)) {
+        RCLCPP_WARN(get_logger(), "Arm STOP service (arm_stop_service) not available. E-Stop will be software-only.");
+    }
     // --- NEW: Publishers (C++ Node -> GUI) ---
     status_pub_ = this->create_publisher<std_msgs::msg::String>("/game/status", 10);
     wins_pub_ = this->create_publisher<std_msgs::msg::Int32>("/game/metrics/wins", 10);
@@ -263,13 +266,20 @@ private:
             current_action_ = IDLE;
             break;
 
+        // --- FIX: ADD THIS CASE ---
+        case IDLE:
+            RCLCPP_INFO(get_logger(), "Arm move completed (likely from Start/End/E-Stop).");
+            // No further action is needed. The state is already IDLE.
+            break;
+        // -------------------------
+
         default:
-            RCLCPP_WARN(get_logger(), "Unexpected action in handleArmResponse");
+            // This default case will now only be hit by other, truly unexpected states
+            RCLCPP_WARN(get_logger(), "Unexpected action in handleArmResponse: %d", static_cast<int>(current_action_));
             current_action_ = IDLE;
             break;
     }
   }
-
   void sendGripperRequest(bool close) {
     auto req = std::make_shared<interfaces::srv::CloseGripper::Request>();
     req->command = close ? "close" : "open";
@@ -315,6 +325,7 @@ private:
   }
 
   // This function runs when "Start" or "End" is clicked
+  // This function runs when "Start" or "End" is clicked
   void control_callback(const std_msgs::msg::String & msg)
   {
       std::string command = msg.data;
@@ -328,10 +339,23 @@ private:
           // Let the user know the game is starting
           status_pub_->publish(std_msgs::msg::String().set__data("New game started... It's your turn!"));
           
-      } else if (command == "end") {
-          // --- PUT YOUR "END SESSION" LOGIC HERE ---
-          // (e.g., robot returns to home)
+          // --- MODIFIED: Tell robot to move to home pose ---
+          RCLCPP_INFO(get_logger(), "Moving arm to home position to start game...");
+          // Set action to IDLE to avoid conflicts in the arm response handler
+          current_action_ = IDLE; 
+          sendArmRequest(home_pose_, true);
+          // --------------------------------------------------
           
+      } else if (command == "end") {
+          
+          // --- MODIFIED: Tell robot to move to home pose ---
+          RCLCPP_INFO(get_logger(), "Ending session, moving arm to home position.");
+          // Set state to finished and action to IDLE to stop any current/future moves
+          game_state_ = FINISHED;
+          current_action_ = IDLE;
+          sendArmRequest(home_pose_, true);
+          // --------------------------------------------------
+
           // Reset all session counters
           session_wins_ = 0;
           session_losses_ = 0;
@@ -342,20 +366,42 @@ private:
           status_pub_->publish(std_msgs::msg::String().set__data("Session ended. Ready for a new game?"));
       }
   }
-
+  
   // This function runs when "E-Stop" is clicked
   void estop_callback(const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
                       std::shared_ptr<std_srvs::srv::Trigger::Response> response)
   {
+      // Use the request parameter to avoid compiler warning
+      (void)request; 
+
       RCLCPP_ERROR(get_logger(), "!!! E-STOP TRIGGERED BY GUI !!!");
       
-      // --- PUT YOUR EMERGENCY STOP LOGIC HERE ---
-      // (e.g., call a "stop" service on the arm)
-      
-      response->success = true;
-      response->message = "E-Stop confirmed";
-  }
+      // 1. Immediately stop the internal state machine
+      RCLCPP_INFO(get_logger(), "Halting brain node state machine.");
+      game_state_ = FINISHED;
+      current_action_ = IDLE;
 
+      // 2. Call the hardware/arm stop service (Fire and Forget)
+      if (arm_stop_client_ && arm_stop_client_->service_is_ready()) {
+          RCLCPP_INFO(get_logger(), "Calling hardware arm stop service...");
+          auto stop_req = std::make_shared<std_srvs::srv::Trigger::Request>();
+          
+          // --- MODIFICATION ---
+          // Just send the request. Do NOT wait for the future.
+          // The main 'spin' loop will handle the future's completion.
+          // We return our *own* service response immediately.
+          arm_stop_client_->async_send_request(stop_req);
+          
+          response->success = true;
+          response->message = "E-Stop confirmed. Arm stop request SENT.";
+          // --------------------
+
+      } else {
+          RCLCPP_WARN(get_logger(), "Arm stop service not available. E-Stop is software-only.");
+          response->success = true;
+          response->message = "E-Stop confirmed (software only).";
+      }
+  }
   // NEW: Function to handle game over logic
   void handle_game_over(int winner)
   {
@@ -413,7 +459,7 @@ private:
   rclcpp::Publisher<std_msgs::msg::Int32>::SharedPtr ties_pub_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr control_sub_;
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr estop_service_;
-  
+  rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr arm_stop_client_;
   int session_wins_ = 0;
   int session_losses_ = 0;
   int session_ties_ = 0;

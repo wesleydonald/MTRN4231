@@ -41,4 +41,10 @@ def generate_launch_description():
         executable='brain',
         name='brain'
     ),
+    Node(
+        package='end_effector',
+        namespace='',
+        executable='gripper',
+        name='gripper'
+    )
   ])
