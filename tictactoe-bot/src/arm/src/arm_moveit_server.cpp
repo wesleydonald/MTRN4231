@@ -151,7 +151,7 @@ private:
     // Constraint setting
     // For the moment set constraints on all desired positions
     moveit_msgs::msg::Constraints constraints;
-    // set_joint_constraints(constraints);
+    set_joint_constraints(constraints);
     set_orientation_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
 
