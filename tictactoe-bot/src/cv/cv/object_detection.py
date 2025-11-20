@@ -32,6 +32,7 @@ WHITE_PIECE_MAX_AREA = 2500
 WHITE_PIECE_MIN_SOLIDITY = 0.85
 WHITE_PIECE_COLOUR_MIN = 210
 WHITE_DILATION_KERNEL_SIZE = 9
+WHITE_ERODE_KERNEL_SIZE = 5
 
 BOARD_COLOUR_THRESHOLD_MAX = 80
 BOARD_COLOUR_THRESHOLD_MIN = 0
@@ -324,8 +325,10 @@ class ObjectRecognizer(Node):
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Filtering and Smoothing 
-        kernel = np.ones((WHITE_DILATION_KERNEL_SIZE,WHITE_DILATION_KERNEL_SIZE), np.uint8)
+        kernel = np.ones((WHITE_DILATION_KERNEL_SIZE, WHITE_DILATION_KERNEL_SIZE), np.uint8)
         cv_img = cv2.dilate(cv_img, kernel, iterations=1)
+        kernel = np.ones((WHITE_ERODE_KERNEL_SIZE, WHITE_ERODE_KERNEL_SIZE), np.uint8)
+        cv_img = cv2.erode(cv_img, kernel, iterations=1)
         cv_img = cv2.medianBlur(cv_img, 21)
 
         self.debug_white_piece_pub.publish(self.cv_bridge.cv2_to_imgmsg(cv_img, 'mono8'))
