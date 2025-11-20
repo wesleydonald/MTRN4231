@@ -131,7 +131,7 @@ private:
     auto current_pose = move_group_interface->getCurrentPose();
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    if (!request->move_home) target_pose.position.z = 0.27;
+    if (!request->move_home) target_pose.position.z = 0.32;
     // Orientation for wrist3 / tool0 to face down
     target_pose.orientation.x = - std::sqrt(2) / 2;
     target_pose.orientation.y = std::sqrt(2) / 2;
@@ -162,7 +162,7 @@ private:
     bool success = false;
     double planningTime = 0.1;
     const double maxPlanningTime = 60.0;
-
+    
     while (!success && planningTime <= maxPlanningTime) {
         move_group_interface->setPlanningTime(planningTime);
         RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
@@ -172,6 +172,29 @@ private:
         }
     }
 
+    response->success = success;
+    if (success) {
+      response->message = "Planning successful.";
+      move_group_interface->execute(plan);
+    } else {
+      response->message = "Planning failed.";
+    }
+
+    if (request->move_home) { move_group_interface->clearPathConstraints(); return; }
+
+    success = false;
+    planningTime = 0.1;
+    target_pose.position.z = 0.24;
+    move_group_interface->setPoseTarget(target_pose, "tool0");
+    while (!success && planningTime <= maxPlanningTime) {
+        move_group_interface->setPlanningTime(planningTime);
+        RCLCPP_INFO(this->get_logger(), "Trying to plan down with %.1f seconds...", planningTime);
+        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        if (!success) {
+            planningTime *= 2;
+        }
+    }
+    
     response->success = success;
     if (success) {
       response->message = "Planning successful.";

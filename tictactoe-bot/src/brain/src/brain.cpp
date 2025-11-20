@@ -102,17 +102,17 @@ public:
 
 private:
   void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+    if (game_state_ != PLAYER_TURN) return;
     board_origin_ = *msg;
     RCLCPP_INFO_ONCE(get_logger(), "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
   }
 
   void blackPiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
+    if (game_state_ != PLAYER_TURN) return;
     std::vector<int> current_on_board = getOnBoardIndices(msg->poses);
 
     // If it's player's turn, detect new placement
-    if (game_state_ == PLAYER_TURN &&
-        current_on_board.size() > last_black_on_board_.size()) {
-
+    if (game_state_ == PLAYER_TURN && current_on_board.size() > last_black_on_board_.size()) {
         std::set<int> prev(last_black_on_board_.begin(), last_black_on_board_.end());
         for (int idx : current_on_board) {
             if (prev.find(idx) == prev.end()) {
@@ -127,6 +127,7 @@ private:
   }
 
   void whitePiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
+    if (game_state_ != PLAYER_TURN) return;
     last_white_on_board_ = getOnBoardIndices(msg->poses);
 
     last_white_off_board_.clear();
