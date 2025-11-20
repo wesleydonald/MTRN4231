@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(interfaces REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # --- include directories ---
 include_directories(
@@ -24,6 +25,7 @@ ament_target_dependencies(brain
   geometry_msgs
   std_srvs
   interfaces
+  std_msgs
 )
 
 # --- install targets ---

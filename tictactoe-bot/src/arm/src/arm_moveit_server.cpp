@@ -16,6 +16,7 @@
 #include <moveit_msgs/msg/orientation_constraint.h>
 #include <moveit_msgs/msg/joint_constraint.h>
 #include <moveit_msgs/msg/constraints.h>
+#include "std_srvs/srv/trigger.hpp" 
 
 constexpr double PLANNING_TIME = 0.1;
 constexpr int PLANNING_ATTEMPTS = 500;
@@ -90,6 +91,8 @@ class arm : public rclcpp::Node {
 public:
     arm() : Node("arm") {
       move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
+      stop_service_ = create_service<std_srvs::srv::Trigger>("arm_stop_service", std::bind(&arm::stopCallback, this, std::placeholders::_1, std::placeholders::_2));
+
 
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
       move_group_interface->setPlanningTime(PLANNING_TIME);
@@ -178,7 +181,21 @@ private:
     }
 
     move_group_interface->clearPathConstraints();
-}
+  }
+
+  // --- 3. ADDED THIS ENTIRE CALLBACK FUNCTION ---
+  void stopCallback(const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+                    std::shared_ptr<std_srvs::srv::Trigger::Response> response)
+  {
+      (void)request; // To prevent unused parameter warning
+      RCLCPP_ERROR(this->get_logger(), "!!! E-STOP SERVICE CALLED - STOPPING ARM !!!");
+      
+      // This is the MoveIt command to stop all current motion
+      move_group_interface->stop();
+
+      response->success = true;
+      response->message = "Arm motion stopped.";
+  }
 
   void set_joint_constraints(moveit_msgs::msg::Constraints &constraints) {
     for (const auto& config : JOINT_CONSTRAINTS) {
@@ -218,6 +235,7 @@ private:
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
   rclcpp::Service<interfaces::srv::MoveArm>::SharedPtr move_request_;
+  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr stop_service_;
 };
 
 

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Therapy</title>
+    
+    <!-- Using the Inter font family for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- NEW: Amiable Icons (Phosphor) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root {
+            --bg-color: #f7f9fc;
+            --surface-color: #ffffff;
+            --primary-color: #3b82f6;
+            --primary-light: #eff6ff;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --danger-dark-color: #dc2626;
+            --gray-color: #e5e7eb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #app-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            background: var(--surface-color);
+            border-radius: 24px; /* Softer radius */
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
+            border: 1px solid var(--gray-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--gray-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin: 0;
+            font-weight: 600;
+            /* NEW: Align icon and text */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #connection-status {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        #connection-status strong {
+            color: var(--warning-color);
+        }
+
+        /* --- Main Content --- */
+        #main-container {
+            display: flex;
+            flex-wrap: wrap; /* Allows stacking on mobile */
+        }
+
+        /* Column for controls */
+        #controls {
+            flex: 1;
+            min-width: 320px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid var(--gray-color);
+        }
+
+        /* Column for video and status */
+        #visuals {
+            flex: 1.5; /* Makes video column wider */
+            min-width: 320px;
+            background-color: #f9fafb; /* Slightly off-white */
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* --- Status and Timers --- */
+        #robot-status {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: var(--primary-light);
+            padding: 20px 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 0 0 20px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #move-timer {
+            font-size: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+        #move-timer strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        /* --- Metrics Grid --- */
+        #metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .metric-box {
+            background: var(--bg-color);
+            border: 1px solid var(--gray-color);
+            border-radius: 12px; /* Softer radius */
+            padding: 15px;
+            text-align: center;
+        }
+        .metric-box .metric-label {
+            display: flex; /* NEW: Use flex for icon */
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 1rem; /* Slightly larger */
+            color: var(--text-secondary);
+            margin-bottom: 8px; /* More space */
+        }
+        .metric-box strong {
+            font-size: 1.75rem; /* Bolder */
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        #encouragement {
+            font-size: 1.25rem;
+            font-style: italic;
+            color: var(--success-color);
+            text-align: center;
+            margin-top: 20px;
+            height: 2em; /* Reserve space */
+        }
+
+        /* --- Camera Feed --- */
+        #camera-feed {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 12px;
+            background-color: #333;
+            border: 1px solid var(--gray-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            min-height: 240px; 
+            aspect-ratio: 4 / 3;
+        }
+
+        /* --- Button Grid --- */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2x2 grid */
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            font-size: 1.25rem;
+            font-weight: 600;
+            padding: 20px 15px;
+            border: none;
+            border-radius: 12px; /* Softer radius */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .btn:active {
+            transform: translateY(1px) scale(1.01);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-start { background-color: var(--success-color); color: white; }
+        .btn-pause { background-color: var(--warning-color); color: #333; }
+        .btn-resume { background-color: #17a2b8; color: white; display: none; } /* Hidden by default */
+        .btn-end { background-color: var(--text-secondary); color: white; }
+
+        /* --- E-STOP BUTTON --- */
+        #btn-estop {
+            width: 100%;
+            font-size: 1.75rem;
+            font-weight: 700;
+            padding: 25px;
+            background-color: var(--danger-color);
+            color: white;
+            border: 2px solid var(--danger-dark-color);
+            border-radius: 14px; /* Softer radius */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+        
+        #btn-estop:hover {
+            background-color: var(--danger-dark-color);
+        }
+
+        #btn-estop:active {
+            background-color: var(--danger-dark-color);
+            transform: translateY(1px);
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+            #app-wrapper {
+                border-radius: 0;
+                border: none;
+            }
+            #main-container {
+                flex-direction: column;
+            }
+            #controls {
+                border-right: none;
+                border-bottom: 1px solid var(--gray-color);
+            }
+            header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            #robot-status {
+                font-size: 1.5rem;
+            }
+            #move-timer {
+                font-size: 1.25rem;
+            }
+            .btn {
+                font-size: 1.1rem;
+                padding: 18px 10px;
+            }
+            #btn-estop {
+                font-size: 1.25rem;
+                padding: 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-wrapper">
+        
+        <!-- Header Section -->
+        <header>
+            <!-- NEW: Added icon and friendlier text -->
+            <h1><i class="ph ph-game-controller"></i> Tic-Tac-Toe Therapy</h1>
+            <!-- NEW: Changed "ROS Status" to "Robot Status" (less jargon) -->
+            <div id="connection-status">Robot Status: <strong>Connecting...</strong></div>
+        </header>
+
+        <!-- Main Content Section -->
+        <div id="main-container">
+
+            <!-- LEFT COLUMN: CONTROLS -->
+            <div id="controls">
+                <div>
+                    <p id="move-timer">Your last move: <strong>-- s</strong></p>
+                    
+                    <!-- Metrics Grid -->
+                    <div id="metrics-grid">
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-timer"></i> Average Time</span>
+                            <strong id="metric-avg-time">-- s</strong>
+                        </div>
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-user"></i> Your Moves</span>
+                            <strong id="metric-total-moves">0</strong>
+                        </div>
+                        <!-- NEW Metrics Added Below -->
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-trophy"></i> Wins</span>
+                            <strong id="metric-win-rate">0%</strong>
+                        </div>
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-smiley-sad"></i> Losses</span>
+                            <strong id="metric-lose-rate">0%</strong>
+                        </div>
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-equals"></i> Ties</span>
+                            <strong id="metric-tie-rate">0%</strong>
+                        </div>
+                        <div class="metric-box">
+                            <!-- NEW: Added icon and friendlier text -->
+                            <span class="metric-label"><i class="ph ph-list-numbers"></i> Total Games</span>
+                            <strong id="metric-games-played">0</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="button-grid">
+                        <button class="btn btn-start" id="btn-start">Start New Game</button>
+                        <button class="btn btn-end" id="btn-end">End Game</button>
+                        <button class="btn btn-pause" id="btn-pause">Pause Game</button>
+                        <button class="btn btn-resume" id="btn-resume">Resume Game</button>
+                    </div>
+                </div>
+
+                <div>
+                    <button id="btn-estop">Emergency Stop</button>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: VISUALS -->
+            <div id="visuals">
+                <!-- NEW: Friendlier default status -->
+                <h2 id="robot-status">Ready for a new game?</h2>
+                
+                <!-- 
+                  This is a placeholder for your camera stream.
+                  If you use 'mjpeg_server' (a common ROS 2 package), 
+                  uncomment the line in the JavaScript (around line 408)
+                  and set the src to:
+                  http://<ROBOT_IP>:8080/stream?topic=/your_camera_topic
+                -->
+                <!-- NEW: Updated placeholder text -->
+                <img id="camera-feed" src="https://placehold.co/640x480/333/fff?text=Live+View" alt="Live View">
+                
+                <!-- NEW: Friendlier default encouragement -->
+                <p id="encouragement">Let's play!</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 
+      1. Get the roslib.js library from a CDN (Content Delivery Network).
+      This downloads the library in the browser.
+    -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/roslibjs/1.3.0/roslib.min.js"></script>
+
+    <script>
+        // --- FIX: Wrap all code in window.onload ---
+        // This ensures the page (and roslib.min.js) is fully loaded
+        // before we try to use the ROSLIB object.
+        window.onload = function() {
+
+            // --- 1. Configuration ---
+            // --- IMPORTANT: Change this to your robot's IP address ---
+            // Get your robot's IP by running `hostname -I` in a terminal
+            // on the robot.
+            const ROBOT_IP = "localhost"; // Example: "192.168.1.100"
+            // --------------------------------------------------------
+
+            // --- 2. Get DOM Elements ---
+            const statusDisplay = document.getElementById('robot-status');
+            const timerDisplay = document.getElementById('move-timer').querySelector('strong');
+            const encouragementDisplay = document.getElementById('encouragement');
+            const connectionDisplay = document.getElementById('connection-status').querySelector('strong');
+            const cameraFeed = document.getElementById('camera-feed');
+            
+            // Get Metric DOM Elements
+            const avgTimeDisplay = document.getElementById('metric-avg-time');
+            const totalMovesDisplay = document.getElementById('metric-total-moves');
+            const gamesPlayedDisplay = document.getElementById('metric-games-played');
+            // NEW: Get Win/Lose/Tie DOM Elements
+            const winRateDisplay = document.getElementById('metric-win-rate');
+            const loseRateDisplay = document.getElementById('metric-lose-rate');
+            const tieRateDisplay = document.getElementById('metric-tie-rate');
+
+
+            const btnStart = document.getElementById('btn-start');
+            const btnPause = document.getElementById('btn-pause');
+            const btnResume = document.getElementById('btn-resume');
+            const btnEnd = document.getElementById('btn-end');
+            const btnEstop = document.getElementById('btn-estop');
+            
+            // --- 3. ROS Connection ---
+            const ros = new ROSLIB.Ros({
+                url: 'ws://' + ROBOT_IP + ':9090'
+            });
+
+            ros.on('connection', () => {
+                console.log('Connected to websocket server.');
+                connectionDisplay.innerHTML = "Connected";
+                connectionDisplay.style.color = "var(--success-color)";
+                // --- UNCOMMENT THIS for a live camera feed ---
+                // Make sure you are running 'mjpeg_server' on your robot
+                // const cameraTopic = "/your_camera_topic"; // Example: "/camera/image_raw"
+                // cameraFeed.src = `http://${ROBOT_IP}:8080/stream?topic=${cameraTopic}&type=mjpeg`;
+            });
+
+            ros.on('error', (error) => {
+                console.log('Error connecting to websocket server: ', error);
+                connectionDisplay.innerHTML = "Error";
+                connectionDisplay.style.color = "var(--danger-color)";
+            });
+
+            ros.on('close', () => {
+                console.log('Connection to websocket server closed.');
+                connectionDisplay.innerHTML = "Closed";
+                connectionDisplay.style.color = "var(--text-secondary)";
+            });
+
+            // --- 4. ROS Topics and Services ---
+            
+            // --- Topics for Publishing (WebUI -> Robot) ---
+            
+            // Simple string commands are easy to set up
+            const gameControlTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/control', // Example topic
+                messageType: 'std_msgs/String'
+            });
+
+            // --- Topics for Subscribing (Robot -> WebUI) ---
+            
+            // Topic for robot status messages
+            const statusTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/status', // Example topic
+                messageType: 'std_msgs/String'
+            });
+            
+            statusTopic.subscribe((message) => {
+                console.log('Received status: ' + message.data);
+                statusDisplay.innerHTML = message.data;
+                
+                // Show encouragement on the patient's turn
+                if (message.data.toLowerCase().includes("your turn")) {
+                    encouragementDisplay.innerHTML = "Great job!";
+                } else if (message.data.toLowerCase().includes("robot")) {
+                    encouragementDisplay.innerHTML = ""; // Clear encouragement
+                }
+            });
+
+            // Topic for the human move time
+            const timerTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/human_move_time', // Example topic
+                messageType: 'std_msgs/Float32' // Using Float32 for seconds
+            });
+            
+            timerTopic.subscribe((message) => {
+                console.log('Received move time: ' + message.data);
+                timerDisplay.innerHTML = message.data.toFixed(1) + " s";
+                encouragementDisplay.innerHTML = "Nice move!";
+            });
+            
+            // --- Topics for Metrics ---
+            
+            // Topic for Average Move Time
+            const avgTimeTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/avg_move_time',
+                messageType: 'std_msgs/Float32'
+            });
+            avgTimeTopic.subscribe((message) => {
+                console.log('Received avg time: ' + message.data);
+                avgTimeDisplay.innerHTML = message.data.toFixed(1) + " s";
+            });
+
+            // Topic for Total Moves
+            const totalMovesTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/total_moves',
+                messageType: 'std_msgs/Int32'
+            });
+            totalMovesTopic.subscribe((message) => {
+                console.log('Received total moves: ' + message.data);
+                totalMovesDisplay.innerHTML = message.data;
+            });
+
+            // Topic for Games Played
+            const gamesPlayedTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/games_played',
+                messageType: 'std_msgs/Int32'
+            });
+            gamesPlayedTopic.subscribe((message) => {
+                console.log('Received games played: ' + message.data);
+                gamesPlayedDisplay.innerHTML = message.data;
+            });
+
+            // NEW: Topic for Win Rate
+            const winRateTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/win_rate',
+                messageType: 'std_msgs/Int32' // Assuming 0-100
+            });
+            winRateTopic.subscribe((message) => {
+                console.log('Received win rate: ' + message.data);
+                winRateDisplay.innerHTML = message.data + "%";
+            });
+
+            // NEW: Topic for Lose Rate
+            const loseRateTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/lose_rate',
+                messageType: 'std_msgs/Int32' // Assuming 0-100
+            });
+            loseRateTopic.subscribe((message) => {
+                console.log('Received lose rate: ' + message.data);
+                loseRateDisplay.innerHTML = message.data + "%";
+            });
+
+            // NEW: Topic for Tie Rate
+            const tieRateTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: '/game/metrics/tie_rate',
+                messageType: 'std_msgs/Int32' // Assuming 0-100
+            });
+            tieRateTopic.subscribe((message) => {
+                console.log('Received tie rate: ' + message.data);
+                tieRateDisplay.innerHTML = message.data + "%";
+            });
+
+            // --- Service for Emergency Stop ---
+            // Use a service for critical actions like E-Stop
+            const estopService = new ROSLIB.Service({
+                ros: ros,
+                name: '/ur5e/trigger_estop', // Example service name
+                serviceType: 'std_srvs/Trigger' // A standard service type
+            });
+
+            // --- 5. Button Event Listeners ---
+
+            function publishCommand(command) {
+                const message = new ROSLIB.Message({
+                    data: command
+                });
+                gameControlTopic.publish(message);
+            }
+
+            btnStart.onclick = () => {
+                console.log('Starting new game...');
+                publishCommand('start');
+                encouragementDisplay.innerHTML = "Good luck!";
+                // Reset timer on start
+                timerDisplay.innerHTML = "-- s"; 
+            };
+            
+            btnEnd.onclick = () => {
+                console.log('Ending game...');
+                publishCommand('end');
+                encouragementDisplay.innerHTML = "Game stopped.";
+                
+                // Reset all metrics on 'End Game'
+                timerDisplay.innerHTML = "-- s";
+                avgTimeDisplay.innerHTML = "-- s";
+                totalMovesDisplay.innerHTML = "0";
+                gamesPlayedDisplay.innerHTML = "0";
+                // NEW: Reset win/lose/tie rates
+                winRateDisplay.innerHTML = "0%";
+                loseRateDisplay.innerHTML = "0%";
+                tieRateDisplay.innerHTML = "0%";
+            };
+
+            btnPause.onclick = () => {
+                console.log('Pausing game...');
+                publishCommand('pause');
+                btnPause.style.display = 'none';
+                btnResume.style.display = 'block';
+                encouragementDisplay.innerHTML = "Game paused.";
+            };
+            
+            btnResume.onclick = () => {
+                console.log('Resuming game...');
+                publishCommand('resume');
+                btnResume.style.display = 'none';
+                btnPause.style.display = 'block';
+                encouragementDisplay.innerHTML = "Resuming game...";
+            };
+
+            btnEstop.onclick = () => {
+                console.warn('EMERGENCY STOP TRIGGERED');
+                statusDisplay.innerHTML = "EMERGENCY STOPPED";
+                statusDisplay.style.color = "var(--danger-color)";
+                statusDisplay.style.backgroundColor = "#ffebeB"; // Light red bg
+                encouragementDisplay.innerHTML = "Please contact supervisor.";
+
+                const request = new ROSLIB.ServiceRequest({});
+                
+                estopService.callService(request, (result) => {
+                    console.log('E-Stop service call result: ' + (result.message || 'Success'));
+                    statusDisplay.innerHTML = "E-STOP CONFIRMED";
+                }, (error) => {
+                    console.error('E-Stop service call FAILED: ' + error);
+                    statusDisplay.innerHTML = "E-STOP FAILED!";
+                });
+            };
+
+        }; // --- End of window.onload ---
+    </script>
+</body>
+</html>
