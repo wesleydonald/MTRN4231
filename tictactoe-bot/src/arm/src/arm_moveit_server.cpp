@@ -19,7 +19,7 @@
 #include "std_srvs/srv/trigger.hpp" 
 
 constexpr double PLANNING_TIME = 0.1;
-constexpr int PLANNING_ATTEMPTS = 500;
+constexpr int PLANNING_ATTEMPTS = 5;
 
 //Function to generate a collision object
 auto generateCollisionObject(float sx,float sy, float sz, float x, float y, float z, std::string frame_id, std::string id) {
