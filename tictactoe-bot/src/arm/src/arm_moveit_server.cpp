@@ -92,16 +92,14 @@ public:
     arm() : Node("arm") {
       move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
       stop_service_ = create_service<std_srvs::srv::Trigger>("arm_stop_service", std::bind(&arm::stopCallback, this, std::placeholders::_1, std::placeholders::_2));
-
-
+      
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
       move_group_interface->setPlanningTime(PLANNING_TIME);
       move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
-      move_group_interface->setPlannerId("TRRTkConfigDefault");
-      // move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      //move_group_interface->setPlannerId("TRRTkConfigDefault");
+      //move_group_interface->setPlannerId("RRTConnectkConfigDefault");
       // move_group_interface->setPlannerId("RRTConnect");
-      //move_group_interface->setPlannerId("BKPIECEkConfigDefault");
-      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
+      move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
@@ -155,7 +153,7 @@ private:
     // For the moment set constraints on all desired positions
     moveit_msgs::msg::Constraints constraints;
     set_joint_constraints(constraints);
-    set_orientation_constraints(constraints);
+    //set_orientation_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
 
     // Planning and execution
