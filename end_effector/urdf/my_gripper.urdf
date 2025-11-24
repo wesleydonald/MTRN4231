@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot  name="my_gripper">
+ 
+  <link name="gripper_base_link">
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0"/>
+      <geometry>
+       <!-- <box size="1 1 1"/> -->
+       <mesh filename="package://end_effector/meshes/GripperOpen.stl" scale="0.001 0.001 0.001"/>
+      
+      </geometry>
+      <!-- <material name="grey">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material> -->
+    </visual>
+   
+    <collision>
+     <origin
+        xyz="0 0 0"
+        rpy="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.1 0.03" />
+      </geometry>
+    </collision>
+    <!-- <inertial>
+      <mass value="0.1" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial> -->
+  </link>
+
+  <!-- <link name="left_claw_link">
+    <visual>
+    
+      <origin xyz="0.035 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.015 0.02" />
+      </geometry>
+      <material name="blue">
+        <color rgba="0.1 0.1 0.8 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0.035 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.015 0.02" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+  </link> -->
+
+ 
+  <!-- <link name="right_claw_link">
+    <visual>
+      <origin xyz="0.035 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.015 0.02" />
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0.035 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.07 0.015 0.02" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01" />
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+    </inertial>
+  </link> -->
+
+
+
+ 
+  <!-- <joint name="left_claw_joint" type="revolute">
+    <parent link="gripper_base_link"/>
+    <child link="left_claw_link"/>
+   
+    <origin xyz="0 0.04 0" rpy="0 0 0"/>
+    
+    <axis xyz="0 0 1"/>
+   
+    <limit lower="-0.4" upper="1.0" effort="100" velocity="0.5"/>
+  </joint>
+
+  
+  <joint name="right_claw_joint" type="revolute">
+    <parent link="gripper_base_link"/>
+    <child link="right_claw_link"/>
+   
+    <origin xyz="0 -0.04 0" rpy="0 0 0"/>
+   
+    <axis xyz="0 0 -1"/> 
+
+    
+    <limit lower="-0.4" upper="1.0" effort="100" velocity="0.5"/>
+
+  
+    <mimic joint="left_claw_joint" multiplier="1.0" offset="0"/>
+  </joint> -->
+
+</robot>
