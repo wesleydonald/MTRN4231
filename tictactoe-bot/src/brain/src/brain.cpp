@@ -155,7 +155,7 @@ private:
         moveRobotToCell(computerMove);
         game_play_->makeMove(computerMove, TicTacToe::WHITE);
     } else {
-        RCLCPP_INFO(get_logger(), 'GAME FINISHED');
+        RCLCPP_INFO(get_logger(), "GAME FINISHED");
     }
   }
 
@@ -241,8 +241,8 @@ private:
     }
   
     target_cell_ = target_piece_;
-    target_cell_.position.x = board_origin_.point.x - cell_x;
-    target_cell_.position.y = board_origin_.point.y - cell_y;
+    target_cell_.position.x = board_origin_.point.x + cell_x;
+    target_cell_.position.y = board_origin_.point.y + cell_y;
     RCLCPP_INFO(get_logger(), "TARGET CELL AT %lf %lf", target_cell_.position.x, target_cell_.position.y);
 
     current_action_ = MOVE_TO_PICK;

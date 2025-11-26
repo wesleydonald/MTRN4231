@@ -3,6 +3,7 @@ import cv2
 import tf2_ros
 import os
 import time
+import math
 import numpy as np
 import pyrealsense2 as rs
 import tf2_geometry_msgs
@@ -17,6 +18,7 @@ from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 from visualization_msgs.msg import Marker, MarkerArray
+from interfaces.msg import BoardPose
 
 # CONSTANTS
 BLACK_PIECE_COLOUR_THRESHOLD = 60
@@ -36,10 +38,10 @@ WHITE_ERODE_KERNEL_SIZE = 5
 
 BOARD_COLOUR_THRESHOLD_MAX = 80
 BOARD_COLOUR_THRESHOLD_MIN = 0
-BOARD_ERODE_KERNEL_SIZE = 5
+BOARD_ERODE_KERNEL_SIZE = 1
 BOARD_DILATE_KERNEL_SIZE = 3
-BOARD_MEDIAN_BLUR = 5
-BOARD_GAUSSIAN_BLUR = 5
+BOARD_MEDIAN_BLUR = 3
+BOARD_GAUSSIAN_BLUR = 3
 BOARD_MIN_AREA = 2500
 
 ROI_TOP = 0.1
@@ -73,7 +75,7 @@ class ObjectRecognizer(Node):
         self.debug_white_piece_pub = self.create_publisher(Image, '/debug/white_piece_detection', 10)
         self.debug_board_pub = self.create_publisher(Image, '/debug/board_detection', 10)
         # (object positions)
-        self.board_point_pub = self.create_publisher(PointStamped, '/detected/board', 10)
+        self.board_pose_pub = self.create_publisher(BoardPose, '/detected/board', 10)
         self.white_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/white', 10)
         self.black_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
@@ -267,52 +269,90 @@ class ObjectRecognizer(Node):
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Image processing to remove noise and smooth
-        kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
-        cv_img = cv2.erode(cv_img, kernel, iterations=1)
+        # kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
+        # cv_img = cv2.erode(cv_img, kernel, iterations=1)
         kernel = np.ones((BOARD_DILATE_KERNEL_SIZE, BOARD_DILATE_KERNEL_SIZE), np.uint8)
         cv_img = cv2.dilate(cv_img, kernel, iterations=1)
-        cv_img = cv2.medianBlur(cv_img, BOARD_MEDIAN_BLUR)
-        cv_img = cv2.GaussianBlur(cv_img, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
+        # cv_img = cv2.addWeighted(cv_img, 1.5, blurred_img, -0.5, 0)
+
+        # Create the sharpening kernel
+        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        # cv_img = cv2.filter2D(cv_img, -1, kernel)
+
+        for i in range(1, 5):
+            cv_img = cv2.GaussianBlur(cv_img, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
+            cv_img = cv2.medianBlur(cv_img, BOARD_MEDIAN_BLUR)
 
         # Edge / contour detection
-        edges = cv2.Canny(cv_img, 50, 150, apertureSize=3)
+        edges = cv2.Canny(cv_img, 100, 200, apertureSize=3)
+        # Contours for size detection
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Line detection for orientation
+        lines = cv2.HoughLinesP(edges, 1, np.pi/180, 25, minLineLength=50, maxLineGap=30)
 
         bgr_image = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2BGR)
-        cv2.drawContours(bgr_image, contours, -1, (0, 255, 0), 2)
+
+        # Draw the detected lines and get longest line
+        if lines is None:
+            return None
+
+        max_length = 0
+        longest_line = None
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(bgr_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+            if length > max_length:
+                max_length = length
+                longest_line = (x1, y1, x2, y2)
 
         # Debugging
         self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(bgr_image, 'bgr8'))
 
         # Calculate the convex hull area for each contour (min sized convex polygon)
         # to find the largest one which should be the board
-        if contours:
-            hull_sizes = []
-            for cnt in contours:
-                hull = cv2.convexHull(cnt) # Get convex hull
-                hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
-                hull_sizes.append(hull_area) 
+        if not contours:
+            return None
 
-            # Get the largest convex hull contour
-            largest_hull_cnt = contours[hull_sizes.index(max(hull_sizes))]
+        hull_sizes = []
+        for cnt in contours:
+            hull = cv2.convexHull(cnt) # Get convex hull
+            hull_area = float(cv2.contourArea(hull)) # Explicitly cast hull area to float
+            hull_sizes.append(hull_area) 
 
-            if cv2.contourArea(largest_hull_cnt) > BOARD_MIN_AREA:
-                x, y, w, h = cv2.boundingRect(largest_hull_cnt)
-                cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                center_x, center_y = x + w // 2, y + h // 2
-                point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
+        # Get the largest convex hull contour
+        largest_hull_cnt = contours[hull_sizes.index(max(hull_sizes))]
+        # Check board meets min size
+        if cv2.contourArea(largest_hull_cnt) < BOARD_MIN_AREA:
+            return None
 
-                if point_base_link:
-                    point_msg = PointStamped()
-                    point_msg.header.stamp = self.get_clock().now().to_msg()
-                    point_msg.header.frame_id = 'base_link'
-                    point_msg.point = point_base_link
-                    self.board_point_pub.publish(point_msg)
-                    
-                    coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
-                    cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                return (center_x, center_y)
-        return None
+        x, y, w, h = cv2.boundingRect(largest_hull_cnt)
+        cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        center_x, center_y = x + w // 2, y + h // 2
+        point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
+
+        # Determine orientation from lines
+        x1_px, y1_px, x2_px, y2_px = longest_line
+
+        orientation_point1 = self.get_point_from_pixels(x1_px, y1_px)
+        orientation_point2 = self.get_point_from_pixels(x2_px, y2_px)
+
+        orientation = math.atan(orientation_point2.y - orientation_point1.y / (orientation_point2.x - orientation_point1.x))
+
+        if point_base_link:
+            board_pose = BoardPose()
+            point_msg = PointStamped()
+            point_msg.header.stamp = self.get_clock().now().to_msg()
+            point_msg.header.frame_id = 'base_link'
+            point_msg.point = point_base_link
+            board_pose.point = point_msg
+            board_pose.anglerad = orientation
+            self.board_pose_pub.publish(board_pose)
+            
+            coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
+            cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        return (center_x, center_y)
 
     def find_white_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # HSV Seems to work quite well for white instead of grayscale, not sure why
@@ -408,6 +448,13 @@ class ObjectRecognizer(Node):
                             coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
 
+    def get_point_from_pixels(self, x_px, y_px):
+        depth = self.depth_image[y_px, x_px]
+        if depth == 0:
+            self.get_logger().warn(f"Zero depth for pixel ({x_px}, {y_px}).")
+            return None
+        return rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
+
     def get_3d_point_and_broadcast_tf(self, x_px, y_px, frame_id):
         
         # Check image bounds
@@ -416,13 +463,8 @@ class ObjectRecognizer(Node):
         if not (0 <= y_px < depth_height and 0 <= x_px < depth_width):
             self.get_logger().warn(f"Pixel ({x_px}, {y_px}) for {frame_id} out of bounds.")
             return None
-            
-        depth = self.depth_image[y_px, x_px]
-        if depth == 0:
-            # self.get_logger().warn(f"Zero depth for {frame_id} at pixel ({x_px}, {y_px}).")
-            return None
 
-        point_3d_camera = rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
+        point_3d_camera = self.get_point_from_pixels(x_px, y_px)
 
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
@@ -448,6 +490,7 @@ class ObjectRecognizer(Node):
         self.tf_broadcaster.sendTransform(t)
         
         return point_world.point
+
 
 def main(args=None):
     time.sleep(5)
