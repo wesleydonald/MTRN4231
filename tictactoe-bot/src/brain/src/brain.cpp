@@ -44,7 +44,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -66,6 +66,7 @@ public:
       while (!gripper_client_->wait_for_service(std::chrono::seconds(1))) {
           RCLCPP_INFO(get_logger(), "Gripper service not available, waiting...");
       }
+      sendGripperRequest(false);
     }
 
     // --- GUI Publishers / Subscribers
@@ -116,9 +117,9 @@ private:
     if (game_state_ == PLAYER_TURN && current_on_board.size() > last_black_on_board_.size()) {
         std::set<int> prev(last_black_on_board_.begin(), last_black_on_board_.end());
         for (int idx : current_on_board) {
-            if (prev.find(idx) == prev.end()) {
+            if (prev.find(idx) == prev.end() && game_play_->makeMove(idx, TicTacToe::BLACK)) {
                 RCLCPP_INFO(this->get_logger(), "Detected new black piece on cell %d", idx);
-                onHumanMove(idx);
+                onHumanMove();
                 break;
             }
         }
@@ -144,16 +145,14 @@ private:
   }
 
   // Movement logic
-  void onHumanMove(int cell) {
-    if (game_play_->makeMove(cell, TicTacToe::BLACK)) {
-      game_state_ = ROBOT_TURN;
+  void onHumanMove() {
+    game_state_ = ROBOT_TURN;
 
-      int computerMove = game_play_->findBestMove();
-      RCLCPP_INFO(get_logger(), "Computer selected move %d", computerMove);
+    int computerMove = game_play_->findBestMove();
+    RCLCPP_INFO(get_logger(), "Computer selected move %d", computerMove);
 
-      moveRobotToCell(computerMove);
-      game_play_->makeMove(computerMove, TicTacToe::WHITE);
-    }
+    moveRobotToCell(computerMove);
+    game_play_->makeMove(computerMove, TicTacToe::WHITE);
   }
 
   // Finds which pieces are on the board
@@ -195,11 +194,52 @@ private:
     last_white_off_board_.erase(last_white_off_board_.begin());
 
     // Compute target cell pose from cell_index
+
     double cell_x = (cell_index % 3 - 1) * TicTacToe::CELL_SIZE;
     double cell_y = (cell_index / 3 - 1) * TicTacToe::CELL_SIZE;
+    // switch (cell_index) {
+    //   case 0:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 1:
+    //     cell_x = -1;
+    //     cell_y = 0;
+    //     break;
+    //   case 2:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 3:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 4:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 5:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 6:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 7:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    //   case 8:
+    //     cell_x = -1;
+    //     cell_y = -1;
+    //     break;
+    // }
+  
     target_cell_ = target_piece_;
     target_cell_.position.x = board_origin_.point.x - cell_x;
     target_cell_.position.y = board_origin_.point.y - cell_y;
+    RCLCPP_INFO(get_logger(), "TARGET CELL AT %lf %lf", target_cell_.position.x, target_cell_.position.y);
 
     current_action_ = MOVE_TO_PICK;
     sendArmRequest(target_piece_, false);
@@ -242,12 +282,12 @@ private:
             } else {
                 current_action_ = MOVE_TO_HOME;
                 sendArmRequest(home_pose_, true);
-                game_state_ = PLAYER_TURN;
             }
             break;
 
         case MOVE_TO_HOME:
             RCLCPP_INFO(get_logger(), "Placed piece and moved home");
+            game_state_ = PLAYER_TURN;
             current_action_ = IDLE;
             break;
 

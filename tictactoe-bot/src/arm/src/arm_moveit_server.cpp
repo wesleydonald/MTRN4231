@@ -78,8 +78,8 @@ const std::vector<JointConstraintConfig> JOINT_CONSTRAINTS = {
 
 const std::vector<double> HOME_JOINT_CONFIG = { 
   0.0,                    // 0    deg   shoulder_pan
-  -80.0*(M_PI/180.0),     // -80  deg   shoulder_lift
-  80.0*(M_PI/180.0),      // 80   deg   elbow_joint
+  -90.0*(M_PI/180.0),     // -90  deg   shoulder_lift
+  90.0*(M_PI/180.0),      // 90   deg   elbow_joint
   -M_PI/2.0,              // -90  deg   wrist_1_joint
   -M_PI/2.0,              // -90  deg   wrist_2_joint
   0.0                     // 0    deg   wrist_3_joint
@@ -129,6 +129,8 @@ private:
     auto current_pose = move_group_interface->getCurrentPose();
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
+    target_pose.position.x += 0.03;
+    target_pose.position.y -= 0.01;
     if (!request->move_home) target_pose.position.z = 0.32;
     // Orientation for wrist3 / tool0 to face down
     target_pose.orientation.x = - std::sqrt(2) / 2;
