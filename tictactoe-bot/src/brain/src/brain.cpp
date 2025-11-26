@@ -151,8 +151,12 @@ private:
     int computerMove = game_play_->findBestMove();
     RCLCPP_INFO(get_logger(), "Computer selected move %d", computerMove);
 
-    moveRobotToCell(computerMove);
-    game_play_->makeMove(computerMove, TicTacToe::WHITE);
+    if (computerMove != -1) {
+        moveRobotToCell(computerMove);
+        game_play_->makeMove(computerMove, TicTacToe::WHITE);
+    } else {
+        RCLCPP_INFO(get_logger(), 'GAME FINISHED');
+    }
   }
 
   // Finds which pieces are on the board
@@ -194,47 +198,47 @@ private:
     last_white_off_board_.erase(last_white_off_board_.begin());
 
     // Compute target cell pose from cell_index
+    double cell_x = 0.0;
+    double cell_y = 0.0;
 
-    double cell_x = (cell_index % 3 - 1) * TicTacToe::CELL_SIZE;
-    double cell_y = (cell_index / 3 - 1) * TicTacToe::CELL_SIZE;
-    // switch (cell_index) {
-    //   case 0:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 1:
-    //     cell_x = -1;
-    //     cell_y = 0;
-    //     break;
-    //   case 2:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 3:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 4:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 5:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 6:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 7:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    //   case 8:
-    //     cell_x = -1;
-    //     cell_y = -1;
-    //     break;
-    // }
+    switch (cell_index) {
+      case 0:
+        cell_x = -1;
+        cell_y = -1;
+        break;
+      case 1:
+        cell_x = -1;
+        cell_y = 0;
+        break;
+      case 2:
+        cell_x = -1;
+        cell_y = 1;
+        break;
+      case 3:
+        cell_x = 0;
+        cell_y = -1;
+        break;
+      case 4:
+        cell_x = 0;
+        cell_y = 0;
+        break;
+      case 5:
+        cell_x = 0;
+        cell_y = 1;
+        break;
+      case 6:
+        cell_x = 1;
+        cell_y = -1;
+        break;
+      case 7:
+        cell_x = 1;
+        cell_y = 0;
+        break;
+      case 8:
+        cell_x = 1;
+        cell_y = 1;
+        break;
+    }
   
     target_cell_ = target_piece_;
     target_cell_.position.x = board_origin_.point.x - cell_x;
