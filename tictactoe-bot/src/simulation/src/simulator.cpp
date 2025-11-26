@@ -49,7 +49,7 @@ private:
     board_msg.header.stamp = this->get_clock()->now();
     board_msg.header.frame_id = "base_link";
     board_msg.point.x = 0.35;
-    board_msg.point.y = 0.50;
+    board_msg.point.y = 0.35;
     board_msg.point.z = 0.0;
     board_pub_->publish(board_msg);
 
@@ -62,7 +62,7 @@ private:
     {
       geometry_msgs::msg::Pose pose;
       pose.position.x = 0.65;
-      pose.position.y = 0.3 + 0.1 * i;
+      pose.position.y = 0.15 + 0.1 * i;
       pose.position.z = 0.0;
       pose.orientation.w = 1.0;
       white_msg.poses.push_back(pose);
@@ -78,12 +78,16 @@ private:
     {
       geometry_msgs::msg::Pose pose;
       pose.position.x = 0.30 + 0.1 * i;
-      pose.position.y = 0.20;
+      pose.position.y = 0.05;
       pose.position.z = 0.0;
       pose.orientation.w = 1.0;
+      if (i == 3 && change_2_) {
+        pose.position.x = 0.46;
+        pose.position.y = 0.46;
+      }
       if (i == 4 && change_) { // remove black from offboard
-        pose.position.x = 0.35;
-        pose.position.y = 0.5;
+        pose.position.x = 0.46;
+        pose.position.y = 0.35;
       }
       black_msg.poses.push_back(pose);
     }
@@ -91,6 +95,7 @@ private:
   }
 
   void state_callback() {
+    if (change_ == true) change_2_ = true;
     change_ = true;
   }
 
@@ -100,6 +105,7 @@ private:
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::TimerBase::SharedPtr change_state_timer_;
   bool change_ = false;
+  bool change_2_ = false;
 };
 
 int main(int argc, char *argv[])

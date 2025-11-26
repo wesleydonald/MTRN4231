@@ -19,7 +19,7 @@
 #include "std_srvs/srv/trigger.hpp" 
 
 constexpr double PLANNING_TIME = 0.1;
-constexpr int PLANNING_ATTEMPTS = 500;
+constexpr int PLANNING_ATTEMPTS = 5;
 
 //Function to generate a collision object
 auto generateCollisionObject(float sx,float sy, float sz, float x, float y, float z, std::string frame_id, std::string id) {
@@ -92,16 +92,14 @@ public:
     arm() : Node("arm") {
       move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
       stop_service_ = create_service<std_srvs::srv::Trigger>("arm_stop_service", std::bind(&arm::stopCallback, this, std::placeholders::_1, std::placeholders::_2));
-
-
+      
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
       move_group_interface->setPlanningTime(PLANNING_TIME);
       move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
-      move_group_interface->setPlannerId("TRRTkConfigDefault");
-      // move_group_interface->setPlannerId("RRTConnectkConfigDefault");
+      //move_group_interface->setPlannerId("TRRTkConfigDefault");
+      //move_group_interface->setPlannerId("RRTConnectkConfigDefault");
       // move_group_interface->setPlannerId("RRTConnect");
-      //move_group_interface->setPlannerId("BKPIECEkConfigDefault");
-      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
+      move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
@@ -131,7 +129,7 @@ private:
     auto current_pose = move_group_interface->getCurrentPose();
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    if (!request->move_home) target_pose.position.z = 0.27;
+    if (!request->move_home) target_pose.position.z = 0.32;
     // Orientation for wrist3 / tool0 to face down
     target_pose.orientation.x = - std::sqrt(2) / 2;
     target_pose.orientation.y = std::sqrt(2) / 2;
@@ -155,14 +153,14 @@ private:
     // For the moment set constraints on all desired positions
     moveit_msgs::msg::Constraints constraints;
     set_joint_constraints(constraints);
-    set_orientation_constraints(constraints);
+    //set_orientation_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
 
     // Planning and execution
     bool success = false;
     double planningTime = 0.1;
     const double maxPlanningTime = 60.0;
-
+    
     while (!success && planningTime <= maxPlanningTime) {
         move_group_interface->setPlanningTime(planningTime);
         RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
@@ -172,6 +170,29 @@ private:
         }
     }
 
+    response->success = success;
+    if (success) {
+      response->message = "Planning successful.";
+      move_group_interface->execute(plan);
+    } else {
+      response->message = "Planning failed.";
+    }
+
+    if (request->move_home) { move_group_interface->clearPathConstraints(); return; }
+
+    success = false;
+    planningTime = 0.1;
+    target_pose.position.z = 0.24;
+    move_group_interface->setPoseTarget(target_pose, "tool0");
+    while (!success && planningTime <= maxPlanningTime) {
+        move_group_interface->setPlanningTime(planningTime);
+        RCLCPP_INFO(this->get_logger(), "Trying to plan down with %.1f seconds...", planningTime);
+        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
+        if (!success) {
+            planningTime *= 2;
+        }
+    }
+    
     response->success = success;
     if (success) {
       response->message = "Planning successful.";

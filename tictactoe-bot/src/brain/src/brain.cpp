@@ -102,17 +102,18 @@ public:
 
 private:
   void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+    if (board_set_) return;
     board_origin_ = *msg;
+    board_set_ = true;
     RCLCPP_INFO_ONCE(get_logger(), "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
   }
 
   void blackPiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
+    if (game_state_ != PLAYER_TURN) return;
     std::vector<int> current_on_board = getOnBoardIndices(msg->poses);
 
     // If it's player's turn, detect new placement
-    if (game_state_ == PLAYER_TURN &&
-        current_on_board.size() > last_black_on_board_.size()) {
-
+    if (game_state_ == PLAYER_TURN && current_on_board.size() > last_black_on_board_.size()) {
         std::set<int> prev(last_black_on_board_.begin(), last_black_on_board_.end());
         for (int idx : current_on_board) {
             if (prev.find(idx) == prev.end()) {
@@ -127,6 +128,7 @@ private:
   }
 
   void whitePiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
+    if (game_state_ != PLAYER_TURN) return;
     last_white_on_board_ = getOnBoardIndices(msg->poses);
 
     last_white_off_board_.clear();
@@ -172,13 +174,12 @@ private:
         if (std::fabs(dx) > half_span || std::fabs(dy) > half_span) continue;
 
         // This logic might be a bit cooked
-        int col = static_cast<int>(std::round(dx / cell_size));
-        int row = static_cast<int>(std::round(dy / cell_size));
+        int row = std::round(dx / cell_size) + 1;
+        int col = std::round(dy / cell_size) + 1;
 
-        col = std::max(-1, std::min(1, col));
-        row = std::max(-1, std::min(1, row));
+        if (row < 0 || col < 0 || row > 2 || col > 2) continue;
 
-        int idx = (row + 1) * 3 + (col + 1);
+        int idx = row * 3 + col;
         if (idx >= 0 && idx < 9) indices.push_back(idx);
     }
 
@@ -409,6 +410,7 @@ private:
 
   std::unique_ptr<TicTacToe> game_play_;
   enum State game_state_;
+  bool board_set_ = false;
   
   RobotAction current_action_ = IDLE;
   geometry_msgs::msg::Pose target_piece_;

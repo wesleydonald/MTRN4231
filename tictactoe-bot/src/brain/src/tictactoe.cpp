@@ -12,7 +12,7 @@ public:
     static constexpr int EMPTY = 2;
     static constexpr int WHITE = 1; // Computer
     static constexpr int BLACK = 0; // Human
-    static constexpr double CELL_SIZE = 0.1;
+    static constexpr double CELL_SIZE = 0.11;
 
     TicTacToe() {
         resetBoard();
@@ -33,6 +33,7 @@ public:
 
     // Find best move for AI
     int findBestMove() {
+        if (board_[4] == EMPTY) return 4;
         int bestVal = std::numeric_limits<int>::min();
         int bestMove = -1;
 
