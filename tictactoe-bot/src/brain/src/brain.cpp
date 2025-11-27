@@ -31,7 +31,12 @@ Lastly we return to home_pose.
 
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/point_stamped.hpp"
+#include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
+
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 #include "interfaces/msg/board_pose.hpp"
 #include "interfaces/srv/move_arm.hpp"
@@ -51,7 +56,7 @@ constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING
 
 class Brain : public rclcpp::Node {
 public:
-  Brain() : Node("brain_node"), game_state_(PLAYER_TURN) {
+  Brain() : Node("brain_node"), game_state_(PLAYER_TURN), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_) {
     game_play_ = std::make_unique<TicTacToe>();
 
     // Subscriptions for board and pieces
@@ -166,32 +171,42 @@ private:
   // Finds which pieces are on the board
   std::vector<int> getOnBoardIndices(const std::vector<geometry_msgs::msg::Pose> &poses) {
     std::vector<int> indices;
-    if (board_origin_.header.frame_id.empty()) return indices;
+    constexpr double MAX_DIST = 0.05;
 
-    const double cell_size = TicTacToe::CELL_SIZE;
-    const double half_span = 1.6 * cell_size;
-
-    double ox = board_origin_.point.x;
-    double oy = board_origin_.point.y;
+    // Pre-fetch square positions in base_link frame
+    std::array<geometry_msgs::msg::Point, 9> square_positions;
+    for (int i = 0; i < 9; ++i) {
+        std::string frame = "board_index_" + std::to_string(i);
+        try {
+            auto tf = tf_buffer_.lookupTransform("base_link", frame, tf2::TimePointZero);
+            square_positions[i].x = tf.transform.translation.x;
+            square_positions[i].y = tf.transform.translation.y;
+            square_positions[i].z = tf.transform.translation.z;
+        } catch (...) { }
+    }
 
     for (const auto &p : poses) {
-        double dx = p.position.x - ox;
-        double dy = p.position.y - oy;
+        // Find nearest square
+        double best_dist = 1e9;
+        int best_idx = -1;
 
-        double k = board_orientation_;
-        double dx_prime = dx * std::cos(k) - dy * std::sin(k);
-        double dy_prime = dx * std::sin(k) + dy * std::cos(k);
+        for (int i = 0; i < 9; ++i) {
+            const auto &sq = square_positions[i];
+            if (std::isnan(sq.x)) continue;
 
-        if (std::fabs(dx_prime) > half_span || std::fabs(dy_prime) > half_span) continue;
+            double dx = p.position.x - sq.x;
+            double dy = p.position.y - sq.y;
+            double dist = std::sqrt(dx*dx + dy*dy);
 
-        // This logic might be a bit cooked
-        int row = std::round(dx_prime / cell_size) + 1;
-        int col = std::round(dy_prime / cell_size) + 1;
+            if (dist < best_dist) {
+                best_dist = dist;
+                best_idx = i;
+            }
+        }
 
-        if (row < 0 || col < 0 || row > 2 || col > 2) continue;
-
-        int idx = row * 3 + col;
-        if (idx >= 0 && idx < 9) indices.push_back(idx);
+        // Only accept if within 5 cm
+        if (best_idx != -1 && best_dist <= MAX_DIST)
+            indices.push_back(best_idx);
     }
 
     std::sort(indices.begin(), indices.end());
@@ -199,59 +214,28 @@ private:
     return indices;
   }
 
+
   // Picking up the piece
   void moveRobotToCell(int cell_index) {
     // Pick first available off-board piece
     target_piece_ = last_white_off_board_.front();
     last_white_off_board_.erase(last_white_off_board_.begin());
 
-    // Compute target cell pose from cell_index
-    double cell_x = 0.0;
-    double cell_y = 0.0;
-
-    switch (cell_index) {
-      case 0:
-        cell_x = -1;
-        cell_y = -1;
-        break;
-      case 1:
-        cell_x = -1;
-        cell_y = 0;
-        break;
-      case 2:
-        cell_x = -1;
-        cell_y = 1;
-        break;
-      case 3:
-        cell_x = 0;
-        cell_y = -1;
-        break;
-      case 4:
-        cell_x = 0;
-        cell_y = 0;
-        break;
-      case 5:
-        cell_x = 0;
-        cell_y = 1;
-        break;
-      case 6:
-        cell_x = 1;
-        cell_y = -1;
-        break;
-      case 7:
-        cell_x = 1;
-        cell_y = 0;
-        break;
-      case 8:
-        cell_x = 1;
-        cell_y = 1;
-        break;
+    std::string frame = "board_index_" + std::to_string(cell_index);
+    double targetX = 0.0;
+    double targetY = 0.0;
+    try {
+        auto tf = tf_buffer_.lookupTransform("base_link", frame, tf2::TimePointZero);
+        targetX = tf.transform.translation.x;
+        targetY = tf.transform.translation.y;
+    } catch (...) {
+        RCLCPP_ERROR(get_logger(), "Failed to lookup TF for %s", frame.c_str());
+        return; // ERROR
     }
 
-    double k = board_orientation_;
     target_cell_ = target_piece_;
-    target_cell_.position.x = board_origin_.point.x + TicTacToe::CELL_SIZE * (cell_x * std::cos(k) - cell_y * std::sin(k));
-    target_cell_.position.y = board_origin_.point.y + TicTacToe::CELL_SIZE * (cell_x * std::sin(k) + cell_y * std::cos(k));
+    target_cell_.position.x = targetX;
+    target_cell_.position.y = targetY;
     RCLCPP_INFO(get_logger(), "TARGET CELL AT %lf %lf", target_cell_.position.x, target_cell_.position.y);
 
     current_action_ = MOVE_TO_PICK;
@@ -474,6 +458,9 @@ private:
   std::vector<geometry_msgs::msg::Pose> last_white_off_board_;
   geometry_msgs::msg::PointStamped board_origin_;
   double board_orientation_;
+
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   rclcpp::Subscription<interfaces::msg::BoardPose>::SharedPtr board_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr white_pieces_sub_;

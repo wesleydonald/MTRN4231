@@ -20,9 +20,9 @@ Lastly we return to home_pose.
 #include <vector>
 
 #include "rclcpp/rclcpp.hpp"
-#include "geometry_msgs/msg/point_stamped.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "geometry_msgs/msg/pose.hpp"
+#include "interfaces/msg/board_pose.hpp"
 
 using namespace std::chrono_literals;
 
@@ -30,7 +30,7 @@ class Simulator : public rclcpp::Node {
 public:
   Simulator() : Node("simulator") {
     // Publishers
-    board_pub_ = this->create_publisher<geometry_msgs::msg::PointStamped>("/detected/board", 10);
+    board_pub_ = this->create_publisher<interfaces::msg::BoardPose>("/detected/board", 10);
     white_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10);
     black_pub_ = this->create_publisher<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10);
 
@@ -45,12 +45,11 @@ private:
   void timer_callback()
   {
     // Publish board location
-    geometry_msgs::msg::PointStamped board_msg;
-    board_msg.header.stamp = this->get_clock()->now();
-    board_msg.header.frame_id = "base_link";
-    board_msg.point.x = 0.35;
-    board_msg.point.y = 0.35;
-    board_msg.point.z = 0.0;
+    interfaces::msg::BoardPose board_msg;
+    board_msg.point.point.x = 0.35;
+    board_msg.point.point.y = 0.35;
+    board_msg.point.point.z = 0.0;
+    board_msg.anglerad = 1.0;
     board_pub_->publish(board_msg);
 
     // Publish white pieces
@@ -99,7 +98,7 @@ private:
     change_ = true;
   }
 
-  rclcpp::Publisher<geometry_msgs::msg::PointStamped>::SharedPtr board_pub_;
+  rclcpp::Publisher<interfaces::msg::BoardPose>::SharedPtr board_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr white_pub_;
   rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr black_pub_;
   rclcpp::TimerBase::SharedPtr timer_;

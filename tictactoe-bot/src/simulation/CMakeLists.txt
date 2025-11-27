@@ -12,12 +12,14 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(interfaces REQUIRED)
 
 add_executable(simulator src/simulator.cpp)
 
 ament_target_dependencies(simulator
   rclcpp
   geometry_msgs
+  interfaces
 )
 
 install(TARGETS
