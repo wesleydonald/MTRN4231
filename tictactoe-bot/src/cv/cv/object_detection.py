@@ -4,6 +4,7 @@ import tf2_ros
 import os
 import time
 import math
+import random
 import numpy as np
 import pyrealsense2 as rs
 import tf2_geometry_msgs
@@ -284,13 +285,20 @@ class ObjectRecognizer(Node):
             cv_img = cv2.medianBlur(cv_img, BOARD_MEDIAN_BLUR)
 
         # Edge / contour detection
-        edges = cv2.Canny(cv_img, 100, 200, apertureSize=3)
+        edges = cv2.Canny(cv_img, 50, 150, apertureSize=3)
+        # Dilate the canny image too
+        kernel = np.ones((3, 3), np.uint8)
+        edges = cv2.dilate(edges, kernel, iterations=1)
         # Contours for size detection
         contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         # Line detection for orientation
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 25, minLineLength=50, maxLineGap=30)
 
         bgr_image = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2BGR)
+        count = 0
+        for cnt in contours:
+            cv2.drawContours(bgr_image, [contours[count]], -1, (0, 255, 0), 2)
+            count += 1
 
         # Draw the detected lines and get longest line
         if lines is None:
@@ -300,11 +308,12 @@ class ObjectRecognizer(Node):
         longest_line = None
         for line in lines:
             x1, y1, x2, y2 = line[0]
-            cv2.line(bgr_image, (x1, y1), (x2, y2), (0, 0, 255), 2)
             length = np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
             if length > max_length:
                 max_length = length
                 longest_line = (x1, y1, x2, y2)
+
+        cv2.line(bgr_image, (longest_line[0], longest_line[1]), (longest_line[2], longest_line[3]), (0, 0, 255), 2)
 
         # Debugging
         self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(bgr_image, 'bgr8'))
@@ -323,7 +332,7 @@ class ObjectRecognizer(Node):
         # Get the largest convex hull contour
         largest_hull_cnt = contours[hull_sizes.index(max(hull_sizes))]
         # Check board meets min size
-        if cv2.contourArea(largest_hull_cnt) < BOARD_MIN_AREA:
+        if cv2.contourArea(cv2.convexHull(largest_hull_cnt)) < BOARD_MIN_AREA:
             return None
 
         x, y, w, h = cv2.boundingRect(largest_hull_cnt)
@@ -334,10 +343,14 @@ class ObjectRecognizer(Node):
         # Determine orientation from lines
         x1_px, y1_px, x2_px, y2_px = longest_line
 
+        # Points are [x, y, z] I believe
         orientation_point1 = self.get_point_from_pixels(x1_px, y1_px)
         orientation_point2 = self.get_point_from_pixels(x2_px, y2_px)
 
-        orientation = math.atan(orientation_point2.y - orientation_point1.y / (orientation_point2.x - orientation_point1.x))
+        if orientation_point1 is None or orientation_point2 is None:
+            return None
+
+        orientation = math.atan((orientation_point2[1] - orientation_point1[1]) / (orientation_point2[0] - orientation_point1[0]))
 
         if point_base_link:
             board_pose = BoardPose()
@@ -347,6 +360,7 @@ class ObjectRecognizer(Node):
             point_msg.point = point_base_link
             board_pose.point = point_msg
             board_pose.anglerad = orientation
+            self.get_logger().info(f"Orientation: {orientation}.")
             self.board_pose_pub.publish(board_pose)
             
             coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
@@ -465,6 +479,8 @@ class ObjectRecognizer(Node):
             return None
 
         point_3d_camera = self.get_point_from_pixels(x_px, y_px)
+        if point_3d_camera is None:
+            return None
 
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
