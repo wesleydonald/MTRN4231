@@ -1,10 +1,7 @@
 import rclpy
 import cv2
-import tf2_ros
-import os
 import time
 import math
-import random
 import numpy as np
 import pyrealsense2 as rs
 import tf2_geometry_msgs
@@ -14,12 +11,11 @@ from cv_bridge import CvBridge, CvBridgeError
 
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseStamped, PoseArray, Quaternion
+from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseArray
 from tf2_ros import TransformBroadcaster
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
-from visualization_msgs.msg import Marker, MarkerArray
 from interfaces.msg import BoardPose
 
 # CONSTANTS
@@ -52,6 +48,10 @@ ROI_LEFT_TOP = 0.4
 ROI_LEFT_BOTTOM = 0.3
 ROI_RIGHT_TOP = 0.98
 ROI_RIGHT_BOTTOM = 1
+
+# List of grid indexes / offsets to help calculate grid square positions
+GRID_IDEXES = [[-1, -1], [-1,0], [-1, 1], [0,-1], [0, 0], [0, 1], [1, -1], [1,0], [1,1]]
+CELL_SIZE = 0.11
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -259,9 +259,6 @@ class ObjectRecognizer(Node):
     def find_board(self, camera_img, roi_mask, debug_image):
 
         # Threshold to detect black
-        # cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
-        # _, cv_img = cv2.threshold(cv_img, BOARD_COLOUR_THRESHOLD_MAX, 255, cv2.THRESH_BINARY_INV)
-
         cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
         lower = np.array([80, 200, 90])
         upper = np.array([120, 255, 180])
@@ -271,15 +268,8 @@ class ObjectRecognizer(Node):
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Image processing to remove noise and smooth
-        # kernel = np.ones((BOARD_ERODE_KERNEL_SIZE, BOARD_ERODE_KERNEL_SIZE), np.uint8)
-        # cv_img = cv2.erode(cv_img, kernel, iterations=1)
         kernel = np.ones((BOARD_DILATE_KERNEL_SIZE, BOARD_DILATE_KERNEL_SIZE), np.uint8)
         cv_img = cv2.dilate(cv_img, kernel, iterations=1)
-        # cv_img = cv2.addWeighted(cv_img, 1.5, blurred_img, -0.5, 0)
-
-        # Create the sharpening kernel
-        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        # cv_img = cv2.filter2D(cv_img, -1, kernel)
 
         for i in range(1, 5):
             cv_img = cv2.GaussianBlur(cv_img, (BOARD_GAUSSIAN_BLUR, BOARD_GAUSSIAN_BLUR), 1)
@@ -287,7 +277,7 @@ class ObjectRecognizer(Node):
 
         # Edge / contour detection
         edges = cv2.Canny(cv_img, 50, 150, apertureSize=3)
-        # Dilate the canny image too
+        # Dilate the canny edge detection image too so contours work better
         kernel = np.ones((3, 3), np.uint8)
         edges = cv2.dilate(edges, kernel, iterations=1)
         # Contours for size detection
@@ -295,11 +285,9 @@ class ObjectRecognizer(Node):
         # Line detection for orientation
         lines = cv2.HoughLinesP(edges, 1, np.pi/180, 25, minLineLength=50, maxLineGap=30)
 
+        # Detection debugging image for the board with contours and orientation line
         bgr_image = cv2.cvtColor(cv_img, cv2.COLOR_GRAY2BGR)
-        count = 0
-        for cnt in contours:
-            cv2.drawContours(bgr_image, [contours[count]], -1, (0, 255, 0), 2)
-            count += 1
+        cv2.drawContours(bgr_image, contours, -1, (0, 255, 0), 2)
 
         # Draw the detected lines and get longest line
         if lines is None:
@@ -314,13 +302,17 @@ class ObjectRecognizer(Node):
                 max_length = length
                 longest_line = (x1, y1, x2, y2)
 
-        cv2.line(bgr_image, (longest_line[0], longest_line[1]), (longest_line[2], longest_line[3]), (0, 0, 255), 2)
+        # Determine orientation from the longest line
+        x1_px, y1_px, x2_px, y2_px = longest_line
 
-        # Debugging
+        # Display the longeest line on the debug image
+        cv2.line(bgr_image, (x1_px, y1_px), (x2_px, y2_px), (0, 0, 255), 2)
+
+        # Debugging image
         self.debug_board_pub.publish(self.cv_bridge.cv2_to_imgmsg(bgr_image, 'bgr8'))
 
         # Calculate the convex hull area for each contour (min sized convex polygon)
-        # to find the largest one which should be the board
+        # to find the largest one, which should be the board
         if not contours:
             return None
 
@@ -340,31 +332,33 @@ class ObjectRecognizer(Node):
         cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
         center_x, center_y = x + w // 2, y + h // 2
 
-        # Determine orientation from lines
-        x1_px, y1_px, x2_px, y2_px = longest_line
-
-        # Points are [x, y, z] I believe
+        # Get line end points in 3d space so we can calculate orientation 
+        # of the board. Points are returned as [x, y, z]
         orientation_point1 = self.get_point_from_pixels(x1_px, y1_px)
         orientation_point2 = self.get_point_from_pixels(x2_px, y2_px)
 
         if orientation_point1 is None or orientation_point2 is None:
             return None
 
-        # For some reason, negative angle seems to be correct
+        # Calculate orientation, publish the tf, publish boardpose
         orientation = math.atan((orientation_point2[1] - orientation_point1[1]) / (orientation_point2[0] - orientation_point1[0]))
-        point_base_link = self.broadcast_point_tf(center_x, center_y, orientation, 'board')
+        point_world = self.broadcast_point_tf(center_x, center_y, orientation, 'board')
 
-        if point_base_link:
+        if point_world:
+            # Publish board pose in world frame
             board_pose = BoardPose()
             point_msg = PointStamped()
             point_msg.header.stamp = self.get_clock().now().to_msg()
             point_msg.header.frame_id = 'base_link'
-            point_msg.point = point_base_link
+            point_msg.point = point_world
             board_pose.point = point_msg
             board_pose.anglerad = orientation
             self.board_pose_pub.publish(board_pose)
+
+            # Publish grid square tfs
+            self.broadcast_grid_square_tfs()
             
-            coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
+            coord_text = f"C:({point_world.x:.2f},{point_world.y:.2f},{point_world.z:.2f})"
             cv2.putText(debug_image, coord_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         return (center_x, center_y)
@@ -405,13 +399,13 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_base_link = self.broadcast_point_tf(cx, cy, 0, f'white_piece{i}')
-                        if point_base_link:
+                        point_world = self.broadcast_point_tf(cx, cy, 0, f'white_piece{i}')
+                        if point_world:
                             pose = Pose()
-                            pose.position = point_base_link
+                            pose.position = point_world
                             pose.orientation.w = 1.0
                             pose_array.poses.append(pose)
-                            coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
+                            coord_text = f"B:({point_world.x:.2f},{point_world.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 0, 0), 1)
 
     def find_black_pieces(self, camera_img, roi_mask, debug_image, pose_array):
@@ -454,13 +448,13 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_base_link = self.broadcast_point_tf(cx, cy, 0, f'black_piece_{i}')
-                        if point_base_link:
+                        point_world = self.broadcast_point_tf(cx, cy, 0, f'black_piece_{i}')
+                        if point_world:
                             pose = Pose()
-                            pose.position = point_base_link
+                            pose.position = point_world
                             pose.orientation.w = 1.0
                             pose_array.poses.append(pose)
-                            coord_text = f"B:({point_base_link.x:.2f},{point_base_link.y:.2f})"
+                            coord_text = f"B:({point_world.x:.2f},{point_world.y:.2f})"
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
 
     def get_point_from_pixels(self, x_px, y_px):
@@ -468,9 +462,10 @@ class ObjectRecognizer(Node):
         depth_height, depth_width = self.depth_image.shape[:2]
 
         if not (0 <= y_px < depth_height and 0 <= x_px < depth_width):
-            self.get_logger().warn(f"Pixel ({x_px}, {y_px}) for {frame_id} out of bounds.")
+            self.get_logger().warn(f"Pixel ({x_px}, {y_px}) out of bounds.")
             return None
 
+        # Get depth then 3d point from image
         depth = self.depth_image[y_px, x_px]
 
         if depth == 0:
@@ -481,6 +476,7 @@ class ObjectRecognizer(Node):
 
     def broadcast_point_tf(self, x_px, y_px, orientation, frame_id):
 
+        # Get 3d point from desired pixel, the a point stamped to use tf 
         point = self.get_point_from_pixels(x_px, y_px)
         if point is None:
             return None
@@ -492,6 +488,7 @@ class ObjectRecognizer(Node):
         point_camera.point.y = point[1]
         point_camera.point.z = point[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
 
+        # Try transform point to world coords from camera frame
         try:
             # Wait for the transform to be available
             transform = self.tf_buffer.lookup_transform('base_link', 'camera_color_optical_frame', rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=0.1))
@@ -500,7 +497,7 @@ class ObjectRecognizer(Node):
             self.get_logger().error(f"Could not transform point for {frame_id}: {e}")
             return None
 
-        # Publish relative to the base link
+        # Publish relative to the base link so orientation is easier to manage
         t = TransformStamped()
         t.header.stamp = point_camera.header.stamp
         t.header.frame_id = 'base_link'
@@ -508,18 +505,33 @@ class ObjectRecognizer(Node):
         t.transform.translation.x = point_world.point.x
         t.transform.translation.y = point_world.point.y
         t.transform.translation.z = point_world.point.z
+
         # Rotate by the given orientation about the z axis
-
         qx, qy, qz, qw = tf_transformations.quaternion_from_euler(0.0, 0.0, float(orientation))
-        self.get_logger().info(f"Quaternion: {[qx, qy, qz, qw]}")
-
         t.transform.rotation.x = qx
         t.transform.rotation.y = qy
         t.transform.rotation.z = qz
         t.transform.rotation.w = qw
         self.tf_broadcaster.sendTransform(t)
         
+        # World point returned for marker publishing info
         return point_world.point
+
+    def broadcast_grid_square_tfs(self): 
+        # Publish the center of each grid square on the board as a tf
+        # the indexes and cell size are defined as constants at the top of the file
+        for i, index in enumerate(GRID_IDEXES):
+
+            # Publish relative to the board
+            t = TransformStamped()
+            t.header.stamp = self.get_clock().now().to_msg()
+            t.header.frame_id = 'board'
+            t.child_frame_id = str(f'board_index_{i}')
+            t.transform.translation.x = index[0] * CELL_SIZE
+            t.transform.translation.y = index[1] * CELL_SIZE
+            t.transform.translation.z = 0.0
+            self.get_logger().info(f"Publishing board index {i}.")
+            self.tf_broadcaster.sendTransform(t)
 
 
 def main(args=None):
