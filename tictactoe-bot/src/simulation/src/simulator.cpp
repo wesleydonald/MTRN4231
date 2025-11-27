@@ -86,7 +86,7 @@ private:
         pose.position.y = 0.46;
       }
       if (i == 4 && change_) { // remove black from offboard
-        pose.position.x = 0.46;
+        pose.position.x = 0.35;
         pose.position.y = 0.35;
       }
       black_msg.poses.push_back(pose);

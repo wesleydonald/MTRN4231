@@ -32,19 +32,22 @@ Lastly we return to home_pose.
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
+
+#include "interfaces/msg/board_pose.hpp"
 #include "interfaces/srv/move_arm.hpp"
 #include "interfaces/srv/close_gripper.hpp"
 
 // For GUI communication
 #include "std_msgs/msg/string.hpp"
 #include "std_msgs/msg/int32.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include "std_srvs/srv/trigger.hpp"
 
 #include "tictactoe.cpp" 
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -52,7 +55,7 @@ public:
     game_play_ = std::make_unique<TicTacToe>();
 
     // Subscriptions for board and pieces
-    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1));
+    board_sub_ = this->create_subscription<interfaces::msg::BoardPose>("/detected/board", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1));
     white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10, std::bind(&Brain::whitePiecesCallback, this, std::placeholders::_1));
     black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10, std::bind(&Brain::blackPiecesCallback, this, std::placeholders::_1));
 
@@ -102,11 +105,12 @@ public:
   }
 
 private:
-  void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+  void boardCallback(const interfaces::msg::BoardPose::SharedPtr msg) {
     if (board_set_) return;
-    board_origin_ = *msg;
+    board_origin_ = msg->point;
+    board_orientation_ = msg->anglerad;
     board_set_ = true;
-    RCLCPP_INFO_ONCE(get_logger(), "Board center set to (%.3f, %.3f, %.3f)", msg->point.x, msg->point.y, msg->point.z);
+    RCLCPP_INFO_ONCE(get_logger(), "Board center set to (%.3f, %.3f, %.3f)", board_origin_.point.x, board_origin_.point.y, board_orientation_);
   }
 
   void blackPiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
@@ -174,11 +178,15 @@ private:
         double dx = p.position.x - ox;
         double dy = p.position.y - oy;
 
-        if (std::fabs(dx) > half_span || std::fabs(dy) > half_span) continue;
+        double k = board_orientation_;
+        double dx_prime = dx * std::cos(k) - dy * std::sin(k);
+        double dy_prime = dx * std::sin(k) + dy * std::cos(k);
+
+        if (std::fabs(dx_prime) > half_span || std::fabs(dy_prime) > half_span) continue;
 
         // This logic might be a bit cooked
-        int row = std::round(dx / cell_size) + 1;
-        int col = std::round(dy / cell_size) + 1;
+        int row = std::round(dx_prime / cell_size) + 1;
+        int col = std::round(dy_prime / cell_size) + 1;
 
         if (row < 0 || col < 0 || row > 2 || col > 2) continue;
 
@@ -239,10 +247,11 @@ private:
         cell_y = 1;
         break;
     }
-  
+
+    double k = board_orientation_;
     target_cell_ = target_piece_;
-    target_cell_.position.x = board_origin_.point.x + cell_x;
-    target_cell_.position.y = board_origin_.point.y + cell_y;
+    target_cell_.position.x = board_origin_.point.x + TicTacToe::CELL_SIZE * (cell_x * std::cos(k) - cell_y * std::sin(k));
+    target_cell_.position.y = board_origin_.point.y + TicTacToe::CELL_SIZE * (cell_x * std::sin(k) + cell_y * std::cos(k));
     RCLCPP_INFO(get_logger(), "TARGET CELL AT %lf %lf", target_cell_.position.x, target_cell_.position.y);
 
     current_action_ = MOVE_TO_PICK;
@@ -464,8 +473,9 @@ private:
   std::vector<int> last_white_on_board_;
   std::vector<geometry_msgs::msg::Pose> last_white_off_board_;
   geometry_msgs::msg::PointStamped board_origin_;
+  double board_orientation_;
 
-  rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr board_sub_;
+  rclcpp::Subscription<interfaces::msg::BoardPose>::SharedPtr board_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr white_pieces_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr black_pieces_sub_;
 

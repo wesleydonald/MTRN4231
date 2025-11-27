@@ -8,12 +8,13 @@ import random
 import numpy as np
 import pyrealsense2 as rs
 import tf2_geometry_msgs
+import tf_transformations
 from collections import Counter # Import Counter for finding most common detection
 from cv_bridge import CvBridge, CvBridgeError
 
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseStamped, PoseArray 
+from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseStamped, PoseArray, Quaternion
 from tf2_ros import TransformBroadcaster
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
@@ -338,7 +339,6 @@ class ObjectRecognizer(Node):
         x, y, w, h = cv2.boundingRect(largest_hull_cnt)
         cv2.rectangle(debug_image, (x, y), (x+w, y+h), (0, 255, 0), 2)
         center_x, center_y = x + w // 2, y + h // 2
-        point_base_link = self.get_3d_point_and_broadcast_tf(center_x, center_y, 'board')
 
         # Determine orientation from lines
         x1_px, y1_px, x2_px, y2_px = longest_line
@@ -350,7 +350,9 @@ class ObjectRecognizer(Node):
         if orientation_point1 is None or orientation_point2 is None:
             return None
 
+        # For some reason, negative angle seems to be correct
         orientation = math.atan((orientation_point2[1] - orientation_point1[1]) / (orientation_point2[0] - orientation_point1[0]))
+        point_base_link = self.broadcast_point_tf(center_x, center_y, orientation, 'board')
 
         if point_base_link:
             board_pose = BoardPose()
@@ -360,7 +362,6 @@ class ObjectRecognizer(Node):
             point_msg.point = point_base_link
             board_pose.point = point_msg
             board_pose.anglerad = orientation
-            self.get_logger().info(f"Orientation: {orientation}.")
             self.board_pose_pub.publish(board_pose)
             
             coord_text = f"C:({point_base_link.x:.2f},{point_base_link.y:.2f},{point_base_link.z:.2f})"
@@ -404,7 +405,7 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_base_link = self.get_3d_point_and_broadcast_tf(cx, cy, f'white_piece{i}')
+                        point_base_link = self.broadcast_point_tf(cx, cy, 0, f'white_piece{i}')
                         if point_base_link:
                             pose = Pose()
                             pose.position = point_base_link
@@ -453,7 +454,7 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_base_link = self.get_3d_point_and_broadcast_tf(cx, cy, f'black_piece_{i}')
+                        point_base_link = self.broadcast_point_tf(cx, cy, 0, f'black_piece_{i}')
                         if point_base_link:
                             pose = Pose()
                             pose.position = point_base_link
@@ -463,14 +464,6 @@ class ObjectRecognizer(Node):
                             cv2.putText(debug_image, coord_text, (cx - 30, cy - 15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
 
     def get_point_from_pixels(self, x_px, y_px):
-        depth = self.depth_image[y_px, x_px]
-        if depth == 0:
-            self.get_logger().warn(f"Zero depth for pixel ({x_px}, {y_px}).")
-            return None
-        return rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
-
-    def get_3d_point_and_broadcast_tf(self, x_px, y_px, frame_id):
-        
         # Check image bounds
         depth_height, depth_width = self.depth_image.shape[:2]
 
@@ -478,16 +471,26 @@ class ObjectRecognizer(Node):
             self.get_logger().warn(f"Pixel ({x_px}, {y_px}) for {frame_id} out of bounds.")
             return None
 
-        point_3d_camera = self.get_point_from_pixels(x_px, y_px)
-        if point_3d_camera is None:
+        depth = self.depth_image[y_px, x_px]
+
+        if depth == 0:
+            self.get_logger().warn(f"Zero depth for pixel ({x_px}, {y_px}).")
+            return None
+
+        return rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
+
+    def broadcast_point_tf(self, x_px, y_px, orientation, frame_id):
+
+        point = self.get_point_from_pixels(x_px, y_px)
+        if point is None:
             return None
 
         point_camera = PointStamped()
         point_camera.header.stamp = self.get_clock().now().to_msg()
         point_camera.header.frame_id = 'camera_color_optical_frame'
-        point_camera.point.x = point_3d_camera[0] # - 0.038 # Offset for x (given from labs, may need tuning)
-        point_camera.point.y = point_3d_camera[1]
-        point_camera.point.z = point_3d_camera[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
+        point_camera.point.x = point[0] # - 0.038 # Offset for x (given from labs, may need tuning)
+        point_camera.point.y = point[1]
+        point_camera.point.z = point[2] - 0.06 # Offset for the z (since it seems to not be calibrated 100% correctly)
 
         try:
             # Wait for the transform to be available
@@ -497,12 +500,23 @@ class ObjectRecognizer(Node):
             self.get_logger().error(f"Could not transform point for {frame_id}: {e}")
             return None
 
+        # Publish relative to the base link
         t = TransformStamped()
         t.header.stamp = point_camera.header.stamp
-        t.header.frame_id = 'camera_color_optical_frame'
+        t.header.frame_id = 'base_link'
         t.child_frame_id = frame_id
-        t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = point_3d_camera
-        t.transform.rotation.w = 1.0
+        t.transform.translation.x = point_world.point.x
+        t.transform.translation.y = point_world.point.y
+        t.transform.translation.z = point_world.point.z
+        # Rotate by the given orientation about the z axis
+
+        qx, qy, qz, qw = tf_transformations.quaternion_from_euler(0.0, 0.0, float(orientation))
+        self.get_logger().info(f"Quaternion: {[qx, qy, qz, qw]}")
+
+        t.transform.rotation.x = qx
+        t.transform.rotation.y = qy
+        t.transform.rotation.z = qz
+        t.transform.rotation.w = qw
         self.tf_broadcaster.sendTransform(t)
         
         return point_world.point
