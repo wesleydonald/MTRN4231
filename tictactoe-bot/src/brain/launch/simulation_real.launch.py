@@ -9,23 +9,24 @@ def generate_launch_description():
   move_it_launch_dir = PathJoinSubstitution([FindPackageShare('ur_moveit_config'), 'launch'])
   arm_launch_dir = PathJoinSubstitution([FindPackageShare('arm'), 'launch'])
   return LaunchDescription([
-    #IncludeLaunchDescription(
+    # IncludeLaunchDescription(
     #  PathJoinSubstitution([ur_launch_dir, 'ur_control.launch.py']),
     #  launch_arguments={
     #    'ur_type': 'ur5e', 
     #    'robot_ip': '192.168.0.100',
-    #    'use_fake_hardware': 'false', 
+    #    'use_fake_hardware': 'true', 
     #    'launch_rviz': 'false'
     #  }.items()
-    #),
-    #IncludeLaunchDescription(
+    # ),
+    # IncludeLaunchDescription(
     #  PathJoinSubstitution([move_it_launch_dir, 'ur_moveit.launch.py']),
     #  launch_arguments={
     #    'ur_type': 'ur5e', 
     #    'robot_ip': '192.168.0.100',
-    #    'launch_rviz': 'false'
+    #    'use_fake_hardware': 'true',
+    #    'launch_rviz': 'true'
     #  }.items()
-    #),
+    # ),
     IncludeLaunchDescription(PathJoinSubstitution([arm_launch_dir, 'arm.launch.py'])), 
     Node(
         package='visualization',

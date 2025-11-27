@@ -32,6 +32,7 @@ Lastly we return to home_pose.
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
+
 #include "interfaces/srv/move_arm.hpp"
 #include "interfaces/srv/close_gripper.hpp"
 
@@ -44,7 +45,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -52,7 +53,7 @@ public:
     game_play_ = std::make_unique<TicTacToe>();
 
     // Subscriptions for board and pieces
-    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1));
+    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Brain::boardCallback, this, std::placeholders::_1)); ////////////////////////////////////////
     white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10, std::bind(&Brain::whitePiecesCallback, this, std::placeholders::_1));
     black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10, std::bind(&Brain::blackPiecesCallback, this, std::placeholders::_1));
 
@@ -102,7 +103,7 @@ public:
   }
 
 private:
-  void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+  void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) { ///////////////////////////////////////////////////////
     if (board_set_) return;
     board_origin_ = *msg;
     board_set_ = true;
@@ -155,7 +156,7 @@ private:
         moveRobotToCell(computerMove);
         game_play_->makeMove(computerMove, TicTacToe::WHITE);
     } else {
-        RCLCPP_INFO(get_logger(), 'GAME FINISHED');
+        RCLCPP_INFO(get_logger(), "GAME FINISHED");
     }
   }
 
@@ -239,10 +240,10 @@ private:
         cell_y = 1;
         break;
     }
-  
+    double k = 0.7;
     target_cell_ = target_piece_;
-    target_cell_.position.x = board_origin_.point.x - cell_x;
-    target_cell_.position.y = board_origin_.point.y - cell_y;
+    target_cell_.position.x = board_origin_.point.x + TicTacToe::CELL_SIZE * (cell_x * std::cos(k) + cell_y * std::sin(k));
+    target_cell_.position.y = board_origin_.point.y + TicTacToe::CELL_SIZE * (cell_x * -std::sin(k) + cell_y * std::cos(k));
     RCLCPP_INFO(get_logger(), "TARGET CELL AT %lf %lf", target_cell_.position.x, target_cell_.position.y);
 
     current_action_ = MOVE_TO_PICK;
