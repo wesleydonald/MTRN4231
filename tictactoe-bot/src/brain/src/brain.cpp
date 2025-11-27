@@ -52,7 +52,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -189,6 +189,7 @@ private:
         // Find nearest square
         double best_dist = 1e9;
         int best_idx = -1;
+        //RCLCPP_INFO(get_logger(), "Piece at (%lf %lf)", p.position.x, p.position.y);
 
         for (int i = 0; i < 9; ++i) {
             const auto &sq = square_positions[i];
@@ -253,8 +254,8 @@ private:
     auto response = future.get();
     if (!response->success) {
         RCLCPP_ERROR(get_logger(), "Arm move failed: %s", response->message.c_str());
-        current_action_ = IDLE;
-        return;
+        //current_action_ = IDLE;
+        //return;
     }
     RCLCPP_INFO(get_logger(), "Arm move succeeded: %s", response->message.c_str());
 
