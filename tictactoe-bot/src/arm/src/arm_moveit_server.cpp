@@ -108,7 +108,7 @@ public:
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 0.04, 1.0, 0.85, -0.30, 0.5, frame_id, "backWall"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
-      planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
+      // planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
       
       moveit_msgs::msg::AttachedCollisionObject attached_object;
       attached_object.link_name = move_group_interface->getEndEffectorLink();
@@ -124,13 +124,11 @@ public:
 private:
   void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
            std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
-
-    move_group_interface->setStartStateToCurrentState();
-    auto current_pose = move_group_interface->getCurrentPose();
+    auto current_pose = move_group_interface->getCurrentPose("tool0");
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    target_pose.position.x += 0.03;
-    target_pose.position.y -= 0.01;
+    //target_pose.position.x += 0.03;
+    //target_pose.position.y -= 0.01;
     if (!request->move_home) target_pose.position.z = 0.32;
     // Orientation for wrist3 / tool0 to face down
     target_pose.orientation.x = - std::sqrt(2) / 2;
@@ -138,24 +136,50 @@ private:
     target_pose.orientation.z = 0.0;
     target_pose.orientation.w = 0.0;
 
-    // target_pose.orientation = current_pose.pose.orientation;
-
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-
+    bool success = true;
     // Set target position
     if(request->move_home) {
       // Moving to home pre-defined as joint angles
-      move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
-    } else {
-      // Moving to any other position requires IK
-      move_group_interface->setPoseTarget(target_pose, "tool0");
+      success = moveToPose(target_pose, true);
+      return;
+    } 
+
+  RCLCPP_INFO(this->get_logger(), "Current position: [%.3f, %.3f, %.3f]",
+              current_pose.pose.position.x,
+              current_pose.pose.position.y,
+              current_pose.pose.position.z);
+
+  RCLCPP_INFO(this->get_logger(), "Current orientation (quat): [%.3f, %.3f, %.3f, %.3f]",
+              current_pose.pose.orientation.x,
+              current_pose.pose.orientation.y,
+              current_pose.pose.orientation.z,
+              current_pose.pose.orientation.w);
+    
+    if (current_pose.pose.position.z < 0.3) {
+      RCLCPP_INFO(this->get_logger(), "Z DIRECTION %lf", current_pose.pose.position.z);
+      current_pose.pose.position.z = 0.32;
+      
+      //success = moveToPose(current_pose.pose, false);
     }
 
-    // Constraint setting
-    // For the moment set constraints on all desired positions
+    RCLCPP_INFO(this->get_logger(), "MOVE TO TARGET.");
+    success = moveToPose(target_pose, false);
+
+    RCLCPP_INFO(this->get_logger(), "MOVE DOWN");
+    target_pose.position.z = 0.24;
+    success = moveToPose(target_pose, false);
+    response->success = success;
+    response->message = "success";
+  }
+
+  bool moveToPose(geometry_msgs::msg::Pose target_pose, bool move_home) {
+    move_group_interface->setStartStateToCurrentState();
+
+    if (move_home) move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
+    else move_group_interface->setPoseTarget(target_pose, "tool0");
+
     moveit_msgs::msg::Constraints constraints;
     set_joint_constraints(constraints);
-    //set_orientation_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
 
     // Planning and execution
@@ -163,6 +187,7 @@ private:
     double planningTime = 0.1;
     const double maxPlanningTime = 60.0;
     
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
     while (!success && planningTime <= maxPlanningTime) {
         move_group_interface->setPlanningTime(planningTime);
         RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
@@ -172,38 +197,11 @@ private:
         }
     }
 
-    response->success = success;
     if (success) {
-      response->message = "Planning successful.";
       move_group_interface->execute(plan);
-    } else {
-      response->message = "Planning failed.";
     }
-
-    if (request->move_home) { move_group_interface->clearPathConstraints(); return; }
-
-    success = false;
-    planningTime = 0.1;
-    target_pose.position.z = 0.24;
-    move_group_interface->setPoseTarget(target_pose, "tool0");
-    while (!success && planningTime <= maxPlanningTime) {
-        move_group_interface->setPlanningTime(planningTime);
-        RCLCPP_INFO(this->get_logger(), "Trying to plan down with %.1f seconds...", planningTime);
-        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        if (!success) {
-            planningTime *= 2;
-        }
-    }
-    
-    response->success = success;
-    if (success) {
-      response->message = "Planning successful.";
-      move_group_interface->execute(plan);
-    } else {
-      response->message = "Planning failed.";
-    }
-
     move_group_interface->clearPathConstraints();
+    return success;
   }
 
   // --- 3. ADDED THIS ENTIRE CALLBACK FUNCTION ---

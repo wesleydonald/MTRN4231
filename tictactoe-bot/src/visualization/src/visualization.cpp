@@ -24,10 +24,13 @@ that can show the piece being picked up with the end effector.
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+#include <tf2/LinearMath/Quaternion.h>
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "geometry_msgs/msg/pose_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
+
+#include "interfaces/msg/board_pose.hpp"
 
 using namespace std::chrono_literals;
 
@@ -35,7 +38,7 @@ class Visualisation : public rclcpp::Node {
 public:
   Visualisation() : Node("visualisation") {
     // Subscriptions
-    board_sub_ = this->create_subscription<geometry_msgs::msg::PointStamped>("/detected/board", 10, std::bind(&Visualisation::boardCallback, this, std::placeholders::_1));
+    board_sub_ = this->create_subscription<interfaces::msg::BoardPose>("/detected/board", 10, std::bind(&Visualisation::boardCallback, this, std::placeholders::_1));
     white_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/white", 10, std::bind(&Visualisation::whitePiecesCallback, this, std::placeholders::_1));
     black_pieces_sub_ = this->create_subscription<geometry_msgs::msg::PoseArray>("/detected/pieces/black", 10, std::bind(&Visualisation::blackPiecesCallback, this, std::placeholders::_1));
 
@@ -55,11 +58,11 @@ private:
   void gripper_callback() {
     gripper_publisher_->publish(create_marker("tool0", "GripperClosed.stl", 0.0, 0.0, 0.05, // GripperOpen is not oriented correctly for some reason
                                                                           0.6, 0.6, 0.6, 
-                                                                          0));
+                                                                          0, 0.0));
   }
   // Creates a marker to be published (orienation is always vertically upwards)
   visualization_msgs::msg::Marker create_marker(const std::string &frame_id, const std::string &mesh_file,
-                                                double x, double y, double z, float r, float g, float b, int id) {
+                                                double x, double y, double z, float r, float g, float b, int id, double mYaw) {
     visualization_msgs::msg::Marker marker;
 
     marker.header.frame_id = frame_id;
@@ -71,13 +74,20 @@ private:
     marker.mesh_resource = "package://visualization/meshes/" + mesh_file;  // e.g. "GripperOpen.stl"
     marker.action = visualization_msgs::msg::Marker::ADD;
 
+    tf2::Quaternion q;
+    double roll = 0.0;
+    double pitch = 0.0;
+    double yaw = mYaw;
+
+    q.setRPY(roll, pitch, yaw);
+
     marker.pose.position.x = x;
     marker.pose.position.y = y;
     marker.pose.position.z = z;
-    marker.pose.orientation.x = 1.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 0.0;
+    marker.pose.orientation.x = q.x();
+    marker.pose.orientation.y = q.y();
+    marker.pose.orientation.z = q.z();
+    marker.pose.orientation.w = q.w();
 
     marker.scale.x = 0.001;
     marker.scale.y = 0.001;
@@ -91,10 +101,10 @@ private:
     return marker;
   }
 
-  void boardCallback(const geometry_msgs::msg::PointStamped::SharedPtr msg) {
+  void boardCallback(const interfaces::msg::BoardPose::SharedPtr msg) {
     board_publisher_->publish(create_marker("base_link", "Board.stl",
-                                      msg->point.x, msg->point.y, msg->point.z,
-                                      0.0f, 0.0f, 0.0f, 1));
+                                      msg->point.point.x, msg->point.point.y, msg->point.point.z,
+                                      0.0f, 0.0f, 0.0f, 1, msg->anglerad));
   }
 
   void whitePiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
@@ -108,7 +118,7 @@ private:
     for (const auto &pose : msg->poses) {
       auto marker = create_marker("base_link", "O_TicTacToe.stl",
                                   pose.position.x, pose.position.y, pose.position.z,
-                                  0.95f, 0.95f, 0.95f, id++);
+                                  0.95f, 0.95f, 0.95f, id++, 0.0);
       marker.pose.orientation = pose.orientation;
       marker_array.markers.push_back(marker);
     }
@@ -127,7 +137,7 @@ private:
     for (const auto &pose : msg->poses) {
       auto marker = create_marker("base_link", "X_TicTacToe.stl",
                                   pose.position.x, pose.position.y, pose.position.z,
-                                  0.1f, 0.1f, 0.1f, id++);
+                                  0.1f, 0.1f, 0.1f, id++, 0.0);
       marker.pose.orientation = pose.orientation;
       marker_array.markers.push_back(marker);
     }
@@ -138,7 +148,7 @@ private:
   // Members
   rclcpp::TimerBase::SharedPtr gripper_timer_;
 
-  rclcpp::Subscription<geometry_msgs::msg::PointStamped>::SharedPtr board_sub_;
+  rclcpp::Subscription<interfaces::msg::BoardPose>::SharedPtr board_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr white_pieces_sub_;
   rclcpp::Subscription<geometry_msgs::msg::PoseArray>::SharedPtr black_pieces_sub_;
 

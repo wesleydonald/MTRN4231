@@ -9,6 +9,7 @@ find_package(std_srvs REQUIRED)
 
 # --- generate service interfaces ---
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/BoardPose.msg"
   "srv/MoveArm.srv"
   "srv/CloseGripper.srv"
   DEPENDENCIES geometry_msgs std_srvs
