@@ -377,7 +377,7 @@ class ObjectRecognizer(Node):
             return None
 
         # Calculate orientation and get world coords
-        orientation = -math.atan((orientation_point2.y - orientation_point1.y) / (orientation_point2.x - orientation_point1.x))
+        orientation = math.atan2((orientation_point2.y - orientation_point1.y) , (orientation_point2.x - orientation_point1.x))
         point_world = self.get_point_from_pixels(center_x, center_y)
 
         # Use rolling average pose
