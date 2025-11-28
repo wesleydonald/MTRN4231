@@ -75,6 +75,8 @@ class PoseRollingAverage():
         avg_o = 0.0
         avg_len = len(self.poses)
         for pose in self.poses:
+            if pose is None or pose[0] is None:
+                continue
             avg_p.x += (pose[0].x / avg_len)
             avg_p.y += (pose[0].y / avg_len)
             avg_p.z += (pose[0].z / avg_len)

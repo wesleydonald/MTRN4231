@@ -12,6 +12,8 @@ find_package(geometry_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 # --- include directories ---
 include_directories(
@@ -26,6 +28,8 @@ ament_target_dependencies(brain
   std_srvs
   interfaces
   std_msgs
+  tf2
+  tf2_ros
 )
 
 # --- install targets ---

@@ -127,8 +127,8 @@ private:
     auto current_pose = move_group_interface->getCurrentPose("tool0");
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    //target_pose.position.x += 0.03;
-    //target_pose.position.y -= 0.01;
+    target_pose.position.x += 0.02;
+    target_pose.position.y -= 0.01;
     if (!request->move_home) target_pose.position.z = 0.32;
     // Orientation for wrist3 / tool0 to face down
     target_pose.orientation.x = - std::sqrt(2) / 2;
