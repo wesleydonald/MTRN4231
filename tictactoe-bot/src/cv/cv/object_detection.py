@@ -11,7 +11,7 @@ from cv_bridge import CvBridge, CvBridgeError
 
 from rclpy.node import Node
 from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseArray
+from geometry_msgs.msg import TransformStamped, PointStamped, Pose, PoseArray, Point
 from tf2_ros import TransformBroadcaster
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
@@ -52,6 +52,41 @@ ROI_RIGHT_BOTTOM = 1
 # List of grid indexes / offsets to help calculate grid square positions
 GRID_IDEXES = [[-1, -1], [-1,0], [-1, 1], [0,-1], [0, 0], [0, 1], [1, -1], [1,0], [1,1]]
 CELL_SIZE = 0.11
+BOARD_POSE_ROLLING_AVERAGE_LEN = 10
+
+class PoseRollingAverage():
+    def __init__(self, size):
+        self.size = size
+        self.poses = []
+        self.avg_pose = Point()
+        self.avg_orientation = 0.0
+
+    def updatePose(self, point, orientation):
+        # Add newest pose to rolling average, returns the rolling average (point, orientation)
+        if len(self.poses) > self.size:
+            # Remove oldest pose
+            self.poses.pop(0)
+
+        # Append the pose
+        self.poses.append([point, orientation])
+
+        # Calculate the average and return it
+        avg_p = Point()
+        avg_o = 0.0
+        avg_len = len(self.poses)
+        for pose in self.poses:
+            avg_p.x += (pose[0].x / avg_len)
+            avg_p.y += (pose[0].y / avg_len)
+            avg_p.z += (pose[0].z / avg_len)
+            avg_o += (pose[1] / avg_len)
+
+        self.avg_pose = avg_p
+        self.avg_orientation = avg_o
+
+        return avg_p, avg_o
+
+    def getCurrentPose(self):
+        return self.avg_pose, self.avg_orientation
 
 class ObjectRecognizer(Node):
     def __init__(self):
@@ -93,6 +128,7 @@ class ObjectRecognizer(Node):
         
         # --- Modified state to store white and black pieces separately ---
         self.detected_pieces_all = [] # Will store tuples of (white_pose_array, black_pose_array)
+        self.boardPoseRollingAverage = PoseRollingAverage(BOARD_POSE_ROLLING_AVERAGE_LEN)
         # --- End Modified state ---
         
         self.get_logger().info("Object Recognizer node has started.")
@@ -340,9 +376,13 @@ class ObjectRecognizer(Node):
         if orientation_point1 is None or orientation_point2 is None:
             return None
 
-        # Calculate orientation, publish the tf, publish boardpose
-        orientation = math.atan((orientation_point2[1] - orientation_point1[1]) / (orientation_point2[0] - orientation_point1[0]))
-        point_world = self.broadcast_point_tf(center_x, center_y, orientation, 'board')
+        # Calculate orientation and get world coords
+        orientation = -math.atan((orientation_point2.y - orientation_point1.y) / (orientation_point2.x - orientation_point1.x))
+        point_world = self.get_point_from_pixels(center_x, center_y)
+
+        # Use rolling average pose
+        point_world, orientation = self.boardPoseRollingAverage.updatePose(point_world, orientation)
+        self.broadcast_point_tf(point_world, orientation, 'board')
 
         if point_world:
             # Publish board pose in world frame
@@ -399,7 +439,8 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_world = self.broadcast_point_tf(cx, cy, 0, f'white_piece{i}')
+                        point_world = self.get_point_from_pixels(cx, cy)
+                        self.broadcast_point_tf(point_world, 0, f'white_piece{i}')
                         if point_world:
                             pose = Pose()
                             pose.position = point_world
@@ -448,7 +489,8 @@ class ObjectRecognizer(Node):
                     if M["m00"] != 0:
                         cx = int(M["m10"] / M["m00"])
                         cy = int(M["m01"] / M["m00"])
-                        point_world = self.broadcast_point_tf(cx, cy, 0, f'black_piece_{i}')
+                        point_world = self.get_point_from_pixels(cx, cy)
+                        self.broadcast_point_tf(point_world, 0, f'black_piece_{i}')
                         if point_world:
                             pose = Pose()
                             pose.position = point_world
@@ -472,13 +514,9 @@ class ObjectRecognizer(Node):
             self.get_logger().warn(f"Zero depth for pixel ({x_px}, {y_px}).")
             return None
 
-        return rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
+        point = rs.rs2_deproject_pixel_to_point(self.intrinsics, [x_px, y_px], depth / 1000.0)
 
-    def broadcast_point_tf(self, x_px, y_px, orientation, frame_id):
-
-        # Get 3d point from desired pixel, the a point stamped to use tf 
-        point = self.get_point_from_pixels(x_px, y_px)
-        if point is None:
+        if point == None:
             return None
 
         point_camera = PointStamped()
@@ -494,17 +532,24 @@ class ObjectRecognizer(Node):
             transform = self.tf_buffer.lookup_transform('base_link', 'camera_color_optical_frame', rclpy.time.Time(), timeout=rclpy.duration.Duration(seconds=0.1))
             point_world = tf2_geometry_msgs.do_transform_point(point_camera, transform)
         except Exception as e:
-            self.get_logger().error(f"Could not transform point for {frame_id}: {e}")
+            self.get_logger().error(f"Could not transform point : {e}")
+            return None
+
+        return point_world.point
+
+    def broadcast_point_tf(self, point_world, orientation, frame_id):
+
+        if point_world is None:
             return None
 
         # Publish relative to the base link so orientation is easier to manage
         t = TransformStamped()
-        t.header.stamp = point_camera.header.stamp
+        t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
         t.child_frame_id = frame_id
-        t.transform.translation.x = point_world.point.x
-        t.transform.translation.y = point_world.point.y
-        t.transform.translation.z = point_world.point.z
+        t.transform.translation.x = point_world.x
+        t.transform.translation.y = point_world.y
+        t.transform.translation.z = point_world.z
 
         # Rotate by the given orientation about the z axis
         qx, qy, qz, qw = tf_transformations.quaternion_from_euler(0.0, 0.0, float(orientation))
@@ -513,9 +558,6 @@ class ObjectRecognizer(Node):
         t.transform.rotation.z = qz
         t.transform.rotation.w = qw
         self.tf_broadcaster.sendTransform(t)
-        
-        # World point returned for marker publishing info
-        return point_world.point
 
     def broadcast_grid_square_tfs(self): 
         # Publish the center of each grid square on the board as a tf
@@ -530,7 +572,6 @@ class ObjectRecognizer(Node):
             t.transform.translation.x = index[0] * CELL_SIZE
             t.transform.translation.y = index[1] * CELL_SIZE
             t.transform.translation.z = 0.0
-            self.get_logger().info(f"Publishing board index {i}.")
             self.tf_broadcaster.sendTransform(t)
 
 
