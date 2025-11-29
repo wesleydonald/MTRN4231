@@ -109,16 +109,6 @@ public:
       planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
       // planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
-      
-      moveit_msgs::msg::AttachedCollisionObject attached_object;
-      attached_object.link_name = move_group_interface->getEndEffectorLink();
-      attached_object.object = generateCollisionObject(
-          0.1, 0.1, 0.15,
-          0.0, 0.0, 0.10,
-          attached_object.link_name,
-          "end_effector"
-      );
-      planning_scene_interface.applyAttachedCollisionObject(attached_object);
     }
 
 private:
