@@ -3,7 +3,7 @@
 
 - [Introduction](#introduction)
   - [Bugs/TODOs](#bugstodos)
-  - [Recent Updates](#recent-updates)
+  - [Video Demonstration](#video-demonstration)
 - [ROS Packages](#ros-packages)
   - [Brain](#brain)
   - [Arm](#arm)
@@ -52,12 +52,8 @@ The project utilizes UR5e from Universal Robots to play a game of tictactoe.
 - TODO: (README) Write up the computer vision and depth camera sections.
 - TODO: (README) Make sure all the publisher/subscriber relationships show the message types. Maybe making custom types could decrease the number of publisher/subscriber relationships we need.
 
-### Recent Updates
-- [Date][Name] feature.
-- [Week 8 Friday][Ryan] Updated CV to use more effective detection methods, resulting in smoother pose estimation for pieces.
-- [Week 8 Thu][Wesley] Created the simulation package to tested the brain and visualisation nodes.
-- [Week 8 Wed][Wesley] Created the visualisation package to represented the system in rviz.
-- [Week 8 Tue][Wesley] Created the brain package to implement gameplay logic and control the system.
+### Video Demonstration
+[demo](https://drive.google.com/file/d/1wB0pO2BWPVrgC5FvZPbpUHrPBrPJTyYX/view?usp=drive_link)
 
 ## ROS Packages
 ### Brain
