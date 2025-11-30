@@ -40,7 +40,7 @@ public:
 
     // Timer
     timer_ = this->create_wall_timer(500ms, std::bind(&Simulator::timer_callback, this));
-    change_state_timer_ = this->create_wall_timer(10000ms, std::bind(&Simulator::state_callback, this));
+    change_state_timer_ = this->create_wall_timer(5000ms, std::bind(&Simulator::state_callback, this));
 
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     RCLCPP_INFO(this->get_logger(), "Game simulator node started.");

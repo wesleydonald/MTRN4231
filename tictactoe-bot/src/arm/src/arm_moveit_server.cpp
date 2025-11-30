@@ -118,83 +118,44 @@ public:
 private:
   void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
            std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
-    auto current_pose = move_group_interface->getCurrentPose("tool0");
-    auto tf = tf_buffer_.lookupTransform("base_link", "tool0", tf2::TimePointZero);
-    current_pose.pose.position.x = tf.transform.translation.x;
-    current_pose.pose.position.y = tf.transform.translation.y;
-    current_pose.pose.position.z = tf.transform.translation.z;
-
-    geometry_msgs::msg::Pose target_pose = request->target_pose;
-    target_pose.position.x += 0.02;
-    target_pose.position.y -= 0.01;
-    if (!request->move_home) target_pose.position.z = 0.32;
-    // Orientation for wrist3 / tool0 to face down
-    target_pose.orientation.x = - std::sqrt(2) / 2;
-    target_pose.orientation.y = std::sqrt(2) / 2;
-    target_pose.orientation.z = 0.0;
-    target_pose.orientation.w = 0.0;
-
-    bool success = true;
-    // Set target position
-    if(request->move_home) {
-      // Moving to home pre-defined as joint angles
-      success = moveToPose(target_pose, true);
-      return;
-    } 
-
-  RCLCPP_INFO(this->get_logger(), "Current position: [%.3f, %.3f, %.3f]",
-              current_pose.pose.position.x,
-              current_pose.pose.position.y,
-              current_pose.pose.position.z);
-
-  RCLCPP_INFO(this->get_logger(), "Current orientation (quat): [%.3f, %.3f, %.3f, %.3f]",
-              current_pose.pose.orientation.x,
-              current_pose.pose.orientation.y,
-              current_pose.pose.orientation.z,
-              current_pose.pose.orientation.w);
-    
-    if (current_pose.pose.position.z < 0.3 && current_pose.pose.position.z > 0.0) {
-      RCLCPP_INFO(this->get_logger(), "Z DIRECTION %lf", current_pose.pose.position.z);
-      current_pose.pose.position.z = 0.32;
-      current_pose.pose.orientation.x = - std::sqrt(2) / 2;
-      current_pose.pose.orientation.y = std::sqrt(2) / 2;
-      current_pose.pose.orientation.z = 0.0;
-      current_pose.pose.orientation.w = 0.0;
-      success = moveToPose(current_pose.pose, false);
-    }
-
-    RCLCPP_INFO(this->get_logger(), "MOVE TO TARGET.");
-    success = moveToPose(target_pose, false);
-
-    RCLCPP_INFO(this->get_logger(), "MOVE DOWN");
-    target_pose.position.z = 0.24;
-    success = moveToPose(target_pose, false);
-    response->success = success;
-    response->message = "success";
-  }
-
-  bool moveToPose(geometry_msgs::msg::Pose target_pose, bool move_home) {
     move_group_interface->setStartStateToCurrentState();
-
     move_group_interface->setMaxVelocityScalingFactor(1.0);
     move_group_interface->setMaxAccelerationScalingFactor(1.0);
 
-    if (move_home) {
-        move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
-        moveit::planning_interface::MoveGroupInterface::Plan home_plan;
-
-        if (move_group_interface->plan(home_plan) == moveit::core::MoveItErrorCode::SUCCESS) {
-            move_group_interface->execute(home_plan);
-            return true;
-        }
-        return false;
+    if (request->move_home) {
+      response->success = moveHome();
+      response->message = "success";
+      return;
     }
 
     moveit_msgs::msg::Constraints constraints;
     set_joint_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
-
     std::vector<geometry_msgs::msg::Pose> waypoints;
+
+    geometry_msgs::msg::Pose target_pose = request->target_pose;
+    target_pose.position.x += 0.02;
+    target_pose.position.y -= 0.01;
+    target_pose.position.z = 0.32;
+    target_pose.orientation.x = - std::sqrt(2) / 2;
+    target_pose.orientation.y = std::sqrt(2) / 2;
+    target_pose.orientation.z = 0.0;
+    target_pose.orientation.w = 0.0;
+
+    geometry_msgs::msg::Pose current_pose = target_pose;
+    auto tf = tf_buffer_.lookupTransform("base_link", "tool0", tf2::TimePointZero);
+    current_pose.position.x = tf.transform.translation.x;
+    current_pose.position.y = tf.transform.translation.y;
+    current_pose.position.z = tf.transform.translation.z;
+    
+    waypoints.push_back(current_pose);
+    if (current_pose.position.z < 0.3 && current_pose.position.z > 0.0) {
+      current_pose.position.z = 0.32;
+      waypoints.push_back(current_pose);
+    }
+
+    waypoints.push_back(target_pose);
+    target_pose.position.z = 0.24;
     waypoints.push_back(target_pose);
 
     const double eef_step = 0.02;
@@ -216,18 +177,29 @@ private:
     if (!success) {
         RCLCPP_WARN(this->get_logger(), "Failed to compute a sufficient Cartesian path (%.2f).", fraction);
         move_group_interface->clearPathConstraints();
-        return false;
+        response->success = false;
+        response->message = "failed to plan";
+        return;
     }
 
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     plan.trajectory_ = trajectory;
-
     move_group_interface->execute(plan);
-
     move_group_interface->clearPathConstraints();
-    return true;
-}
+    response->success = true;
+    response->message = "success";
+  }
 
+  bool moveHome() {
+    move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
+    moveit::planning_interface::MoveGroupInterface::Plan home_plan;
+
+    if (move_group_interface->plan(home_plan) == moveit::core::MoveItErrorCode::SUCCESS) {
+        move_group_interface->execute(home_plan);
+        return true;
+    }
+    return false;
+  }
 
   // --- 3. ADDED THIS ENTIRE CALLBACK FUNCTION ---
   void stopCallback(const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
