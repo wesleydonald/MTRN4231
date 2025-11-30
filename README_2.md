@@ -1,26 +1,25 @@
 <!-- omit from toc -->
-# MTRN4231 - TICTACTOE REHABOT
+# MTRN4231 - Capstone Mechatronics Project 
+
+[README Checklist](https://docs.google.com/document/d/1zuUf0pBpQOLhTJfOn6BVm4h70meYy5rnrdafGd6j8Xo/edit?tab=t.0)
+
+![banner](images/banner.png)
 
 # Table of Contents
 1. [Project Overview](#project-overview)
 2. [System Architecture](#system-architecture)
-   - [ROS2 Node/Topic Diagram](#ros2-nodetopic-diagram)
-   - [Package-Level Architecture](#package-level-architecture)
-   - [Behaviour-Tree / State-Machine Diagram](#behaviour-tree--state-machine-diagram)
-   - [Node Descriptions](#node-descriptions)
-   - [Custom Message Types & Interfaces](#custom-message-types--interfaces)
-4. [Technical Components](#technical-components)
+3. [Technical Components](#technical-components)
    - [Computer Vision](#computer-vision)
    - [Custom End-Effector](#custom-end-effector)
    - [System Visualisation](#system-visualisation)
    - [Closed-Loop Operation](#closed-loop-operation)
-6. [Installation and Setup](#installation-and-setup)
-7. [Running the System](#running-the-system)
-8. [Results and Demonstration](#results-and-demonstration)
-9. [Discussion and Future Work](#discussion-and-future-work)
-10. [Contributors and Roles](#contributors-and-roles)
-11. [Repository Structure](#repository-structure)
-12. [References and Acknowledgements](#references-and-acknowledgements)
+4. [Installation and Setup](#installation-and-setup)
+5. [Running the System](#running-the-system)
+6. [Results and Demonstration](#results-and-demonstration)
+7. [Discussion and Future Work](#discussion-and-future-work)
+8. [Contributors and Roles](#contributors-and-roles)
+9. [Repository Structure](#repository-structure)
+10. [References and Acknowledgements](#references-and-acknowledgements)
 
 ---
 
@@ -90,6 +89,12 @@ What makes the approach novel or effective.
 # Contributors and Roles
 List team members and their responsibilities.
 
+Ryan - 
+
+Sherry - 
+
+Wesley - 
+
 ---
 
 # Repository Structure
@@ -101,3 +106,4 @@ Short explanation of the folder structure and purpose of each directory.
 External libraries, tutorials, or codebases.  
 Acknowledgements of assistance from demonstrators or other groups.
 
+We would like to thank all the demonstrators; David, Alex and Saba all of whom provided extensive support for the duration of the project.
