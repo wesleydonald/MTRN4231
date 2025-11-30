@@ -47,6 +47,10 @@ Description of the vision pipeline and its contribution to the task.
 ## Custom End-Effector
 Photos/renders, assembly details, drawings, control overview, integration details.
 
+<p align="center">
+  <img src="images/render.png" width="400">
+</p>
+
 ## System Visualisation
 Explanation of how the system is visualised (e.g., RViz) and what it demonstrates.
 
@@ -76,6 +80,10 @@ Performance relative to design goals.
 Quantitative results (accuracy, repeatability).  
 Photos/figures/videos of system operation.  
 Notes on robustness, adaptability, innovation.
+
+<p align="center">
+  <img src="images/pickup.png" width="400">
+</p>
 
 ---
 
