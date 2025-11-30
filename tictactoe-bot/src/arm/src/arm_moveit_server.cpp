@@ -18,6 +18,10 @@
 #include <moveit_msgs/msg/constraints.h>
 #include "std_srvs/srv/trigger.hpp" 
 
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
 constexpr double PLANNING_TIME = 0.1;
 constexpr int PLANNING_ATTEMPTS = 5;
 
@@ -89,17 +93,17 @@ using std::placeholders::_1;
 
 class arm : public rclcpp::Node {
 public:
-    arm() : Node("arm") {
+    arm() : Node("arm"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)  {
       move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
       stop_service_ = create_service<std_srvs::srv::Trigger>("arm_stop_service", std::bind(&arm::stopCallback, this, std::placeholders::_1, std::placeholders::_2));
       
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
       move_group_interface->setPlanningTime(PLANNING_TIME);
       move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
-      //move_group_interface->setPlannerId("TRRTkConfigDefault");
+      move_group_interface->setPlannerId("TRRTkConfigDefault");
       //move_group_interface->setPlannerId("RRTConnectkConfigDefault");
       // move_group_interface->setPlannerId("RRTConnect");
-      move_group_interface->setPlannerId("RRTstarkConfigDefault");
+      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
@@ -115,6 +119,10 @@ private:
   void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
            std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
     auto current_pose = move_group_interface->getCurrentPose("tool0");
+    auto tf = tf_buffer_.lookupTransform("base_link", "tool0", tf2::TimePointZero);
+    current_pose.pose.position.x = tf.transform.translation.x;
+    current_pose.pose.position.y = tf.transform.translation.y;
+    current_pose.pose.position.z = tf.transform.translation.z;
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
     target_pose.position.x += 0.02;
@@ -145,11 +153,14 @@ private:
               current_pose.pose.orientation.z,
               current_pose.pose.orientation.w);
     
-    if (current_pose.pose.position.z < 0.3) {
+    if (current_pose.pose.position.z < 0.3 && current_pose.pose.position.z > 0.0) {
       RCLCPP_INFO(this->get_logger(), "Z DIRECTION %lf", current_pose.pose.position.z);
       current_pose.pose.position.z = 0.32;
-      
-      //success = moveToPose(current_pose.pose, false);
+      current_pose.pose.orientation.x = - std::sqrt(2) / 2;
+      current_pose.pose.orientation.y = std::sqrt(2) / 2;
+      current_pose.pose.orientation.z = 0.0;
+      current_pose.pose.orientation.w = 0.0;
+      success = moveToPose(current_pose.pose, false);
     }
 
     RCLCPP_INFO(this->get_logger(), "MOVE TO TARGET.");
@@ -165,34 +176,58 @@ private:
   bool moveToPose(geometry_msgs::msg::Pose target_pose, bool move_home) {
     move_group_interface->setStartStateToCurrentState();
 
-    if (move_home) move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
-    else move_group_interface->setPoseTarget(target_pose, "tool0");
+    move_group_interface->setMaxVelocityScalingFactor(1.0);
+    move_group_interface->setMaxAccelerationScalingFactor(1.0);
+
+    if (move_home) {
+        move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
+        moveit::planning_interface::MoveGroupInterface::Plan home_plan;
+
+        if (move_group_interface->plan(home_plan) == moveit::core::MoveItErrorCode::SUCCESS) {
+            move_group_interface->execute(home_plan);
+            return true;
+        }
+        return false;
+    }
 
     moveit_msgs::msg::Constraints constraints;
     set_joint_constraints(constraints);
     move_group_interface->setPathConstraints(constraints);
 
-    // Planning and execution
-    bool success = false;
-    double planningTime = 0.1;
-    const double maxPlanningTime = 60.0;
-    
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    while (!success && planningTime <= maxPlanningTime) {
-        move_group_interface->setPlanningTime(planningTime);
-        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
-        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        if (!success) {
-            planningTime *= 2;
-        }
+    std::vector<geometry_msgs::msg::Pose> waypoints;
+    waypoints.push_back(target_pose);
+
+    const double eef_step = 0.02;
+    const double jump_threshold = 0.0;
+
+    moveit_msgs::msg::RobotTrajectory trajectory;
+    double fraction = move_group_interface->computeCartesianPath(
+        waypoints,
+        eef_step,
+        jump_threshold,
+        trajectory,
+        true
+    );
+
+    RCLCPP_INFO(this->get_logger(), "Cartesian path fraction: %.2f%%", fraction * 100.0);
+
+    bool success = (fraction > 0.95);
+
+    if (!success) {
+        RCLCPP_WARN(this->get_logger(), "Failed to compute a sufficient Cartesian path (%.2f).", fraction);
+        move_group_interface->clearPathConstraints();
+        return false;
     }
 
-    if (success) {
-      move_group_interface->execute(plan);
-    }
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    plan.trajectory_ = trajectory;
+
+    move_group_interface->execute(plan);
+
     move_group_interface->clearPathConstraints();
-    return success;
-  }
+    return true;
+}
+
 
   // --- 3. ADDED THIS ENTIRE CALLBACK FUNCTION ---
   void stopCallback(const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
@@ -243,6 +278,9 @@ private:
 
     constraints.orientation_constraints.emplace_back(orientation_constraint);
   }
+
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
   rclcpp::Service<interfaces::srv::MoveArm>::SharedPtr move_request_;

@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur_with_gripper">
+
+  <xacro:arg name="name" default="ur5"/>
+  <xacro:arg name="ur_type" default="ur5"/>
+
+  <xacro:include filename="$(find ur_description)/urdf/ur.urdf.xacro" />
+
+  <xacro:include filename="$(find end_effector)/urdf/my_gripper.urdf" />
+
+  <joint name="gripper_to_flange_joint" type="fixed">
+    <parent link="tool0" /> 
+    <child link="gripper_base_link" />
+    <origin xyz="0 0 0.06" rpy="3.1416 0 1.5708" />
+  </joint>
+
+</robot>

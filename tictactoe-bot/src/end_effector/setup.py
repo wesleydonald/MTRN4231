@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'end_effector'
 
@@ -10,8 +12,12 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'meshes'), glob('meshes/*.stl')),
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*.xacro') + glob('urdf/*.urdf')),
     ],
-    install_requires=['setuptools', 'pyserial'],  # pyserial is needed for Arduino comm
+    install_requires=['setuptools', 'pyserial'],
     zip_safe=True,
     maintainer='mtrn',
     maintainer_email='wesleydonaldnz@gmail.com',
