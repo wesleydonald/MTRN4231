@@ -47,6 +47,26 @@ Description of the vision pipeline and its contribution to the task.
 ## Custom End-Effector
 Photos/renders, assembly details, drawings, control overview, integration details.
 
+The follow engineering drawings are to AS1100 and include all the dimensions required to reproduce the end effector.
+
+<p align="center">
+  <img src="images/Chassis_Drawing.png" width="800">
+</p>
+
+<p align="center">
+  <img src="images/Gripper_Drawing.png" width="800">
+</p>
+
+<p align="center">
+  <img src="images/Holder_Drawing.png" width="800">
+</p>
+
+<p align="center">
+  <img src="images/Assembly_Drawing.png" width="800">
+</p>
+
+All manufactured parts can be printed with PLA. The DSS-P05 servo is secured to the chassis using four 2.5 mm bolts. One gripper arm is bonded to a standard servo horn using two-part epoxy. The second gripper arm is mounted directly to the chassis using a 2.5 mm bolt. A full render of the assembled end effector is shown below.
+
 <p align="center">
   <img src="images/render.png" width="400">
 </p>
