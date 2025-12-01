@@ -140,21 +140,33 @@ What makes the approach novel or effective.
 # Contributors and Roles
 List team members and their responsibilities.
 
-Ryan - 
+Ryan - Computer Vision, End effector design, Moveit constraints
 
-Sherry - 
+Sherry - End effector package, UDRF + Launch files
 
-Wesley - 
+Wesley - End effector CAD, Moveit path planning
 
 ---
 
 # Repository Structure
-Short explanation of the folder structure and purpose of each directory.
+The repository structure is as follows:
+
+```
+images/
+src/
+   arm/
+   brain/
+   cv/
+   end_effector/
+   interfaces/
+   simulation/
+   visualisation/
+   webui/
+```
+
+The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planning and robot control, `brain/` manages the game logic and state machine, `cv/` performs board detection, `end_effector/` controls the gripper, `interfaces/` defines custom message and service types, `simulation/` simulates computer vision, `visualisation/` publishes markers to rviz, and `webui hosts/` the user interface. The `images/` directory contains all images used in the report.
 
 ---
 
 # References and Acknowledgements
-External libraries, tutorials, or codebases.  
-Acknowledgements of assistance from demonstrators or other groups.
-
-We would like to thank all the demonstrators; David, Alex and Saba all of whom provided extensive support for the duration of the project.
+This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz2 for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that underpin the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent guidance and support throughout the project.
