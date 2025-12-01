@@ -52,7 +52,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:

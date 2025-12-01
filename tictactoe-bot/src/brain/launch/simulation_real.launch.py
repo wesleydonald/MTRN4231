@@ -1,32 +1,17 @@
+import os
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node 
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-  ur_launch_dir = PathJoinSubstitution([FindPackageShare('ur_robot_driver'), 'launch'])
-  move_it_launch_dir = PathJoinSubstitution([FindPackageShare('ur_moveit_config'), 'launch'])
+  # ee_launch_dir = PathJoinSubstitution([FindPackageShare('end_effector'), 'launch'])
   arm_launch_dir = PathJoinSubstitution([FindPackageShare('arm'), 'launch'])
+
   return LaunchDescription([
-    # IncludeLaunchDescription(
-    #  PathJoinSubstitution([ur_launch_dir, 'ur_control.launch.py']),
-    #  launch_arguments={
-    #    'ur_type': 'ur5e', 
-    #    'robot_ip': '192.168.0.100',
-    #    'use_fake_hardware': 'true', 
-    #    'launch_rviz': 'false'
-    #  }.items()
-    # ),
-    # IncludeLaunchDescription(
-    #  PathJoinSubstitution([move_it_launch_dir, 'ur_moveit.launch.py']),
-    #  launch_arguments={
-    #    'ur_type': 'ur5e', 
-    #    'robot_ip': '192.168.0.100',
-    #    'use_fake_hardware': 'true',
-    #    'launch_rviz': 'true'
-    #  }.items()
-    # ),
+    # IncludeLaunchDescription(PathJoinSubstitution([ee_launch_dir, 'display.launch.py'])), 
     IncludeLaunchDescription(PathJoinSubstitution([arm_launch_dir, 'arm.launch.py'])), 
     Node(
         package='visualization',
@@ -46,4 +31,11 @@ def generate_launch_description():
         executable='brain',
         name='brain'
     ),
+    # Node(
+    #     name='rviz2',
+    #     package='rviz2',
+    #     executable='rviz2',
+    #     output='screen',
+    #     arguments=['-d', os.path.join(get_package_share_directory('brain'), 'rviz_config/rviz.rviz')]
+    # ),
   ])
