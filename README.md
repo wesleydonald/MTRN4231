@@ -169,4 +169,4 @@ The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planni
 ---
 
 # References and Acknowledgements
-This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz2 for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that underpin the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent guidance and support throughout the project.
+This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz2 for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that support the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent guidance and support throughout the project.
