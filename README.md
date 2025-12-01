@@ -64,8 +64,6 @@ If any arm or gripper service reports a failure, the current action sequence is 
 Description of the vision pipeline and its contribution to the task.
 
 ## Custom End-Effector
-Photos/renders, assembly details, drawings, control overview, integration details.
-
 The follow engineering drawings are to AS1100 and include all the dimensions required to reproduce the end effector.
 
 <p align="center">
@@ -92,7 +90,7 @@ All manufactured parts can be printed with PLA. The DSS-P05 servo is secured to 
 
 The end effector is actuated using a DSS-P05 servo, controlled through a ROS 2 node (`gripper`) that communicates with an Arduino over a serial connection. The node exposes a custom service (`/gripper_service`, type `CloseGripper`) which accepts either `"open"` or `"close"` as valid commands.
 
-When the node starts, it attempts to open the serial port (`/dev/ttyUSB0`). If successful, commands recieved through the service are forwarded directly to the Arduino, which actuates the servo accordingly. If the Arduino is not connected, the node logs a warning but remains active so that the rest of the robot system can continue operating.
+When the node starts, it attempts to open the serial port (`/dev/ttyUSB0`). If successful, commands recieved through the service are forwarded directly to the Arduino, which actuates the servo accordingly. If the Arduino is not connected, the node logs a warning but remains active so that the rest of the system can continue operating.
 
 Mechanically, the chassis mounts to the UR5 wrist using a Housing Block and an End Effector Mount. The end effector’s mass is included in the URDF to ensure accurate planning and simulation. The URDF also defines collision geometry and a mesh to visualise the end effector in rviz.
 
