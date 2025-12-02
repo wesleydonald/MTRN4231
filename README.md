@@ -63,7 +63,17 @@ If any arm or gripper service reports a failure, the current action sequence is 
 # Technical Components
 
 ## Computer Vision
-Description of the vision pipeline and its contribution to the task.
+The computer vision pipeline uses an Intel RealSense RGB-D camera to detect the board and classify the white and black playing pieces. The RGB image is processed using colour-thresholding, contour extraction, and shape filtering, while the aligned depth image is used to convert pixel coordinates into 3D positions in the robot’s base_link frame.
+
+A trapezoidal region-of-interest (ROI) restricts detection to the table workspace. The board is identified by HSV colour thresholding, Canny edge extraction, and Hough line detection, which gives both the board’s centre and orientation. A rolling average filter stabilises the board pose before broadcasting a TF frame for the board and its 3×3 grid.
+
+White and black pieces are detected separately using tuned HSV thresholds, morphological filtering, and contour solidity/area checks to reject noise. For each valid contour, image moments provide the pixel centroid, which is converted to a 3D coordinate using the depth map and camera intrinsics. Each piece is published as a PoseArray in base_link, and TF frames are broadcast for debugging.
+
+Finally, a temporal filtering stage selects the most stable detection set across multiple frames, improving robustness to flickering or partial occlusions. This pipeline provides reliable board localisation and piece detection for downstream planning.
+
+<p align="center">
+  <img src="images/CV.png" width="600">
+</p>
 
 ## Custom End-Effector
 The follow engineering drawings are to AS1100 and include all the dimensions required to reproduce the end effector.
