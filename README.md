@@ -30,9 +30,8 @@
 # Project Overview 
 Intended customer / end-user.  
 Summary of robot functionality.  
-Short [demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
-
-[Video demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link)
+[Functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
+[Visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link)
 
 ---
 
@@ -117,7 +116,7 @@ The system is visualised in RViz, where both the UR5e robot and the custom gripp
 </p>
 
 ## Closed-Loop Operation
-Description of feedback method and real-time behavioural adaptation.
+The Brain node continuously monitors the most recent positions of all pieces on and off the board. When the game starts, the locations of all elements can be anywhere in the robots reachable workspace for correct operation. The only assumption that has been made is the board will not move during the game, which would result in undefined behaviour. When the player makes a move, the Brain node uses the latest piece locations to determine which piece to pick up, ensuring correct selection even if pieces have shifted during the game.
 
 ---
 
