@@ -29,16 +29,24 @@
 
 # Project Overview 
 This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient.
+
 Our intended "customer" is a post-stroke patient with hand weakness, personified as "Nick," a 68-year-old former engineer who loves robotics and strategy games.
+
 Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play.
 
 The robot's primary functionality is to act as an intelligent, autonomous opponent in a physical game of Tic-Tac-Toe. The entire process is managed by a ROS2-based architecture.
 The robot's behavior follows this sequence:
+
 1\.  Start-up:The game is initiated via terminal, and the human player moves first.
+
 2\.  Perception:A depth camera views the scene and detects the locations of the game board and all pieces.
+
 3\.  Decision:Once the human's move is detected, central "brain" node processes the board state and decides on the optimal move to make.
+
 4\.  Action:The brain sends commands to the arm and gripper. The robot uses a custom-designed, 3D-printed gripper mounted to the UR5e arm.
+
 5\. Execution:The arm moves to the decided piece, grips it, and places it in the desired location on the board.
+
 6\.  Loop: The arm then returns to a home position and waits for the human player to take their turn.
  
 [Functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
