@@ -153,31 +153,33 @@ The system is designed to perform against a set of quantitative metrics that ens
 | Category      | Metric                    | Target Goal            | Reality        |
 |---------------|---------------------------|------------------------|----------------|
 | Response Time | Board State Detection     | < 5 seconds            | ~3 seconds     |
-| Repeatability | Optimal Game Strategy     | 100% consistent        | 100%           |
+| Response Time | ROBOT_TURN Time           | < 12 seconds           | ~10 seconds    |
+| Repeatability | Optimal Game Strategy     | 100%                   | 100%           |
 | Repeatability | Piece Pickup Success      | ≥ 90%                  | ~95%           |
-| Accuracy      | Piece Placement           | ± 20 mm                | ± 20 mm        |
-| Accuracy      | Piece Pickup              | ± 30 mm                | ± 20 mm        |
+| Accuracy      | Piece Pickup/Placement    | ± 20 mm                | ± 20 mm        |
 
 </div>
 
-## Innovation: 
-
-1\.The first innovation is the gamification of rehabilitation. By using a robotic arm (UR5e) to play a common strategy game, the system directly combats the primary "customer" problem: poor engagement and isolation during therapy.
-
-2\.Adaptive Board Orientation: Leverages computer vision (CV) to detect the Tic-Tac-Toe board's angle in real-time. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation.
-
-## Robustness:
-Hardware: A custom-designed, 3D-printed gripper with bearing gears is used for reliable, low-friction grasping. The game pieces are also custom-designed with a small tab to ensure a consistent grip.
-Software: The system runs on a modular ROS2 architecture.  A central "brain" node manages game logic and perception, decoupling tasks and making the system easier to debug and maintain.
-
-## Adaptability:
-The system uses a depth camera for perception, allowing it to detect the board and piece locations dynamically. This makes it adaptable to slight changes in board position, rather than relying on fixed, hard-coded coordinates.
-The modular package design  means components can be individually upgraded or even swapped. For example, the `brain` node's Tic-Tac-Toe logic could be replaced with logic for a different game (like checkers) without redesigning the entire arm or gripper packages.
-
+The above metrics were determined by running the game 10 times in different scenarios and keeping track of the results.
 
 <p align="center">
   <img src="images/pickup.png" width="400">
 </p>
+
+## Innovation: 
+
+The main innovation of this system is leveraging computer vision to detect the board's angle. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation. No aruco markers or changing the perspective of the camera is required, meaning our computer vision pipeline is more robust than systems which use fixed location items.
+
+## Robustness:
+
+The `brain` node manages game logic and decisions, decoupling tasks and making the system easier to debug and maintain. The custom designed gripper has replaceable holders which allows for about ± 20 mm of error from the computer vision pipline, used for reliable grasping. The game pieces are also custom designed with a small tab which ensures a consistent grip. The pieces have a diameter of 60 mm which allows for ± 20 mm of error as the board squares are 100 mm $^2$.
+
+<p align="center">
+  <img src="images/Pieces.png" width="700">
+</p>
+
+## Adaptability:
+The system uses a depth camera for perception, allowing it to detect the board and piece locations dynamically. This makes it adaptable to changes in pieces positions, rather than relying on fixed, hard-coded coordinates. The modular package design means components can be individually upgraded or even swapped. For example, the `brain` node's Tic-Tac-Toe logic could be replaced with logic for a different game (like checkers or chess) without redesigning the entire arm or gripper packages.
 
 ---
 
@@ -218,13 +220,13 @@ Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D 
 Closed-Loop Interaction: The system operates in an autonomous loop, making it highly interactive. It continuously monitors the board state with its camera. Once it detects that the human player has made a move, it automatically triggers its own decision-making and motion-planning sequence, creating a seamless, turn-based game experience without needing any button presses.
 
 # Contributors and Roles
-List team members and their responsibilities.
+All group members were involved in all aspects of the project, however the main roles ended up as follows;
 
-Ryan - Computer Vision, End effector design, Moveit constraints
+Ryan - Computer Vision, End effector design, Moveit constraints.
 
-Sherry - End effector package, UDRF + Launch files
+Sherry - End effector package, UDRF + Launch files.
 
-Wesley - End effector CAD, Moveit path planning
+Wesley - Gameplay Logic, End effector CAD, Moveit path planning.
 
 ---
 
