@@ -151,15 +151,23 @@ System must launch via a single command.
 
 The system is designed to perform against a set of strict, quantitative metrics that ensure it is responsive, accurate, and safe for the end-user.
 These are the design targets the system is engineered to meet:
+
 Response Time | Board State Detection | Target Goal:< 5 seconds | Reality: 4.52 senconds
+
 Repeatability | Optimal Game Strategy | Target: 100% consistent | Reality: 100%
+
 Repeatability | Piece Pickup Success | Target: ≥ 99.5% | Reality: 100%
+
 Repeatability | Piece Placement (Std Dev) | Target: ± 0.5mm | Reality: ± 6mm |
+
 Accuracy | Piece Placement | Target: ± 2mm | Reality:  ± 6mm |
+
 Accuracy |  Piece Pickup | Target: ± 3mm | Reality:  ± 4mm |
 
 ## Innovation: 
+
 1\.The first innovation is the gamification of rehabilitation. By using a sophisticated robotic arm (UR5e) to play a common strategy game, the system directly combats the primary "customer" problem: poor engagement and isolation during therapy.
+
 2\.Adaptive Board Orientation: Leverages computer vision (CV) to detect the Tic-Tac-Toe board's angle in real-time. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation.
 
 ## Robustness:
@@ -180,23 +188,37 @@ The modular package design  means components can be individually upgraded or eve
 # Discussion and Future Work
 
 ## Major Engineering Challenges
+
 ROS & MoveIt! Integration: Navigating the steep learning curve of the Robot Operating System (ROS) and implementing the MoveIt! motion planning framework, which was new to many members of the team.
+
 Collaborative Workflow: Devising an effective engineering workflow to modularize development (e.g., splitting vision, game logic, and robot control) and then successfully integrating all components from different team members into a cohesive, functional system.
+
 Hardware Design & Prototyping: Designing a custom end-effector from the ground up. The primary challenge was optimizing the design for 3D printability, ensuring it was lightweight, functional, and could be reliably produced.
 
 ## Future Enhancements
+
 Dynamic Obstacle Avoidance: Integrate sensors to detect and avoid unexpected obstacles, such as a player's hand, entering the workspace.
+
 Mid-Game Board Tracking: Implement continuous board detection to compensate if the board is accidentally bumped or moved during gameplay.
+
 Angled Surface Compensation: Extend the robot's kinematic and vision model to play on surfaces that are tilted or uneven.
+
 Illegal Move Detection: Add CV and game state logic to identify when a human player makes an invalid move and prompt them to try again.
+
 Interactive Feedback: Implement clearer visual or auditory feedback to communicate the robot's status, such as "It's your turn," "Invalid move," or "I win!"
+
 Player Engagement: Introduce features like selectable difficulty levels or voice/gesture-based game commands.
 
 ## Novel Approaches
+
 Orientation-Invariant Board Detection: The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
+
 Unbeatable Game AI: The robot isn't just a physical mover; it's a perfect player. It leverages the Minimax algorithm, a classic search algorithm from game theory, to analyze all possible board states. This ensures the robot always plays an optimal move, either winning or forcing a draw.
+
 Modular & Decoupled Architecture: The system is built with a clear separation of concerns. The Computer Vision, the Game Logic, and the Robot Control are all independent modules. This makes the system significantly easier to debug, test, and upgrade. 
+
 Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D camera "sees" into real-world 3D coordinates for the robot arm. This project implements a robust camera-to-robot calibration routine. This ensures that when the vision system identifies the center of a square at pixel $(x, y)$, the robot arm moves to the exact corresponding $(X, Y, Z)$ physical location to draw its symbol.
+
 Closed-Loop Interaction: The system operates in an autonomous loop, making it highly interactive. It continuously monitors the board state with its camera. Once it detects that the human player has made a move, it automatically triggers its own decision-making and motion-planning sequence, creating a seamless, turn-based game experience without needing any button presses.
 
 # Contributors and Roles
