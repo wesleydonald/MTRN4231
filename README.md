@@ -67,25 +67,26 @@ Description of the vision pipeline and its contribution to the task.
 The follow engineering drawings are to AS1100 and include all the dimensions required to reproduce the end effector.
 
 <p align="center">
-  <img src="images/Chassis_Drawing.png" width="800">
+  <img src="images/Chassis_Drawing.png" width="600">
 </p>
 
 <p align="center">
-  <img src="images/Gripper_Drawing.png" width="800">
+  <img src="images/Gripper_Drawing.png" width="600">
 </p>
 
 <p align="center">
-  <img src="images/Holder_Drawing.png" width="800">
+  <img src="images/Holder_Drawing.png" width="600">
 </p>
 
 <p align="center">
-  <img src="images/Assembly_Drawing.png" width="800">
+  <img src="images/Assembly_Drawing.png" width="600">
 </p>
 
-All manufactured parts can be printed with PLA. The DSS-P05 servo is secured to the chassis using four 2.5 mm bolts. One gripper arm is bonded to a standard servo horn using two-part epoxy. The second gripper arm is mounted directly to the chassis using a 2.5 mm bolt. The interchangeable holders can be attached to the gripper simply via a friction fit. A full render of the assembled end effector is shown below.
+All manufactured parts can be printed with PLA. The DSS-P05 servo is secured to the chassis using four 2.5 mm bolts. One gripper arm is bonded to a standard servo horn using two-part epoxy. The second gripper arm is mounted directly to the chassis using a 2.5 mm bolt. The interchangeable holders can be attached to the gripper simply via a friction fit. A full render and image of the assembled end effector is shown below.
 
 <p align="center">
-  <img src="images/render.png" width="400">
+  <img src="images/render.png" height="500" style="vertical-align: middle; margin-right: 20px;">
+  <img src="images/Gripper.png" height="500" style="vertical-align: middle;">
 </p>
 
 The end effector is actuated using a DSS-P05 servo, controlled through a ROS 2 node (`gripper`) that communicates with an Arduino over a serial connection. The node exposes a custom service (`/gripper_service`, type `CloseGripper`) which accepts either `"open"` or `"close"` as valid commands.
