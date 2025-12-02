@@ -28,8 +28,19 @@
 ---
 
 # Project Overview 
-Intended customer / end-user.  
-Summary of robot functionality.  
+This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient.
+Our intended "customer" is a post-stroke patient with hand weakness, personified as "Nick," a 68-year-old former engineer who loves robotics and strategy games.
+Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play.
+
+The robot's primary functionality is to act as an intelligent, autonomous opponent in a physical game of Tic-Tac-Toe. The entire process is managed by a ROS2-based architecture.
+The robot's behavior follows this sequence:
+1\.  Start-up:The game is initiated via terminal, and the human player moves first.
+2\.  Perception:A depth camera views the scene and detects the locations of the game board and all pieces.
+3\.  Decision:Once the human's move is detected, central "brain" node processes the board state and decides on the optimal move to make.
+4\.  Action:The brain sends commands to the arm and gripper. The robot uses a custom-designed, 3D-printed gripper mounted to the UR5e arm.
+5\. Execution:The arm moves to the decided piece, grips it, and places it in the desired location on the board.
+6\.  Loop: The arm then returns to a home position and waits for the human player to take their turn.
+ 
 [Functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
 [Visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link)
 
@@ -137,10 +148,28 @@ System must launch via a single command.
 ---
 
 # Results and Demonstration
-Performance relative to design goals.  
-Quantitative results (accuracy, repeatability).  
-Photos/figures/videos of system operation.  
-Notes on robustness, adaptability, innovation.
+
+The system is designed to perform against a set of strict, quantitative metrics that ensure it is responsive, accurate, and safe for the end-user.
+These are the design targets the system is engineered to meet:
+Response Time | Board State Detection | Target Goal:< 5 seconds | Reality: 4.52 senconds
+Repeatability | Optimal Game Strategy | Target: 100% consistent | Reality: 100%
+Repeatability | Piece Pickup Success | Target: ≥ 99.5% | Reality: 100%
+Repeatability | Piece Placement (Std Dev) | Target: ± 0.5mm | Reality: ± 6mm |
+Accuracy | Piece Placement | Target: ± 2mm | Reality:  ± 6mm |
+Accuracy |  Piece Pickup | Target: ± 3mm | Reality:  ± 4mm |
+
+## Innovation: 
+1\.The first innovation is the gamification of rehabilitation. By using a sophisticated robotic arm (UR5e) to play a common strategy game, the system directly combats the primary "customer" problem: poor engagement and isolation during therapy.
+2\.Adaptive Board Orientation: Leverages computer vision (CV) to detect the Tic-Tac-Toe board's angle in real-time. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation.
+
+## Robustness:
+Hardware: A custom-designed, 3D-printed gripper with bearing gears is used for reliable, low-friction grasping. The game pieces are also custom-designed with a small tab to ensure a consistent grip.
+Software: The system runs on a modular ROS2 architecture.  A central "brain" node manages game logic and perception, decoupling tasks and making the system easier to debug and maintain.
+
+## Adaptability:
+The system uses a depth camera for perception, allowing it to detect the board and piece locations dynamically. This makes it adaptable to slight changes in board position, rather than relying on fixed, hard-coded coordinates.
+The modular package design  means components can be individually upgraded or even swapped. For example, the `brain` node's Tic-Tac-Toe logic could be replaced with logic for a different game (like checkers) without redesigning the entire arm or gripper packages.
+
 
 <p align="center">
   <img src="images/pickup.png" width="400">
@@ -149,11 +178,26 @@ Notes on robustness, adaptability, innovation.
 ---
 
 # Discussion and Future Work
-Engineering challenges and how they were addressed.  
-Opportunities for improvement (Version 2.0).  
-What makes the approach novel or effective.
 
----
+## Major Engineering Challenges
+ROS & MoveIt! Integration: Navigating the steep learning curve of the Robot Operating System (ROS) and implementing the MoveIt! motion planning framework, which was new to many members of the team.
+Collaborative Workflow: Devising an effective engineering workflow to modularize development (e.g., splitting vision, game logic, and robot control) and then successfully integrating all components from different team members into a cohesive, functional system.
+Hardware Design & Prototyping: Designing a custom end-effector from the ground up. The primary challenge was optimizing the design for 3D printability, ensuring it was lightweight, functional, and could be reliably produced.
+
+## Future Enhancements
+Dynamic Obstacle Avoidance: Integrate sensors to detect and avoid unexpected obstacles, such as a player's hand, entering the workspace.
+Mid-Game Board Tracking: Implement continuous board detection to compensate if the board is accidentally bumped or moved during gameplay.
+Angled Surface Compensation: Extend the robot's kinematic and vision model to play on surfaces that are tilted or uneven.
+Illegal Move Detection: Add CV and game state logic to identify when a human player makes an invalid move and prompt them to try again.
+Interactive Feedback: Implement clearer visual or auditory feedback to communicate the robot's status, such as "It's your turn," "Invalid move," or "I win!"
+Player Engagement: Introduce features like selectable difficulty levels or voice/gesture-based game commands.
+
+## Novel Approaches
+Orientation-Invariant Board Detection: The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
+Unbeatable Game AI: The robot isn't just a physical mover; it's a perfect player. It leverages the Minimax algorithm, a classic search algorithm from game theory, to analyze all possible board states. This ensures the robot always plays an optimal move, either winning or forcing a draw.
+Modular & Decoupled Architecture: The system is built with a clear separation of concerns. The Computer Vision, the Game Logic, and the Robot Control are all independent modules. This makes the system significantly easier to debug, test, and upgrade. 
+Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D camera "sees" into real-world 3D coordinates for the robot arm. This project implements a robust camera-to-robot calibration routine. This ensures that when the vision system identifies the center of a square at pixel $(x, y)$, the robot arm moves to the exact corresponding $(X, Y, Z)$ physical location to draw its symbol.
+Closed-Loop Interaction: The system operates in an autonomous loop, making it highly interactive. It continuously monitors the board state with its camera. Once it detects that the human player has made a move, it automatically triggers its own decision-making and motion-planning sequence, creating a seamless, turn-based game experience without needing any button presses.
 
 # Contributors and Roles
 List team members and their responsibilities.
