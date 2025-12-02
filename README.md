@@ -28,29 +28,18 @@
 ---
 
 # Project Overview 
-This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient.
+This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended *customer* is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS2-based architecture.
 
-Our intended "customer" is a post-stroke patient with hand weakness, personified as "Nick," a 68-year-old former engineer who loves robotics and strategy games.
-
-Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play.
-
-The robot's primary functionality is to act as an intelligent, autonomous opponent in a physical game of Tic-Tac-Toe. The entire process is managed by a ROS2-based architecture.
 The robot's behavior follows this sequence:
 
-1\.  Start-up:The game is initiated via terminal, and the human player moves first.
+1. **Start-up**: The game is initiated via terminal, and the human player moves first.
+2. **Perception**: A depth camera views the scene and detects the locations of the game board and all pieces.
+3. **Decision**: Once the human's move is detected, the brain node processes the board state and decides on the best move to make.
+4. **Action**: The brain sends commands to the arm and gripper. The robot uses a custom-designed, 3D-printed gripper mounted to the UR5e arm.
+5. **Execution**: The arm moves to the decided piece, grips it, and places it in the desired location on the board.
+6. **Loop**: The arm then returns to a home position and waits for the human player to take their turn.
 
-2\.  Perception:A depth camera views the scene and detects the locations of the game board and all pieces.
-
-3\.  Decision:Once the human's move is detected, central "brain" node processes the board state and decides on the optimal move to make.
-
-4\.  Action:The brain sends commands to the arm and gripper. The robot uses a custom-designed, 3D-printed gripper mounted to the UR5e arm.
-
-5\. Execution:The arm moves to the decided piece, grips it, and places it in the desired location on the board.
-
-6\.  Loop: The arm then returns to a home position and waits for the human player to take their turn.
- 
-[Functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
-[Visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link)
+The full behaviour can be seen in the [functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link) and the system visualisation can be observed in the [visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link).
 
 ---
 
@@ -157,24 +146,23 @@ System must launch via a single command.
 
 # Results and Demonstration
 
-The system is designed to perform against a set of strict, quantitative metrics that ensure it is responsive, accurate, and safe for the end-user.
-These are the design targets the system is engineered to meet:
+The system is designed to perform against a set of quantitative metrics that ensure it is responsive, accurate, and safe for the end-user. These are the design targets the system is engineered to meet:
 
-Response Time | Board State Detection | Target Goal:< 5 seconds | Reality: 4.52 senconds
+<div align="center">
 
-Repeatability | Optimal Game Strategy | Target: 100% consistent | Reality: 100%
+| Category      | Metric                    | Target Goal            | Reality        |
+|---------------|---------------------------|------------------------|----------------|
+| Response Time | Board State Detection     | < 5 seconds            | ~3 seconds     |
+| Repeatability | Optimal Game Strategy     | 100% consistent        | 100%           |
+| Repeatability | Piece Pickup Success      | ≥ 90%                  | ~95%           |
+| Accuracy      | Piece Placement           | ± 20 mm                | ± 20 mm        |
+| Accuracy      | Piece Pickup              | ± 30 mm                | ± 20 mm        |
 
-Repeatability | Piece Pickup Success | Target: ≥ 99.5% | Reality: 100%
-
-Repeatability | Piece Placement (Std Dev) | Target: ± 0.5mm | Reality: ± 6mm |
-
-Accuracy | Piece Placement | Target: ± 2mm | Reality:  ± 6mm |
-
-Accuracy |  Piece Pickup | Target: ± 3mm | Reality:  ± 4mm |
+</div>
 
 ## Innovation: 
 
-1\.The first innovation is the gamification of rehabilitation. By using a sophisticated robotic arm (UR5e) to play a common strategy game, the system directly combats the primary "customer" problem: poor engagement and isolation during therapy.
+1\.The first innovation is the gamification of rehabilitation. By using a robotic arm (UR5e) to play a common strategy game, the system directly combats the primary "customer" problem: poor engagement and isolation during therapy.
 
 2\.Adaptive Board Orientation: Leverages computer vision (CV) to detect the Tic-Tac-Toe board's angle in real-time. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation.
 
