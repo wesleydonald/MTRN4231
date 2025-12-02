@@ -28,7 +28,9 @@
 # Project Overview 
 Intended customer / end-user.  
 Summary of robot functionality.  
-Short [demo](https://drive.google.com/drive/folders/1qhxOtTVrk9HNywdLUwSORVOnxeD5zi6X)
+Short [demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link)
+
+[Video demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link)
 
 ---
 
