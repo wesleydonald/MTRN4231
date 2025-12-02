@@ -1,0 +1,5 @@
+#!/bin/bash
+
+gnome-terminal -t 'MoveItServer' -e "ros2 launch arm moveit_real.launch.py"
+gnome-terminal -t 'DriverServer' -e "ros2 launch arm ur_control_real.launch.py"
+gnome-terminal -t 'Ros2Nodes' -e "ros2 launch brain real.launch.py"
