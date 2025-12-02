@@ -8,7 +8,7 @@
         rpy="0 0 0"/>
       <geometry>
        <!-- <box size="1 1 1"/> -->
-       <mesh filename="package://end_effector/meshes/GripperOpen.stl" scale="0.001 0.001 0.001"/>
+       <mesh filename="package://end_effector/meshes/GripperViz.stl" scale="0.001 0.001 0.001"/>
       
       </geometry>
       <material name="blue_material">
