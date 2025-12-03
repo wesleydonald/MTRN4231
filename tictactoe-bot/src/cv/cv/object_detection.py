@@ -123,7 +123,7 @@ class ObjectRecognizer(Node):
         self.black_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
         # Update the position of the broadcasted markers
-        timer_period = 2  # seconds
+        timer_period = 1  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.tf_broadcaster = TransformBroadcaster(self)
