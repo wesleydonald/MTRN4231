@@ -56,29 +56,32 @@ Below is a diagram of ROS2 packages, nodes, topics, and services used in this pr
 Key nodes to describe are: arm_moveit_server.cpp, brain.cpp, object_detection.py, gripper.py, simulator.cpp, visualisation.cpp 
 
 List and explanation of any custom message types or interfaces. (MoveArm.srv, CloseGripper.srv, BoardPose.msg)
-The following table includes a list of all the publisher/subscriber relationships, along with their message types. Note the only custom message is `BoardPose.msg` which is defined as follows:
-
-```
-geometry_msgs/PointStamped point
-float64 anglerad
-```
+The following table includes a list of all the publisher/subscriber relationships, along with their message types.
 
 <div align="center">
 
 | Topic Name                                      | Publisher          | Subscriber              | Type              |
 |-------------------------------------------------|---------------------|--------------------------|-------------------|
-| /detected/board                                 | object_detection.py | brain, visualisation, simulator | BoardPose.msg     |
-| /detected/pieces/white                          | object_detection.py | brain, visualisation, simulator | PoseArray         |
-| /detected/pieces/black                          | object_detection.py | brain, visualisation, simulator | PoseArray         |
-| /debug/detection_image                          | object_detection.py | —                        | Image             |
-| /camera/camera/color/image_raw                  | —                   | object_detection.py      | Image             |
-| /camera/camera/aligned_depth_to_color/image_raw | —                   | object_detection.py      | Image             |
-| /camera/camera/aligned_depth_to_color/camera_info | —                 | object_detection.py      | Image             |
-| /tictactoe/white_markers                        | visualisation.cpp   | RViz                        | MarkerArray       |
-| /tictactoe/black_markers                        | visualisation.cpp   | RViz                       | MarkerArray       |
-| /tictactoe/board_marker                         | visualisation.cpp   | RViz                       | Marker            |
+| /detected/board                                 | object_detection | brain, visualisation, simulator | BoardPose.msg     |
+| /detected/pieces/white                          | object_detection | brain, visualisation, simulator | PoseArray         |
+| /detected/pieces/black                          | object_detection | brain, visualisation, simulator | PoseArray         |
+| /tictactoe/white_markers                        | visualisation   | RViz                        | MarkerArray       |
+| /tictactoe/black_markers                        | visualisation   | RViz                       | MarkerArray       |
+| /tictactoe/board_marker                         | visualisation   | RViz                       | Marker            |
+| /debug/detection_image                          | object_detection | —                        | Image             |
+| /camera/color/image_raw                         | —                   | object_detection      | Image             |
+| /camera/aligned_depth_to_color/image_raw        | —                   | object_detection      | Image             |
+| /camera/aligned_depth_to_color/camera_info      | —                 | object_detection      | Image             |
 
 </div>
+
+Note the only custom message is `BoardPose.msg` which is defined as follows:
+
+```cpp
+// BoardPose.msg
+geometry_msgs/PointStamped point
+float64 anglerad
+```
 
 The following table includes a list of all the client/server relationships, along with their message types.
 
@@ -86,8 +89,9 @@ The following table includes a list of all the client/server relationships, alon
 
 | Service Name    | Client | Server            | Type              | Description                                      |
 |-----------------|--------|-------------------|-------------------|--------------------------------------------------|
-| arm_service     | brain  | arm_moveit_server | MoveArm.srv       | Sends a `string command` and recieves a `string response` and `bool success`  |
-| gripper_service | brain  | gripper           | CloseGripper.srv  | Sends a `geometry_msgs/Pose target_pose` and a `bool move_home` and recieves a `string response` and `bool success` |
+| arm_service     | brain  | arm_moveit_server | MoveArm.srv       | Sends: `string command` <br> Recieves: `string response` and `bool success`  |
+| gripper_service | brain  | gripper           | CloseGripper.srv  | Sends: `geometry_msgs/Pose target_pose` and `bool move_home` <br> Recieves: `string response` and `bool success` |
+
 </div>
 
  ## State Machine
