@@ -53,7 +53,13 @@ Below is a diagram of ROS2 packages, nodes, topics, and services used in this pr
   <img src="images/ros_architecture.png" width="1000">
 </p>
 
-Key nodes to describe are: arm_moveit_server.cpp, brain.cpp, object_detection.py, gripper.py, simulator.cpp, visualisation.cpp 
+The key nodes are:
+ * `arm_moveit_server.cpp`: A server to the `brain` node and uses cartesian based path planning to move to a required `target_pose`.
+ * `brain.cpp`: A client to the `arm` and `gripper` nodes and behaves as outlined in the [state machine section](#state-machine).
+ * `object_detection.py`: Detects the board and pieces as outlined in the [computer vision section](#computer-vision).
+ * `gripper.py`: A server to the `brain` node as described in the [custom end-effector section](#custom-end-effector).
+ * `simulator.cpp`: Used to mimick the behaviour of the `object_detection` when testing in the simulation.
+ * `visualisation.cpp`: Implements the behaviour outlined in the [system visualisation section](#system-visualisation).
 
 List and explanation of any custom message types or interfaces. (`MoveArm.srv`, `CloseGripper.srv`, `BoardPose.msg`)
 The following table includes a list of all the publisher/subscriber relationships, along with their message types.
@@ -89,8 +95,8 @@ The following table includes a list of all the client/server relationships, alon
 
 | Service Name    | Client | Server            | Type              | Description                                      |
 |-----------------|--------|-------------------|-------------------|--------------------------------------------------|
-| arm_service     | brain  | arm_moveit_server | `MoveArm.srv`       | Sends: `string command` <br> Recieves: `string response` and `bool success`  |
-| gripper_service | brain  | gripper           | `CloseGripper.srv`  | Sends: `geometry_msgs/Pose target_pose` and `bool move_home` <br> Recieves: `string response` and `bool success` |
+| arm_service     | brain  | arm_moveit_server | `MoveArm.srv`       | Sends: `geometry_msgs/Pose target_pose` and `bool move_home` <br> Recieves: `string response` and `bool success` |
+| gripper_service | brain  | gripper           | `CloseGripper.srv`  | Sends: `string command` <br> Recieves: `string response` and `bool success` |
 
 </div>
 
