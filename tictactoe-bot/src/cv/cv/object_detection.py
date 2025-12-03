@@ -27,11 +27,11 @@ BLACK_PIECE_ERODE_KERNEL_SIZE = 5
 BLACK_PIECE_DILATE_KERNEL_SIZE = 5
 BLACK_PIECE_BLUR_SIZE = 3
 
-WHITE_PIECE_MIN_AREA = 500
+WHITE_PIECE_MIN_AREA = 150
 WHITE_PIECE_MAX_AREA = 2500
 WHITE_PIECE_MIN_SOLIDITY = 0.85
 WHITE_PIECE_COLOUR_MIN = 210
-WHITE_DILATION_KERNEL_SIZE = 9
+WHITE_DILATION_KERNEL_SIZE = 5
 WHITE_ERODE_KERNEL_SIZE = 5
 
 BOARD_COLOUR_THRESHOLD_MAX = 80
@@ -42,7 +42,7 @@ BOARD_MEDIAN_BLUR = 3
 BOARD_GAUSSIAN_BLUR = 3
 BOARD_MIN_AREA = 2500
 
-ROI_TOP = 0.1
+ROI_TOP = 0.2
 ROI_BOTTOM = 0.8
 ROI_LEFT_TOP = 0.4
 ROI_LEFT_BOTTOM = 0.3
@@ -193,13 +193,13 @@ class ObjectRecognizer(Node):
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'camera_link'
-        t.transform.translation.x = 1.27677
-        t.transform.translation.y = 0.0175114
-        t.transform.translation.z = 0.673798
-        t.transform.rotation.x = -0.414096
-        t.transform.rotation.y = -0.019425
-        t.transform.rotation.z = 0.910018
-        t.transform.rotation.w = 0.00376407
+        t.transform.translation.x = 1.30938 # 1.27677
+        t.transform.translation.y = 0.0206053 # 0.0175114
+        t.transform.translation.z = 0.670571 # 0.673798
+        t.transform.rotation.x = -0.398486 #-0.414096
+        t.transform.rotation.y = 0.00254305 #-0.019425
+        t.transform.rotation.z = 0.917119 # 0.910018
+        t.transform.rotation.w = 0.00974536 # 0.00376407
         self.static_tf_broadcaster.sendTransform(t)
         self.get_logger().info("Published static transform from 'base_link' to 'camera_link'.")
 
@@ -457,8 +457,8 @@ class ObjectRecognizer(Node):
         # _, cv_img = cv2.threshold(cv_img, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
 
         cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
-        lower = np.array([60, 100, 0])
-        upper = np.array([130, 230, 130])
+        lower = np.array([80, 75, 0])
+        upper = np.array([120, 170, 80])
         cv_img = cv2.inRange(cv_img, lower, upper)
 
         # Apply ROI to make area outside ROI black

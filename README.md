@@ -139,6 +139,19 @@ Step-by-step installation instructions, dependencies, workspace setup.
 Hardware setup details (UR5e, camera, Teensy, etc.).  
 Environment variables, config files, calibration procedures.
 
+This project uses the following equipment:
+
+
+The following are links to install the necessary programs and applications used to run the project:
+-  ROS2 Humble install guide [here](https://docs.ros.org/en/humble/Installation.html).
+- MoveIt for ROS Humble install guide [here](https://moveit.picknik.ai/humble/doc/tutorials/getting_started/getting_started.html).
+- Universal Robots ROS2 Driver install guide from the course supplied code [here](https://github.com/UNSW-MTRN4231/4231SuppliedCode/tree/main/ros_ur_driver/src/Universal_Robots_ROS2_Driver).
+- Install Arduino IDE [here](https://www.arduino.cc/en/software/).
+
+It is assumed that up to date versions of **C++17** and **Python3** are installed on the operating computer. It is also necessary to install the required python dependencies which can be found in the `requirements.txt` file. They can be installed with the following command.
+
+```pip3 install -r requirements.txt```
+
 ---
 
 # Running the System
