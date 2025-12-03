@@ -19,20 +19,22 @@ from tf2_ros.static_transform_broadcaster import StaticTransformBroadcaster
 from interfaces.msg import BoardPose
 
 # CONSTANTS
-BLACK_PIECE_COLOUR_THRESHOLD = 60
-BLACK_PIECE_MIN_AREA = 200
-BLACK_PIECE_MAX_AREA = 1000
-BLACK_PIECE_MIN_SOLIDITY = 0.60
-BLACK_PIECE_ERODE_KERNEL_SIZE = 5
-BLACK_PIECE_DILATE_KERNEL_SIZE = 5
-BLACK_PIECE_BLUR_SIZE = 3
+BLACK_PIECE_MIN_AREA = 100
+BLACK_PIECE_MAX_AREA = 1500
+BLACK_PIECE_MIN_SOLIDITY = 0.25
+BLACK_PIECE_ERODE_KERNEL_SIZE = 3
+BLACK_PIECE_DILATE_KERNEL_SIZE = 7
+BLACK_PIECE_BLUR_SIZE = 7
+BLACK_LOWER = np.array([80, 50, 0])
+BLACK_UPPER = np.array([120, 170, 130])
 
 WHITE_PIECE_MIN_AREA = 150
 WHITE_PIECE_MAX_AREA = 2500
 WHITE_PIECE_MIN_SOLIDITY = 0.85
-WHITE_PIECE_COLOUR_MIN = 210
 WHITE_DILATION_KERNEL_SIZE = 5
 WHITE_ERODE_KERNEL_SIZE = 5
+WHITE_LOWER = np.array([70, 70, 200])
+WHITE_UPPER = np.array([120, 150, 255])
 
 BOARD_COLOUR_THRESHOLD_MAX = 80
 BOARD_COLOUR_THRESHOLD_MIN = 0
@@ -41,8 +43,10 @@ BOARD_DILATE_KERNEL_SIZE = 3
 BOARD_MEDIAN_BLUR = 3
 BOARD_GAUSSIAN_BLUR = 3
 BOARD_MIN_AREA = 2500
+BOARD_LOWER = np.array([80, 200, 90])
+BOARD_UPPER = np.array([120, 255, 180])
 
-ROI_TOP = 0.2
+ROI_TOP = 0.15
 ROI_BOTTOM = 0.8
 ROI_LEFT_TOP = 0.4
 ROI_LEFT_BOTTOM = 0.3
@@ -298,9 +302,7 @@ class ObjectRecognizer(Node):
 
         # Threshold to detect black
         cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
-        lower = np.array([80, 200, 90])
-        upper = np.array([120, 255, 180])
-        cv_img = cv2.inRange(cv_img, lower, upper)
+        cv_img = cv2.inRange(cv_img, BOARD_LOWER, BOARD_UPPER)
 
         # Apply ROI to make area outside ROI black
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
@@ -408,9 +410,7 @@ class ObjectRecognizer(Node):
     def find_white_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # HSV Seems to work quite well for white instead of grayscale, not sure why
         cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
-        lower_white = np.array([0, 0, WHITE_PIECE_COLOUR_MIN])
-        upper_white = np.array([179, 255, 255])
-        cv_img = cv2.inRange(cv_img, lower_white, upper_white)
+        cv_img = cv2.inRange(cv_img, WHITE_LOWER, WHITE_UPPER)
 
         # Apply ROI to make area outside ROI black
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
@@ -453,21 +453,16 @@ class ObjectRecognizer(Node):
 
     def find_black_pieces(self, camera_img, roi_mask, debug_image, pose_array):
         # Image processing
-        # cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2GRAY)
-        # _, cv_img = cv2.threshold(cv_img, BLACK_PIECE_COLOUR_THRESHOLD, 255, cv2.THRESH_BINARY_INV)
-
         cv_img = cv2.cvtColor(camera_img, cv2.COLOR_BGR2HSV)
-        lower = np.array([80, 75, 0])
-        upper = np.array([120, 170, 80])
-        cv_img = cv2.inRange(cv_img, lower, upper)
+        cv_img = cv2.inRange(cv_img, BLACK_LOWER, BLACK_UPPER)
 
         # Apply ROI to make area outside ROI black
         cv_img = cv2.bitwise_and(cv_img, cv_img, mask=roi_mask)
 
         # Threshold to detect black
         erode_kernel = np.ones((BLACK_PIECE_ERODE_KERNEL_SIZE, BLACK_PIECE_ERODE_KERNEL_SIZE), np.uint8)
-        dilate_kernel = np.ones((BLACK_PIECE_DILATE_KERNEL_SIZE,BLACK_PIECE_DILATE_KERNEL_SIZE), np.uint8)
         cv_img = cv2.erode(cv_img, erode_kernel, iterations=1)
+        dilate_kernel = np.ones((BLACK_PIECE_DILATE_KERNEL_SIZE,BLACK_PIECE_DILATE_KERNEL_SIZE), np.uint8)
         cv_img = cv2.dilate(cv_img, dilate_kernel, iterations=1)
         cv_img = cv2.medianBlur(cv_img, BLACK_PIECE_BLUR_SIZE)
 
