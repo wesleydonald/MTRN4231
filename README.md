@@ -35,7 +35,7 @@ The robot's behavior follows this sequence:
 1. **Start-up**: The game is initiated via terminal, and the player moves first.
 2. **Perception**: A depth camera views the scene and detects the locations of the game board and all pieces.
 3. **Decision**: Once the player's move is detected, the brain node processes the board state and decides on the best move to make.
-4. **Action**: The brain sends commands to the arm and gripper. The robot uses a custom-designed, 3D-printed gripper mounted to the UR5e arm.
+4. **Action**: The brain sends commands to the arm and gripper. The robot uses a custom-designed gripper mounted to the UR5e arm.
 5. **Execution**: The arm moves to the decided piece, grips it, and places it in the desired location on the board.
 6. **Loop**: The arm then returns to a home position and waits for the player to take their turn.
 
@@ -61,7 +61,6 @@ The key nodes are:
  * `simulator.cpp`: Used to mimick the behaviour of the `object_detection` when testing in the simulation.
  * `visualisation.cpp`: Implements the behaviour outlined in the [system visualisation section](#system-visualisation).
 
-List and explanation of any custom message types or interfaces. (`MoveArm.srv`, `CloseGripper.srv`, `BoardPose.msg`)
 The following table includes a list of all the publisher/subscriber relationships, along with their message types.
 
 <div align="center">
@@ -250,7 +249,7 @@ There were several stretch goals the team would have liked to implement with mor
 * **Mid-Game Board Tracking**: Implement continuous board detection to compensate if the board is accidentally bumped or moved during gameplay. This would require updating the transformation frames of each board location.
 * **Angled Surface Compensation**: Extend the vision pipeline to play on surfaces that are tilted or uneven. Currently it is assumed the board will always be on a flat surface at $z=0$.
 * **Illegal Move Detection**: Add logic to identify when a player moves an on board piece off the board and automatically fix the illegal move.
-* **Interactive Feedback**: Implement clearer visual feedback to communicate the robot's status, such as "It's your turn", "Invalid move", or "I win!".
+* **YOLO Based Detection**: A weakness of the current implementation is the computer vision can vary in accuracy depending on the location. Using YOLO would improve the robustness of the system in different lightings (with a well trained model).
 
 ## Novel Approaches
 
