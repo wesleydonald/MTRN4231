@@ -46,10 +46,16 @@ The full behaviour can be seen in the [functionality demo](https://drive.google.
 # System Architecture
 
 ## ROS2 Architecture
-- Diagram of ROS2 nodes, topics, services, and actions. 
+
+Below is a diagram of ROS2 nodes, topics, and services used in this project.
+
+<p align="center">
+  <img src="images/ros_architecture.png" width="1000">
+</p>
+
 - Package-level architecture diagram.
 - Description of each node’s function.  
-- List and explanation of any custom message types or interfaces.
+- List and explanation of any custom message types or interfaces. (MoveArm.srv, CloseGripper.srv, BoardPose.msg)
 
  ## State Machine
 
