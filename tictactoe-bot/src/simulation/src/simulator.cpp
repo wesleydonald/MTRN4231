@@ -40,7 +40,7 @@ public:
 
     // Timer
     timer_ = this->create_wall_timer(500ms, std::bind(&Simulator::timer_callback, this));
-    change_state_timer_ = this->create_wall_timer(5000ms, std::bind(&Simulator::state_callback, this));
+    change_state_timer_ = this->create_wall_timer(9000ms, std::bind(&Simulator::state_callback, this));
 
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
     RCLCPP_INFO(this->get_logger(), "Game simulator node started.");
@@ -54,7 +54,7 @@ private:
     board_msg.point.point.x = 0.35;
     board_msg.point.point.y = 0.35;
     board_msg.point.point.z = 0.02;
-    board_msg.anglerad = 0.0;
+    board_msg.anglerad = 0.78;
     board_pub_->publish(board_msg);
 
     // Publish white pieces
@@ -69,6 +69,10 @@ private:
       pose.position.y = 0.15 + 0.1 * i;
       pose.position.z = 0.02;
       pose.orientation.w = 1.0;
+      if (i == 0 && change_2_) {
+        pose.position.x = 0.35;
+        pose.position.y = 0.18;
+      }
       white_msg.poses.push_back(pose);
     }
     white_pub_->publish(white_msg);
@@ -85,10 +89,7 @@ private:
       pose.position.y = 0.05;
       pose.position.z = 0.02;
       pose.orientation.w = 1.0;
-      if (i == 3 && change_2_) {
-        pose.position.x = 0.46;
-        pose.position.y = 0.46;
-      }
+      
       if (i == 4 && change_) { // remove black from offboard
         pose.position.x = 0.35;
         pose.position.y = 0.35;
@@ -97,11 +98,12 @@ private:
     }
     black_pub_->publish(black_msg);
 
-    broadcast_point_tf("board", 0.35, 0.35, 0.02, 0.0);
+    broadcast_point_tf("board", 0.35, 0.35, 0.02, 0.78);
     broadcast_grid_square_tfs();
   }
 
   void state_callback() {
+    RCLCPP_INFO(this->get_logger(), "CHANGED");
     if (change_ == true) change_2_ = true;
     change_ = true;
   }

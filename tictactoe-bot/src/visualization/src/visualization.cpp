@@ -48,7 +48,7 @@ public:
     board_publisher_ = this->create_publisher<visualization_msgs::msg::Marker>("tictactoe/board_marker", 1);
     gripper_publisher_ = this->create_publisher<visualization_msgs::msg::Marker>("tictactoe/gripper_marker", 1);
 
-    gripper_timer_ = this->create_wall_timer(10ms, std::bind(&Visualisation::gripper_callback, this));
+    gripper_timer_ = this->create_wall_timer(1ms, std::bind(&Visualisation::gripper_callback, this));
     RCLCPP_INFO(this->get_logger(), "Visualisation node started.");
   }
 
@@ -56,13 +56,13 @@ private:
   // Callback will be used to publish the gripper dynamically
   // TODO: Edit this to change based on the game state
   void gripper_callback() {
-    // gripper_publisher_->publish(create_marker("tool0", "GripperClosed.stl", 0.0, 0.0, 0.05, // GripperOpen is not oriented correctly for some reason
-    //                                                                      0.6, 0.6, 0.6, 
-    //                                                                      0, 0.0));
+    gripper_publisher_->publish(create_marker("tool0", "GripperViz.stl", 0.0, 0.0, 0.065, // GripperOpen is not oriented correctly for some reason
+                                                                          0.6, 0.6, 0.6, 
+                                                                         0, 3.14, 0.0, 3.14));
   }
   // Creates a marker to be published (orienation is always vertically upwards)
   visualization_msgs::msg::Marker create_marker(const std::string &frame_id, const std::string &mesh_file,
-                                                double x, double y, double z, float r, float g, float b, int id, double mYaw) {
+                                                double x, double y, double z, float r, float g, float b, int id, double mRoll, double mPitch, double mYaw) {
     visualization_msgs::msg::Marker marker;
 
     marker.header.frame_id = frame_id;
@@ -75,8 +75,8 @@ private:
     marker.action = visualization_msgs::msg::Marker::ADD;
 
     tf2::Quaternion q;
-    double roll = 0.0;
-    double pitch = 0.0;
+    double roll = mRoll;
+    double pitch = mPitch;
     double yaw = mYaw;
 
     q.setRPY(roll, pitch, yaw);
@@ -104,7 +104,7 @@ private:
   void boardCallback(const interfaces::msg::BoardPose::SharedPtr msg) {
     board_publisher_->publish(create_marker("base_link", "Board.stl",
                                       msg->point.point.x, msg->point.point.y, msg->point.point.z,
-                                      0.0f, 0.4f, 0.8f, 1, msg->anglerad));
+                                      0.0f, 0.4f, 0.8f, 1, 0.0, 0.0, msg->anglerad));
   }
 
   void whitePiecesCallback(const geometry_msgs::msg::PoseArray::SharedPtr msg) {
@@ -118,7 +118,7 @@ private:
     for (const auto &pose : msg->poses) {
       auto marker = create_marker("base_link", "O_TicTacToe.stl",
                                   pose.position.x, pose.position.y, pose.position.z,
-                                  0.95f, 0.95f, 0.95f, id++, 0.0);
+                                  0.95f, 0.95f, 0.95f, id++, 0.0, 0.0, 0.0);
       marker.pose.orientation = pose.orientation;
       marker_array.markers.push_back(marker);
     }
@@ -137,7 +137,7 @@ private:
     for (const auto &pose : msg->poses) {
       auto marker = create_marker("base_link", "X_TicTacToe.stl",
                                   pose.position.x, pose.position.y, pose.position.z,
-                                  0.1f, 0.1f, 0.1f, id++, 0.0);
+                                  0.1f, 0.1f, 0.1f, id++, 0.0, 0.0, 0.0);
       marker.pose.orientation = pose.orientation;
       marker_array.markers.push_back(marker);
     }

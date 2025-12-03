@@ -134,8 +134,8 @@ private:
     std::vector<geometry_msgs::msg::Pose> waypoints;
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    target_pose.position.x += 0.02;
-    target_pose.position.y -= 0.01;
+    //target_pose.position.x += 0.02;
+    //target_pose.position.y -= 0.01;
     target_pose.position.z = 0.32;
     target_pose.orientation.x = - std::sqrt(2) / 2;
     target_pose.orientation.y = std::sqrt(2) / 2;
@@ -158,7 +158,7 @@ private:
     target_pose.position.z = 0.24;
     waypoints.push_back(target_pose);
 
-    const double eef_step = 0.02;
+    const double eef_step = 0.01;
     const double jump_threshold = 0.0;
 
     moveit_msgs::msg::RobotTrajectory trajectory;
@@ -182,12 +182,110 @@ private:
         return;
     }
 
+    printMaxJointVelocity(trajectory.joint_trajectory); /////////
+    limitTrajectory(trajectory, 0.3);
+    //scaleTrajectory(trajectory, 0.25);
+    printMaxJointVelocity(trajectory.joint_trajectory); /////////
+    
     moveit::planning_interface::MoveGroupInterface::Plan plan;
     plan.trajectory_ = trajectory;
     move_group_interface->execute(plan);
     move_group_interface->clearPathConstraints();
     response->success = true;
     response->message = "success";
+  }
+
+  double durationToSeconds(const builtin_interfaces::msg::Duration &d) {
+    return d.sec + d.nanosec * 1e-9;
+  }
+
+  void printMaxJointVelocity(const trajectory_msgs::msg::JointTrajectory &traj) {
+      double max_velocity = 0.0;
+      size_t max_joint_index = 0;
+
+      for (size_t i = 1; i < traj.points.size(); ++i) {
+          const auto &prev = traj.points[i - 1];
+          const auto &curr = traj.points[i];
+          double dt = durationToSeconds(curr.time_from_start) - durationToSeconds(prev.time_from_start);
+          if (dt <= 0.0) continue;
+
+          for (size_t j = 0; j < curr.positions.size(); ++j) {
+              double v = std::abs(curr.positions[j] - prev.positions[j]) / dt;
+              if (v > max_velocity) {
+                  max_velocity = v;
+                  max_joint_index = j;
+              }
+          }
+      }
+
+      RCLCPP_INFO(rclcpp::get_logger("trajectory"), "Max joint velocity: %.4f rad/s on joint index %zu", max_velocity, max_joint_index);
+  }
+
+  void scaleTrajectory(moveit_msgs::msg::RobotTrajectory &trajectory, double scaling_factor = 0.5) {
+    for (auto &point : trajectory.joint_trajectory.points) {
+        for (auto &v : point.velocities) {
+            v *= scaling_factor;
+        }
+
+        for (auto &a : point.accelerations) {
+            a *= scaling_factor * scaling_factor;
+        }
+
+        // Scale time_from_start
+        double t = point.time_from_start.sec + point.time_from_start.nanosec * 1e-9;
+        t /= scaling_factor;
+
+        point.time_from_start.sec = static_cast<int32_t>(t);
+        point.time_from_start.nanosec = static_cast<uint32_t>((t - point.time_from_start.sec) * 1e9);
+    }
+  }
+
+  void limitTrajectory(moveit_msgs::msg::RobotTrajectory &trajectory, double max_velocity = 1.0) {
+    for (size_t i = 1; i < trajectory.joint_trajectory.points.size(); ++i) {
+        auto &prev = trajectory.joint_trajectory.points[i - 1];
+        auto &curr = trajectory.joint_trajectory.points[i];
+
+        // Compute original time difference
+        double t_prev = prev.time_from_start.sec + prev.time_from_start.nanosec * 1e-9;
+        double t_curr = curr.time_from_start.sec + curr.time_from_start.nanosec * 1e-9;
+        double dt = t_curr - t_prev;
+
+        if (dt <= 0.0) continue;
+
+        // Compute max joint velocity for this segment
+        double local_max = 0.0;
+        for (size_t j = 0; j < curr.positions.size(); ++j) {
+            double v = std::abs(curr.positions[j] - prev.positions[j]) / dt;
+            if (v > local_max) local_max = v;
+        }
+
+        // Scale only if it exceeds max_velocity
+        double scaling_factor = 1.0;
+        if (local_max > max_velocity) scaling_factor = max_velocity / local_max;
+        else continue;
+
+        // Adjust this point's velocities and accelerations
+        for (auto &v : curr.velocities) v *= scaling_factor;
+        for (auto &a : curr.accelerations) a *= scaling_factor * scaling_factor;
+
+        // Update time_from_start for this point
+        double new_dt = dt / scaling_factor;
+        double new_t = t_prev + new_dt;
+        curr.time_from_start.sec = static_cast<int32_t>(new_t);
+        curr.time_from_start.nanosec = static_cast<uint32_t>((new_t - curr.time_from_start.sec) * 1e9);
+
+        // Propagate the remaining points to ensure strictly increasing time
+        for (size_t k = i + 1; k < trajectory.joint_trajectory.points.size(); ++k) {
+            double t_next = trajectory.joint_trajectory.points[k].time_from_start.sec +
+                            trajectory.joint_trajectory.points[k].time_from_start.nanosec * 1e-9;
+            double dt_next = t_next - t_curr;
+            double new_time = new_t + dt_next;
+
+            trajectory.joint_trajectory.points[k].time_from_start.sec = static_cast<int32_t>(new_time);
+            trajectory.joint_trajectory.points[k].time_from_start.nanosec =
+                static_cast<uint32_t>((new_time - static_cast<int32_t>(new_time)) * 1e9);
+        }
+    }
   }
 
   bool moveHome() {
