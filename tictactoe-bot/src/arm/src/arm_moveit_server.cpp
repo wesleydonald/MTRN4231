@@ -134,8 +134,8 @@ private:
     std::vector<geometry_msgs::msg::Pose> waypoints;
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    target_pose.position.x += 0.02;
-    target_pose.position.y -= 0.01;
+    // target_pose.position.x += 0.02;
+    // target_pose.position.y -= 0.01;
     target_pose.position.z = 0.32;
     target_pose.orientation.x = - std::sqrt(2) / 2;
     target_pose.orientation.y = std::sqrt(2) / 2;
@@ -158,7 +158,7 @@ private:
     target_pose.position.z = 0.24;
     waypoints.push_back(target_pose);
 
-    const double eef_step = 0.02;
+    const double eef_step = 0.01;
     const double jump_threshold = 0.0;
 
     moveit_msgs::msg::RobotTrajectory trajectory;
