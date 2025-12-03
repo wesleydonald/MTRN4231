@@ -47,15 +47,48 @@ The full behaviour can be seen in the [functionality demo](https://drive.google.
 
 ## ROS2 Architecture
 
-Below is a diagram of ROS2 nodes, topics, and services used in this project.
+Below is a diagram of ROS2 packages, nodes, topics, and services used in this project.
 
 <p align="center">
   <img src="images/ros_architecture.png" width="1000">
 </p>
 
-- Package-level architecture diagram.
-- Description of each node’s function.  
-- List and explanation of any custom message types or interfaces. (MoveArm.srv, CloseGripper.srv, BoardPose.msg)
+Key nodes to describe are: arm_moveit_server.cpp, brain.cpp, object_detection.py, gripper.py, simulator.cpp, visualisation.cpp 
+
+List and explanation of any custom message types or interfaces. (MoveArm.srv, CloseGripper.srv, BoardPose.msg)
+The following table includes a list of all the publisher/subscriber relationships, along with their message types. Note the only custom message is `BoardPose.msg` which is defined as follows:
+
+```
+geometry_msgs/PointStamped point
+float64 anglerad
+```
+
+<div align="center">
+
+| Topic Name                                      | Publisher          | Subscriber              | Type              |
+|-------------------------------------------------|---------------------|--------------------------|-------------------|
+| /detected/board                                 | object_detection.py | brain, visualisation, simulator | BoardPose.msg     |
+| /detected/pieces/white                          | object_detection.py | brain, visualisation, simulator | PoseArray         |
+| /detected/pieces/black                          | object_detection.py | brain, visualisation, simulator | PoseArray         |
+| /debug/detection_image                          | object_detection.py | —                        | Image             |
+| /camera/camera/color/image_raw                  | —                   | object_detection.py      | Image             |
+| /camera/camera/aligned_depth_to_color/image_raw | —                   | object_detection.py      | Image             |
+| /camera/camera/aligned_depth_to_color/camera_info | —                 | object_detection.py      | Image             |
+| /tictactoe/white_markers                        | visualisation.cpp   | RViz                        | MarkerArray       |
+| /tictactoe/black_markers                        | visualisation.cpp   | RViz                       | MarkerArray       |
+| /tictactoe/board_marker                         | visualisation.cpp   | RViz                       | Marker            |
+
+</div>
+
+The following table includes a list of all the client/server relationships, along with their message types.
+
+<div align="center">
+
+| Service Name    | Client | Server            | Type              | Description                                      |
+|-----------------|--------|-------------------|-------------------|--------------------------------------------------|
+| arm_service     | brain  | arm_moveit_server | MoveArm.srv       | Sends a `string command` and recieves a `string response` and `bool success`  |
+| gripper_service | brain  | gripper           | CloseGripper.srv  | Sends a `geometry_msgs/Pose target_pose` and a `bool move_home` and recieves a `string response` and `bool success` |
+</div>
 
  ## State Machine
 
