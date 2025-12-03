@@ -18,7 +18,13 @@
 5. [Installation and Setup](#installation-and-setup)
 6. [Running the System](#running-the-system)
 7. [Results and Demonstration](#results-and-demonstration)
+   - [Innovation](#innovation)
+   - [Robustness](#robustness)
+   - [Adaptability](#adaptability)
 8. [Discussion and Future Work](#discussion-and-future-work)
+   - [Major Enginnering Challenges](#major-engineering-challenges)
+   - [Future Enhancements](#future-enhancements)
+   - [Novel Approaches](#novel-approaches)
 9. [Contributors and Roles](#contributors-and-roles)
 10. [Repository Structure](#repository-structure)
 11. [References and Acknowledgements](#references-and-acknowledgements)
@@ -253,13 +259,13 @@ There were several stretch goals the team would have liked to implement with mor
 
 ## Novel Approaches
 
-Orientation-Invariant Board Detection: The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
+The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
 
-Unbeatable Game AI: The robot isn't just a physical mover; it's a perfect player. It leverages the Minimax algorithm, a classic search algorithm from game theory, to analyze all possible board states. This ensures the robot always plays an optimal move, either winning or forcing a draw.
+The robot isn't just a physical mover; it's a perfect player. It leverages the Minimax algorithm to find the best move. This ensures the robot always plays an optimal move, either winning or forcing a draw.
 
 Modular & Decoupled Architecture: The system is built with a clear separation of concerns. The Computer Vision, the Game Logic, and the Robot Control are all independent modules. This makes the system significantly easier to debug, test, and upgrade. 
 
-Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D camera "sees" into real-world 3D coordinates for the robot arm. This project implements a robust camera-to-robot calibration routine. This ensures that when the vision system identifies the center of a square at pixel $(x, y)$, the robot arm moves to the exact corresponding $(X, Y, Z)$ physical location to draw its symbol.
+Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D camera "sees" into real-world 3D coordinates for the robot arm. This project implements a robust camera-to-robot calibration routine. This ensures that when the vision system identifies the center of a square at pixel $(x, y)$, the robot arm moves to the exact corresponding $(X, Y, Z)$ physical location to place the piece.
 
 # Contributors and Roles
 All group members were involved in all aspects of the project, however the main roles ended up as follows;
