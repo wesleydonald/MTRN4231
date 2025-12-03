@@ -28,7 +28,7 @@
 ---
 
 # Project Overview 
-This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended *customer* is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS2-based architecture.
+This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended customer is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS2-based architecture.
 
 The robot's behavior follows this sequence:
 
@@ -55,23 +55,23 @@ Below is a diagram of ROS2 packages, nodes, topics, and services used in this pr
 
 Key nodes to describe are: arm_moveit_server.cpp, brain.cpp, object_detection.py, gripper.py, simulator.cpp, visualisation.cpp 
 
-List and explanation of any custom message types or interfaces. (MoveArm.srv, CloseGripper.srv, BoardPose.msg)
+List and explanation of any custom message types or interfaces. (`MoveArm.srv`, `CloseGripper.srv`, `BoardPose.msg`)
 The following table includes a list of all the publisher/subscriber relationships, along with their message types.
 
 <div align="center">
 
 | Topic Name                                      | Publisher          | Subscriber              | Type              |
 |-------------------------------------------------|---------------------|--------------------------|-------------------|
-| /detected/board                                 | object_detection | brain, visualisation, simulator | BoardPose.msg     |
-| /detected/pieces/white                          | object_detection | brain, visualisation, simulator | PoseArray         |
-| /detected/pieces/black                          | object_detection | brain, visualisation, simulator | PoseArray         |
-| /tictactoe/white_markers                        | visualisation   | RViz                        | MarkerArray       |
-| /tictactoe/black_markers                        | visualisation   | RViz                       | MarkerArray       |
-| /tictactoe/board_marker                         | visualisation   | RViz                       | Marker            |
-| /debug/detection_image                          | object_detection | —                        | Image             |
-| /camera/color/image_raw                         | —                   | object_detection      | Image             |
-| /camera/aligned_depth_to_color/image_raw        | —                   | object_detection      | Image             |
-| /camera/aligned_depth_to_color/camera_info      | —                 | object_detection      | Image             |
+| `/detected/board`                                 | object_detection | brain, visualisation, simulator | `BoardPose.msg`     |
+| `/detected/pieces/white`                          | object_detection | brain, visualisation, simulator | `PoseArray`         |
+| `/detected/pieces/black`                          | object_detection | brain, visualisation, simulator | `PoseArray`         |
+| `/tictactoe/white_markers`                        | visualisation   | RViz                        | `MarkerArray`       |
+| `/tictactoe/black_markers`                        | visualisation   | RViz                       | `MarkerArray`       |
+| `/tictactoe/board_marker`                         | visualisation   | RViz                       | `Marker`            |
+| `/debug/detection_image`                          | object_detection | —                        | `Image`             |
+| `/camera/color/image_raw`                         | —                   | object_detection      | `Image`             |
+| `/camera/aligned_depth_to_color/image_raw`        | —                   | object_detection      | `Image`             |
+| `/camera/aligned_depth_to_color/camera_info`      | —                 | object_detection      | `Image`             |
 
 </div>
 
@@ -89,8 +89,8 @@ The following table includes a list of all the client/server relationships, alon
 
 | Service Name    | Client | Server            | Type              | Description                                      |
 |-----------------|--------|-------------------|-------------------|--------------------------------------------------|
-| arm_service     | brain  | arm_moveit_server | MoveArm.srv       | Sends: `string command` <br> Recieves: `string response` and `bool success`  |
-| gripper_service | brain  | gripper           | CloseGripper.srv  | Sends: `geometry_msgs/Pose target_pose` and `bool move_home` <br> Recieves: `string response` and `bool success` |
+| arm_service     | brain  | arm_moveit_server | `MoveArm.srv`       | Sends: `string command` <br> Recieves: `string response` and `bool success`  |
+| gripper_service | brain  | gripper           | `CloseGripper.srv`  | Sends: `geometry_msgs/Pose target_pose` and `bool move_home` <br> Recieves: `string response` and `bool success` |
 
 </div>
 
@@ -121,7 +121,7 @@ A trapezoidal region-of-interest (ROI) restricts detection to the table workspac
 
 White and black pieces are detected separately using tuned HSV thresholds, filtering, and contour solidity/area checks to reject noise. For each valid contour, image moments provide the pixel centroid. Each piece is published as a `PoseArray` in `base_link`, and TF frames are broadcast as well.
 
-Finally, a temporal filtering stage selects the most stable detection set across multiple frames, improving robustness to flickering elements. This pipeline provides reliable board localisation and piece detection for planning in the `brain` package. A debugging image is published to `debug/detection_image` as follows,
+Finally, a filtering stage selects the most stable detection set across multiple frames, improving robustness to flickering elements. This pipeline provides reliable board localisation and piece detection for planning in the `brain` package. A debugging image is published to `debug/detection_image` as follows,
 
 <p align="center">
   <img src="images/CV.png" width="600">
@@ -153,14 +153,14 @@ All manufactured parts can be printed with PLA. The DSS-P05 servo is secured to 
   <img src="images/Gripper.png" height="500" style="vertical-align: middle;">
 </p>
 
-The end effector is actuated using a DSS-P05 servo, controlled through a ROS 2 node (`gripper`) that communicates with an Arduino over a serial connection. The node exposes a custom service (`/gripper_service`, type `CloseGripper`) which accepts either `"open"` or `"close"` as valid commands.
+The end effector is actuated using a DSS-P05 servo, controlled through a ROS 2 node (`gripper`) that communicates with an Arduino over a serial connection. The node exposes a custom service (`/gripper_service`) which accepts either `"open"` or `"close"` as valid commands.
 
 When the node starts, it attempts to open the serial port (`/dev/ttyUSB0`). If successful, commands recieved through the service are forwarded directly to the Arduino, which actuates the servo accordingly. If the Arduino is not connected, the node logs a warning but remains active so that the rest of the system can continue operating.
 
 Mechanically, the chassis mounts to the UR5 wrist using a Housing Block and an End Effector Mount. The end effector’s mass is included in the URDF to ensure accurate planning and simulation. The URDF also defines collision geometry and a mesh to visualise the end effector in rviz.
 
 ## System Visualisation
-The system is visualised in RViz, where both the UR5e robot and the custom gripper URDF are loaded through a combined launch sequence that starts the UR driver, MoveIt, and RViz with a custom configuration. RViz displays the full robot model alongside several marker topics published by the visualisation node, which provides a live representation of the detected board as well as the black and white game pieces. These markers are generated from perception inputs (/detected/board, /detected/pieces/white, /detected/pieces/black) and rendered as mesh resources, allowing the operator to observe the system’s understanding of the game state. This visualisation demonstrates the TF alignment of the board as well.
+The system is visualised in RViz, where both the UR5e robot and the custom gripper URDF are loaded through a combined launch sequence that starts the UR driver, MoveIt, and RViz with a custom configuration. RViz displays the full robot model alongside several marker topics published by the visualisation node, which provides a live representation of the detected board as well as the black and white game pieces. These markers are generated from perception inputs (`/detected/board`, `/detected/pieces/white`, /`detected/pieces/black`) and rendered as mesh resources, allowing the operator to observe the system’s understanding of the game state. This visualisation demonstrates the TF alignment of the board as well.
 
 <p align="center">
   <img src="images/Visualisation.png" width="600">
