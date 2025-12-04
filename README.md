@@ -18,13 +18,12 @@
 5. [Installation and Setup](#installation-and-setup)
 6. [Running the System](#running-the-system)
 7. [Results and Demonstration](#results-and-demonstration)
-   - [Innovation](#innovation)
+   - [Novelty and Innovation](#novelty-and-innovation)
    - [Robustness](#robustness)
    - [Adaptability](#adaptability)
 8. [Discussion and Future Work](#discussion-and-future-work)
    - [Major Enginnering Challenges](#major-engineering-challenges)
    - [Future Enhancements](#future-enhancements)
-   - [Novel Approaches](#novel-approaches)
 9. [Contributors and Roles](#contributors-and-roles)
 10. [Repository Structure](#repository-structure)
 11. [References and Acknowledgements](#references-and-acknowledgements)
@@ -241,11 +240,17 @@ The above metrics were determined by running the game 10 times in different scen
   <img src="images/pickup.png" width="400">
 </p>
 
-## Innovation: 
+## Novelty and Innovation
 
-The main innovation of this system is leveraging computer vision to detect the board's angle. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation. No aruco markers or changing the perspective of the camera is required, meaning our computer vision pipeline is more robust than systems which use fixed location items.
+The main innovation of this system is using computer vision to detect the board's angle. This allows the robot to accurately identify the grid and play correctly regardless of how the board is rotated, offering significant flexibility and robustness over systems that require a fixed, pre-calibrated orientation. No aruco markers or changing the perspective of the camera is required, meaning our computer vision pipeline is more robust than systems which use fixed location items.
 
-## Robustness:
+<p align="center">
+  <img src="images/board_orientation.png" width="700">
+</p>
+
+Another novelty is using a MiniMax algorithm to recursively find the best move. This ensures the robot always plays optimally, either winning or forcing a draw.  
+
+## Robustness
 
 The `brain` node manages game logic and decisions, decoupling tasks and making the system easier to debug and maintain. The custom designed gripper has replaceable holders which allows for about ± 20 mm of error from the computer vision pipline, used for reliable grasping. The game pieces are also custom designed with a small tab which ensures a consistent grip. The pieces have a diameter of 60 mm which allows for ± 20 mm of error as the board squares are 100 mm $^2$.
 
@@ -253,8 +258,8 @@ The `brain` node manages game logic and decisions, decoupling tasks and making t
   <img src="images/Pieces.png" width="700">
 </p>
 
-## Adaptability:
-The system uses a depth camera for perception, allowing it to detect the board and piece locations dynamically. This makes it adaptable to changes in pieces positions, rather than relying on fixed, hard-coded coordinates. The modular package design means components can be individually upgraded or even swapped. For example, the `brain` node's Tic-Tac-Toe logic could be replaced with logic for a different game (like checkers or chess) without redesigning the entire arm or gripper packages.
+## Adaptability
+The system uses a depth camera for perception, allowing it to detect the board and piece locations dynamically. This makes it adaptable to changes in pieces positions, rather than relying on hard-coded coordinates. The modular package design means components can be individually upgraded or even swapped. For example, the `brain` node's Tic-Tac-Toe logic could be replaced with logic for a different game (like checkers or chess) without redesigning the entire arm or gripper packages.
 
 ---
 
@@ -262,11 +267,9 @@ The system uses a depth camera for perception, allowing it to detect the board a
 
 ## Major Engineering Challenges
 
-One of the main challenges was working with an unfamiliar package, MoveIt. Identifying a reliable workflow required significantly more time than expected and involved lots of documentation reviews, peer discussion, and experimentation. In the end we were unable to use orientation constraints and found that joint constraints significantly decreased the planning time, additionally cartesian planning was found to be far superior to MoveIts' default planner.
+One of the main challenges was working with an unfamiliar package, MoveIt. Identifying a reliable method required significantly more time than expected and involved lots of documentation reviews, peer discussion, and experimentation. In the end we were unable to use orientation constraints and found that joint constraints significantly decreased the planning time, additionally cartesian planning was found to be far superior to MoveIts' default planner.
 
 Another challenge was allocating tasks in a way that matched team strengths while keeping progress aligned. For example, Wesley worked on the brain logic, but meaningful testing was difficult until the computer vision pipeline existed. This was addressed by developing a simulation package that replicates the CV node and produces hard coded board and piece locations.
-
-Maintaining an up to date system architecture was also essential to ensure consistent topic and service definitions across all components. Hardware design presented an additional major challenge, as it was a weaker area for the group. Several prototype iterations were required: the first design was not 3D printable, the second could not be assembled, and only after redesigning did we arrive at a simple, modular final end effector.
 
 ## Future Enhancements
 
@@ -274,32 +277,14 @@ There were several stretch goals the team would have liked to implement with mor
 
 * **Dynamic Obstacle Avoidance**: Program the camera to detect additional obstacles, such as a player's hand, entering the workspace. When an unexpected object is present, prevent any arm movement which could injure the player.
 * **Mid-Game Board Tracking**: Implement continuous board detection to compensate if the board is accidentally bumped or moved during gameplay. This would require updating the transformation frames of each board location.
-* **Angled Surface Compensation**: Extend the vision pipeline to play on surfaces that are tilted or uneven. Currently it is assumed the board will always be on a flat surface at $z=0$.
-* **Illegal Move Detection**: Add logic to identify when a player moves an on board piece off the board and automatically fix the illegal move.
-* **YOLO Based Detection**: A weakness of the current implementation is the computer vision can vary in accuracy depending on the location. Using YOLO would improve the robustness of the system in different lightings (with a well trained model).
-
-## Novel Approaches
-
-<p align="center">
-  <img src="images/board_orientation.png" width="700">
-</p>
-
-The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
-
-The robot isn't just a physical mover; it's a perfect player. It leverages the Minimax algorithm to find the best move. This ensures the robot always plays an optimal move, either winning or forcing a draw.
-
-Modular & Decoupled Architecture: The system is built with a clear separation of concerns. The Computer Vision, the Game Logic, and the Robot Control are all independent modules. This makes the system significantly easier to debug, test, and upgrade. 
-
-Precise 2D-to-3D Coordinate Mapping: A key challenge is translating what the 2D camera "sees" into real-world 3D coordinates for the robot arm. This project implements a robust camera-to-robot calibration routine. This ensures that when the vision system identifies the center of a square at pixel $(x, y)$, the robot arm moves to the exact corresponding $(X, Y, Z)$ physical location to place the piece.
+* **YOLO Based Detection**: A weakness of the current implementation is the computer vision can vary in accuracy depending on the lighting. Using YOLO would improve the robustness of the system in different conditions (with a well trained model).
 
 # Contributors and Roles
 All group members were involved in all aspects of the project, however the main roles ended up as follows;
 
-Ryan - Computer Vision, End effector design, Moveit constraints.
-
-Wesley - Gameplay Logic, End effector CAD, Moveit path planning.
-
-Sherry - End effector package, UDRF + Launch files.
+* Ryan - Computer Vision, End effector design, Moveit constraints.
+* Wesley - Gameplay Logic, End effector CAD, Moveit path planning.
+* Sherry - End effector package, UDRF + Launch files.
 
 <p align="center">
   <img src="images/team_photo.png" width="500">
@@ -311,23 +296,25 @@ Sherry - End effector package, UDRF + Launch files.
 The repository structure is as follows:
 
 ```
+launch_scripts/
 images/
-src/
-   arm/
-   brain/
-   cv/
-   end_effector/
-   interfaces/
-   simulation/
-   visualisation/
-   webui/
+tictactoe-bot/
+   src/
+      arm/
+      brain/
+      cv/
+      end_effector/
+      interfaces/
+      simulation/
+      visualisation/
+      webui/
 ```
 
-The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planning and robot control, `brain/` manages the game logic and state machine, `cv/` performs board detection, `end_effector/` controls the gripper, `interfaces/` defines custom message and service types, `simulation/` simulates computer vision, `visualisation/` publishes markers to rviz, and `webui/` hosts the user interface. The `images/` directory contains all images used in the report.
+The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planning and robot control, `brain/` manages the game logic and state machine, `cv/` performs board detection, `end_effector/` controls the gripper, `interfaces/` defines custom message and service types, `simulation/` simulates computer vision, `visualisation/` publishes markers to RViz, and `webui/` hosts the user interface. The `images/` directory contains all images used in the report.
 
 ---
 
 # References and Acknowledgements
-This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz2 for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that support the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent guidance and support throughout the project.
+This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that support the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent support throughout the project.
 
 </div>
