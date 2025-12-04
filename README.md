@@ -290,9 +290,13 @@ All group members were involved in all aspects of the project, however the main 
 
 Ryan - Computer Vision, End effector design, Moveit constraints.
 
+Wesley - Gameplay Logic, End effector CAD, Moveit path planning.
+
 Sherry - End effector package, UDRF + Launch files.
 
-Wesley - Gameplay Logic, End effector CAD, Moveit path planning.
+<p align="center">
+  <img src="images/team_photo.png" width="500">
+</p>
 
 ---
 
