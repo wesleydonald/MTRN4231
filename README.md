@@ -140,6 +140,8 @@ Hardware setup details (UR5e, camera, Teensy, etc.).
 Environment variables, config files, calibration procedures.
 
 This project uses the following equipment:
+- URe5
+- Arduino
 
 
 The following are links to install the necessary programs and applications used to run the project:
@@ -223,6 +225,10 @@ There were several stretch goals the team would have liked to implement with mor
 * **Interactive Feedback**: Implement clearer visual feedback to communicate the robot's status, such as "It's your turn", "Invalid move", or "I win!".
 
 ## Novel Approaches
+
+<p align="center">
+  <img src="images/board_orientation.png" width="700">
+</p>
 
 Orientation-Invariant Board Detection: The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
 
