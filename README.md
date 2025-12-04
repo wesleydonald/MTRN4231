@@ -1,14 +1,12 @@
 <!-- omit from toc -->
 # MTRN4231 - Capstone Mechatronics Project 
 
-[README Checklist](https://docs.google.com/document/d/1zuUf0pBpQOLhTJfOn6BVm4h70meYy5rnrdafGd6j8Xo/edit?tab=t.0)
-
 ![banner](images/banner.png)
 
 # Table of Contents
 1. [Project Overview](#project-overview)
 2. [System Architecture](#system-architecture)
-   - [ROS2 Architecture](#ros2-architecture)
+   - [ROS 2 Architecture](#ros-2-architecture)
    - [State Machine](#state-machine)
 4. [Technical Components](#technical-components)
    - [Computer Vision](#computer-vision)
@@ -33,7 +31,7 @@
 ---
 
 # Project Overview 
-This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended customer is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS2-based architecture.
+This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended customer is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS 2 based architecture.
 
 The robot's behavior follows this sequence:
 
@@ -50,9 +48,9 @@ The full behaviour can be seen in the [functionality demo](https://drive.google.
 
 # System Architecture
 
-## ROS2 Architecture
+## ROS 2 Architecture
 
-Below is a diagram of ROS2 packages, nodes, topics, and services used in this project.
+Below is a diagram of ROS 2 packages, nodes, topics, and services used in this project.
 
 <p align="center">
   <img src="images/ros_architecture.png" width="1000">
@@ -191,11 +189,11 @@ This project uses the following equipment:
 ### Installs
 
 The following are links to install the necessary programs and applications used to run the project:
--  ROS2 Humble install guide [here](https://docs.ros.org/en/humble/Installation.html).
+- ROS 2 Humble install guide [here](https://docs.ros.org/en/humble/Installation.html).
 - MoveIt for ROS Humble install guide [here](https://moveit.picknik.ai/humble/doc/tutorials/getting_started/getting_started.html).
-- Universal Robots ROS2 Driver install guide from the course supplied code [here](https://github.com/UNSW-MTRN4231/4231SuppliedCode/tree/main/ros_ur_driver/src/Universal_Robots_ROS2_Driver).
+- Universal Robots ROS 2 Driver install guide from the course supplied code [here](https://github.com/UNSW-MTRN4231/4231SuppliedCode/tree/main/ros_ur_driver/src/Universal_Robots_ROS2_Driver).
 - Install Arduino IDE [here](https://www.arduino.cc/en/software/).
-- Install the Realsense Ros2 package [here](https://github.com/realsenseai/realsense-ros).
+- Install the Realsense ROS 2 package [here](https://github.com/realsenseai/realsense-ros).
 
 It is assumed that up to date versions of **C++17** and **Python3** are installed on the operating computer. It is also necessary to install the required python dependencies which can be found in the `requirements.txt` file. 
 
@@ -361,14 +359,13 @@ tictactoe-bot/
       interfaces/
       simulation/
       visualisation/
-      webui/
 ```
 
-The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planning and robot control, `brain/` manages the game logic and state machine, `cv/` performs board detection, `end_effector/` controls the gripper, `interfaces/` defines custom message and service types, `simulation/` simulates computer vision, `visualisation/` publishes markers to RViz, and `webui/` hosts the user interface. The `images/` directory contains all images used in the report.
+The `src/` folder includes the core ROS 2 packages: `arm/` handles motion planning and robot control, `brain/` manages the game logic and state machine, `cv/` performs board detection, `end_effector/` controls the gripper, `interfaces/` defines custom message and service types, `simulation/` simulates computer vision and `visualisation/` publishes markers to RViz.
 
 ---
 
 # References and Acknowledgements
-This project uses several external tools and libraries, including OpenCV for computer vision, pyserial for Arduino communication, RViz for visualisation, and Gazebo for simulation. We also acknowledge the UR driver and MoveIt frameworks that support the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their consistent support throughout the project.
+This project uses several external tools and libraries, including OpenCV, pyserial, RViz, and Gazebo. We also acknowledge the UR driver and MoveIt frameworks that support the robot control pipeline. We would like to thank the demonstrators David, Alex, and Saba for their continuous support throughout the project.
 
 </div>
