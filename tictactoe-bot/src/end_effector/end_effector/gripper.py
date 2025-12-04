@@ -27,6 +27,8 @@ void loop() {
 }
 """
 
+ARDUINO_PORT  = '/dev/ttyUSB0'
+
 import rclpy
 from rclpy.node import Node
 from serial.serialutil import SerialException
@@ -38,7 +40,7 @@ class Gripper(Node):
         super().__init__('gripper_node')
 
         try:
-            self.serial_port = serial.Serial('/dev/ttyUSB0', 9600)# /dev/ttyS4
+            self.serial_port = serial.Serial(ARDUINO_PORT, 9600)# /dev/ttyS4
             self.serial_connected = True
             self.get_logger().info("Serial port opened successfully")
         except SerialException:

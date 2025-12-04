@@ -184,7 +184,7 @@ The Brain node continuously monitors the most recent positions of all pieces on 
 # Installation and Setup
 
 This project uses the following equipment:
-- URe5 Robot
+- UR5e Robot
 - Arduino Mega
 - Intel Realsense camera 
 
@@ -195,17 +195,30 @@ The following are links to install the necessary programs and applications used 
 - MoveIt for ROS Humble install guide [here](https://moveit.picknik.ai/humble/doc/tutorials/getting_started/getting_started.html).
 - Universal Robots ROS2 Driver install guide from the course supplied code [here](https://github.com/UNSW-MTRN4231/4231SuppliedCode/tree/main/ros_ur_driver/src/Universal_Robots_ROS2_Driver).
 - Install Arduino IDE [here](https://www.arduino.cc/en/software/).
+- Install the Realsense Ros2 package [here](https://github.com/realsenseai/realsense-ros).
 
 It is assumed that up to date versions of **C++17** and **Python3** are installed on the operating computer. It is also necessary to install the required python dependencies which can be found in the `requirements.txt` file. 
 
 ### Calibration parameters
 
+#### Camera
+
+It is assumed that the Realsense camera has been set up such that the depth perception and 3D transformations work well.
+
+#### UR5e 
+
+It is assumed that the robot has been set up and configured to communicate over the ip address `192.168.0.100`.
+
+#### Computer Vision
+
 The calibration parameters for the computer vision are in the defines at the top of the file `tictactoe-bot/cv/cv/object_detection.py`. For HSV colour masking, deciding HSV values can be assisted with the `colour_thresholding.py` and `gray_thresholding.py` scripts in the `cv_testing/` folder as seen below.
+  <p align="center">
+    <img src="images/color_calibration.png" width="700">
+  </p>
 
-<p align="center">
-  <img src="images/color_calibration.png" width="700">
-</p>
+#### Gripper
 
+The code used on the arduino can be found `gripper.ino`. The port that the arduino is connected to on the computer needs to be configured. At the moment it is `/dev/ttyUSB0`. It can be changed at the top of the `end_effector/end_effector/gripper.py` file.
 
 ---
 
@@ -215,6 +228,24 @@ Example commands.
 Expected behaviour and example outputs.  
 Optional troubleshooting notes.  
 System must launch via a single command.
+
+### Real Robot
+To launch the system with the real robot, connected to the gripper and realsense camera run the script.
+
+```
+./launch_scripts/real_lanch.sh
+```
+
+Wait for the `MoveItServer` and `DriverServer` terminals to start up, then try to connect the UR5e with the startupscript on the robot. The launch script will then ask you to press `enter` to launch all other nodes. 
+
+### Simulation
+To launch a simulated game first make sure that `using_gripper = false` in `brain/src/brain.cpp` then run,
+
+```
+./launch_scripts/fake_launch.sh
+```
+
+which will run a simulated game using fake hardware. This was useful for testing motion planning without the real robot.
 
 ---
 
