@@ -1,8 +1,6 @@
 <!-- omit from toc -->
 # MTRN4231 - Capstone Mechatronics Project 
 
-[README Checklist](https://docs.google.com/document/d/1zuUf0pBpQOLhTJfOn6BVm4h70meYy5rnrdafGd6j8Xo/edit?tab=t.0)
-
 ![banner](images/banner.png)
 
 # Table of Contents
