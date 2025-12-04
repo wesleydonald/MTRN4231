@@ -187,6 +187,21 @@ Step-by-step installation instructions, dependencies, workspace setup.
 Hardware setup details (UR5e, camera, Teensy, etc.).  
 Environment variables, config files, calibration procedures.
 
+This project uses the following equipment:
+- URe5
+- Arduino
+
+
+The following are links to install the necessary programs and applications used to run the project:
+-  ROS2 Humble install guide [here](https://docs.ros.org/en/humble/Installation.html).
+- MoveIt for ROS Humble install guide [here](https://moveit.picknik.ai/humble/doc/tutorials/getting_started/getting_started.html).
+- Universal Robots ROS2 Driver install guide from the course supplied code [here](https://github.com/UNSW-MTRN4231/4231SuppliedCode/tree/main/ros_ur_driver/src/Universal_Robots_ROS2_Driver).
+- Install Arduino IDE [here](https://www.arduino.cc/en/software/).
+
+It is assumed that up to date versions of **C++17** and **Python3** are installed on the operating computer. It is also necessary to install the required python dependencies which can be found in the `requirements.txt` file. They can be installed with the following command.
+
+```pip3 install -r requirements.txt```
+
 ---
 
 # Running the System
@@ -258,6 +273,10 @@ There were several stretch goals the team would have liked to implement with mor
 * **YOLO Based Detection**: A weakness of the current implementation is the computer vision can vary in accuracy depending on the location. Using YOLO would improve the robustness of the system in different lightings (with a well trained model).
 
 ## Novel Approaches
+
+<p align="center">
+  <img src="images/board_orientation.png" width="700">
+</p>
 
 The system's core novelty lies in its robustness to board placement. Using CV techniques, the robot dynamically finds the game board and calculates its precise angle of rotation in real-time. This eliminates the need for a fixed, perfectly aligned camera or board, allowing a user to simply place the board at any angle and start playing.
 

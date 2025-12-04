@@ -83,7 +83,10 @@ private:
 
     marker.pose.position.x = x;
     marker.pose.position.y = y;
+    // Get the markers to be flat
+    z = 0.02;
     marker.pose.position.z = z;
+
     marker.pose.orientation.x = q.x();
     marker.pose.orientation.y = q.y();
     marker.pose.orientation.z = q.z();

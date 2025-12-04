@@ -28,6 +28,7 @@ Lastly we return to home_pose.
 #include <algorithm>
 #include <cmath>
 #include <set>
+#include <thread>
 
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/point_stamped.hpp"
@@ -52,7 +53,7 @@ Lastly we return to home_pose.
 
 using namespace std::chrono_literals;
 
-constexpr bool using_gripper = false; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
+constexpr bool using_gripper = true; // IMPORTANT REMEMBER TO CHANGE WHEN USING GRIPPER
 
 class Brain : public rclcpp::Node {
 public:
@@ -265,6 +266,7 @@ private:
             current_action_ = CLOSE_GRIPPER;
             if (using_gripper) {
                 sendGripperRequest(true);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             }
             else {
                 current_action_ = MOVE_TO_PLACE;
@@ -277,6 +279,7 @@ private:
             current_action_ = OPEN_GRIPPER;
             if (using_gripper) {
                 sendGripperRequest(false);
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             } else {
                 current_action_ = MOVE_TO_HOME;
                 sendArmRequest(home_pose_, true);
