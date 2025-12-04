@@ -48,8 +48,8 @@ BOARD_UPPER = np.array([120, 255, 180])
 
 ROI_TOP = 0.15
 ROI_BOTTOM = 0.8
-ROI_LEFT_TOP = 0.4
-ROI_LEFT_BOTTOM = 0.3
+ROI_LEFT_TOP = 0.41
+ROI_LEFT_BOTTOM = 0.33
 ROI_RIGHT_TOP = 0.98
 ROI_RIGHT_BOTTOM = 1
 
@@ -123,7 +123,7 @@ class ObjectRecognizer(Node):
         self.black_pieces_pose_array_pub = self.create_publisher(PoseArray, '/detected/pieces/black', 10)
 
         # Update the position of the broadcasted markers
-        timer_period = 1  # seconds
+        timer_period = 2  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -197,13 +197,13 @@ class ObjectRecognizer(Node):
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'camera_link'
-        t.transform.translation.x = 1.30938 # 1.27677
-        t.transform.translation.y = 0.0206053 # 0.0175114
-        t.transform.translation.z = 0.670571 # 0.673798
-        t.transform.rotation.x = -0.398486 #-0.414096
-        t.transform.rotation.y = 0.00254305 #-0.019425
-        t.transform.rotation.z = 0.917119 # 0.910018
-        t.transform.rotation.w = 0.00974536 # 0.00376407
+        t.transform.translation.x = 1.30893 # 1.27677
+        t.transform.translation.y = 0.059849 # 0.0175114
+        t.transform.translation.z = 0.680372 # 0.673798
+        t.transform.rotation.x = -0.399127 #-0.414096
+        t.transform.rotation.y = -0.0147756 #-0.019425
+        t.transform.rotation.z = 0.916733 # 0.910018
+        t.transform.rotation.w = -0.0089035 # 0.00376407
         self.static_tf_broadcaster.sendTransform(t)
         self.get_logger().info("Published static transform from 'base_link' to 'camera_link'.")
 

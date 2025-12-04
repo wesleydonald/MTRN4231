@@ -18,6 +18,10 @@
 #include <moveit_msgs/msg/constraints.h>
 #include "std_srvs/srv/trigger.hpp" 
 
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+
 constexpr double PLANNING_TIME = 0.1;
 constexpr int PLANNING_ATTEMPTS = 5;
 
@@ -89,17 +93,17 @@ using std::placeholders::_1;
 
 class arm : public rclcpp::Node {
 public:
-    arm() : Node("arm") {
+    arm() : Node("arm"), tf_buffer_(this->get_clock()), tf_listener_(tf_buffer_)  {
       move_request_ = create_service<interfaces::srv::MoveArm>("arm_service", std::bind(&arm::moveCallback, this, std::placeholders::_1, std::placeholders::_2));
       stop_service_ = create_service<std_srvs::srv::Trigger>("arm_stop_service", std::bind(&arm::stopCallback, this, std::placeholders::_1, std::placeholders::_2));
       
       move_group_interface = std::make_unique<moveit::planning_interface::MoveGroupInterface>(std::shared_ptr<rclcpp::Node>(this), "ur_manipulator");
       move_group_interface->setPlanningTime(PLANNING_TIME);
       move_group_interface->setNumPlanningAttempts(PLANNING_ATTEMPTS);
-      //move_group_interface->setPlannerId("TRRTkConfigDefault");
+      move_group_interface->setPlannerId("TRRTkConfigDefault");
       //move_group_interface->setPlannerId("RRTConnectkConfigDefault");
       // move_group_interface->setPlannerId("RRTConnect");
-      move_group_interface->setPlannerId("RRTstarkConfigDefault");
+      //move_group_interface->setPlannerId("RRTstarkConfigDefault");
 
       std::string frame_id = move_group_interface->getPlanningFrame();
 
@@ -109,101 +113,190 @@ public:
       planning_scene_interface.applyCollisionObject(generateCollisionObject(0.04, 1.2, 1.0, -0.30, 0.25, 0.5, frame_id, "sideWall"));
       planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.01, 0.85, 0.25, 0.013, frame_id, "table"));
       // planning_scene_interface.applyCollisionObject(generateCollisionObject(2.4, 2.4, 0.04, 0.85, 0.25, 1.0, frame_id, "ceiling"));
-      
-      /*
-      moveit_msgs::msg::AttachedCollisionObject attached_object;
-      attached_object.link_name = move_group_interface->getEndEffectorLink();
-      attached_object.object = generateCollisionObject(
-          0.1, 0.1, 0.15,
-          0.0, 0.0, 0.10,
-          attached_object.link_name,
-          "end_effector"
-      );
-      planning_scene_interface.applyAttachedCollisionObject(attached_object);
-      */
     }
 
 private:
   void moveCallback(const std::shared_ptr<interfaces::srv::MoveArm::Request> request,
            std::shared_ptr<interfaces::srv::MoveArm::Response> response) {
-    auto current_pose = move_group_interface->getCurrentPose("tool0");
+    move_group_interface->setStartStateToCurrentState();
+    move_group_interface->setMaxVelocityScalingFactor(1.0);
+    move_group_interface->setMaxAccelerationScalingFactor(1.0);
+
+    if (request->move_home) {
+      response->success = moveHome();
+      response->message = "success";
+      return;
+    }
+
+    moveit_msgs::msg::Constraints constraints;
+    set_joint_constraints(constraints);
+    move_group_interface->setPathConstraints(constraints);
+    std::vector<geometry_msgs::msg::Pose> waypoints;
 
     geometry_msgs::msg::Pose target_pose = request->target_pose;
-    target_pose.position.x += 0.00;
-    target_pose.position.y -= 0.02;
-    if (!request->move_home) target_pose.position.z = 0.32;
-    // Orientation for wrist3 / tool0 to face down
+    // target_pose.position.x += 0.02;
+    // target_pose.position.y -= 0.01;
+    target_pose.position.z = 0.32;
     target_pose.orientation.x = - std::sqrt(2) / 2;
     target_pose.orientation.y = std::sqrt(2) / 2;
     target_pose.orientation.z = 0.0;
     target_pose.orientation.w = 0.0;
 
-    bool success = true;
-    // Set target position
-    if(request->move_home) {
-      // Moving to home pre-defined as joint angles
-      success = moveToPose(target_pose, true);
-      return;
-    } 
-
-  RCLCPP_INFO(this->get_logger(), "Current position: [%.3f, %.3f, %.3f]",
-              current_pose.pose.position.x,
-              current_pose.pose.position.y,
-              current_pose.pose.position.z);
-
-  RCLCPP_INFO(this->get_logger(), "Current orientation (quat): [%.3f, %.3f, %.3f, %.3f]",
-              current_pose.pose.orientation.x,
-              current_pose.pose.orientation.y,
-              current_pose.pose.orientation.z,
-              current_pose.pose.orientation.w);
+    geometry_msgs::msg::Pose current_pose = target_pose;
+    auto tf = tf_buffer_.lookupTransform("base_link", "tool0", tf2::TimePointZero);
+    current_pose.position.x = tf.transform.translation.x;
+    current_pose.position.y = tf.transform.translation.y;
+    current_pose.position.z = tf.transform.translation.z;
     
-    if (current_pose.pose.position.z < 0.3) {
-      RCLCPP_INFO(this->get_logger(), "Z DIRECTION %lf", current_pose.pose.position.z);
-      current_pose.pose.position.z = 0.32;
-      
-      //success = moveToPose(current_pose.pose, false);
+    waypoints.push_back(current_pose);
+    if (current_pose.position.z < 0.3 && current_pose.position.z > 0.0) {
+      current_pose.position.z = 0.32;
+      waypoints.push_back(current_pose);
     }
 
-    RCLCPP_INFO(this->get_logger(), "MOVE TO TARGET.");
-    success = moveToPose(target_pose, false);
-
-    RCLCPP_INFO(this->get_logger(), "MOVE DOWN");
+    waypoints.push_back(target_pose);
     target_pose.position.z = 0.24;
-    success = moveToPose(target_pose, false);
-    response->success = success;
+    waypoints.push_back(target_pose);
+
+    const double eef_step = 0.01;
+    const double jump_threshold = 0.0;
+
+    moveit_msgs::msg::RobotTrajectory trajectory;
+    double fraction = move_group_interface->computeCartesianPath(
+        waypoints,
+        eef_step,
+        jump_threshold,
+        trajectory,
+        true
+    );
+
+    RCLCPP_INFO(this->get_logger(), "Cartesian path fraction: %.2f%%", fraction * 100.0);
+
+    bool success = (fraction > 0.95);
+
+    if (!success) {
+        RCLCPP_WARN(this->get_logger(), "Failed to compute a sufficient Cartesian path (%.2f).", fraction);
+        move_group_interface->clearPathConstraints();
+        response->success = false;
+        response->message = "failed to plan";
+        return;
+    }
+
+    printMaxJointVelocity(trajectory.joint_trajectory); /////////
+    // limitTrajectory(trajectory, 0.3);
+    // scaleTrajectory(trajectory, 0.5);
+    printMaxJointVelocity(trajectory.joint_trajectory); /////////
+
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    plan.trajectory_ = trajectory;
+    move_group_interface->execute(plan);
+    move_group_interface->clearPathConstraints();
+    response->success = true;
     response->message = "success";
   }
 
-  bool moveToPose(geometry_msgs::msg::Pose target_pose, bool move_home) {
-    move_group_interface->setStartStateToCurrentState();
+  double durationToSeconds(const builtin_interfaces::msg::Duration &d) {
+    return d.sec + d.nanosec * 1e-9;
+  }
 
-    if (move_home) move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
-    else move_group_interface->setPoseTarget(target_pose, "tool0");
+  void printMaxJointVelocity(const trajectory_msgs::msg::JointTrajectory &traj) {
+      double max_velocity = 0.0;
+      size_t max_joint_index = 0;
 
-    moveit_msgs::msg::Constraints constraints;
-    set_joint_constraints(constraints);
-    move_group_interface->setPathConstraints(constraints);
+      for (size_t i = 1; i < traj.points.size(); ++i) {
+          const auto &prev = traj.points[i - 1];
+          const auto &curr = traj.points[i];
+          double dt = durationToSeconds(curr.time_from_start) - durationToSeconds(prev.time_from_start);
+          if (dt <= 0.0) continue;
 
-    // Planning and execution
-    bool success = false;
-    double planningTime = 0.1;
-    const double maxPlanningTime = 60.0;
-    
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    while (!success && planningTime <= maxPlanningTime) {
-        move_group_interface->setPlanningTime(planningTime);
-        RCLCPP_INFO(this->get_logger(), "Trying to plan with %.1f seconds...", planningTime);
-        success = (move_group_interface->plan(plan) == moveit::core::MoveItErrorCode::SUCCESS);
-        if (!success) {
-            planningTime *= 2;
+          for (size_t j = 0; j < curr.positions.size(); ++j) {
+              double v = std::abs(curr.positions[j] - prev.positions[j]) / dt;
+              if (v > max_velocity) {
+                  max_velocity = v;
+                  max_joint_index = j;
+              }
+          }
+      }
+
+      RCLCPP_INFO(rclcpp::get_logger("trajectory"), "Max joint velocity: %.4f rad/s on joint index %zu", max_velocity, max_joint_index);
+  }
+
+  void scaleTrajectory(moveit_msgs::msg::RobotTrajectory &trajectory, double scaling_factor = 0.5) {
+    for (auto &point : trajectory.joint_trajectory.points) {
+        for (auto &v : point.velocities) {
+            v *= scaling_factor;
+        }
+
+        for (auto &a : point.accelerations) {
+            a *= scaling_factor * scaling_factor;
+        }
+
+        // Scale time_from_start
+        double t = point.time_from_start.sec + point.time_from_start.nanosec * 1e-9;
+        t /= scaling_factor;
+
+        point.time_from_start.sec = static_cast<int32_t>(t);
+        point.time_from_start.nanosec = static_cast<uint32_t>((t - point.time_from_start.sec) * 1e9);
+    }
+  }
+
+  void limitTrajectory(moveit_msgs::msg::RobotTrajectory &trajectory, double max_velocity = 1.0) {
+    for (size_t i = 1; i < trajectory.joint_trajectory.points.size(); ++i) {
+        auto &prev = trajectory.joint_trajectory.points[i - 1];
+        auto &curr = trajectory.joint_trajectory.points[i];
+
+        // Compute original time difference
+        double t_prev = prev.time_from_start.sec + prev.time_from_start.nanosec * 1e-9;
+        double t_curr = curr.time_from_start.sec + curr.time_from_start.nanosec * 1e-9;
+        double dt = t_curr - t_prev;
+
+        if (dt <= 0.0) continue;
+
+        // Compute max joint velocity for this segment
+        double local_max = 0.0;
+        for (size_t j = 0; j < curr.positions.size(); ++j) {
+            double v = std::abs(curr.positions[j] - prev.positions[j]) / dt;
+            if (v > local_max) local_max = v;
+        }
+
+        // Scale only if it exceeds max_velocity
+        double scaling_factor = 1.0;
+        if (local_max > max_velocity) scaling_factor = max_velocity / local_max;
+        else continue;
+
+        // Adjust this point's velocities and accelerations
+        for (auto &v : curr.velocities) v *= scaling_factor;
+        for (auto &a : curr.accelerations) a *= scaling_factor * scaling_factor;
+
+        // Update time_from_start for this point
+        double new_dt = dt / scaling_factor;
+        double new_t = t_prev + new_dt;
+        curr.time_from_start.sec = static_cast<int32_t>(new_t);
+        curr.time_from_start.nanosec = static_cast<uint32_t>((new_t - curr.time_from_start.sec) * 1e9);
+
+        // Propagate the remaining points to ensure strictly increasing time
+        for (size_t k = i + 1; k < trajectory.joint_trajectory.points.size(); ++k) {
+            double t_next = trajectory.joint_trajectory.points[k].time_from_start.sec +
+                            trajectory.joint_trajectory.points[k].time_from_start.nanosec * 1e-9;
+            double dt_next = t_next - t_curr;
+            double new_time = new_t + dt_next;
+
+            trajectory.joint_trajectory.points[k].time_from_start.sec = static_cast<int32_t>(new_time);
+            trajectory.joint_trajectory.points[k].time_from_start.nanosec =
+                static_cast<uint32_t>((new_time - static_cast<int32_t>(new_time)) * 1e9);
         }
     }
+  }
 
-    if (success) {
-      move_group_interface->execute(plan);
+  bool moveHome() {
+    move_group_interface->setJointValueTarget(HOME_JOINT_CONFIG);
+    moveit::planning_interface::MoveGroupInterface::Plan home_plan;
+
+    if (move_group_interface->plan(home_plan) == moveit::core::MoveItErrorCode::SUCCESS) {
+        move_group_interface->execute(home_plan);
+        return true;
     }
-    move_group_interface->clearPathConstraints();
-    return success;
+    return false;
   }
 
   // --- 3. ADDED THIS ENTIRE CALLBACK FUNCTION ---
@@ -255,6 +348,9 @@ private:
 
     constraints.orientation_constraints.emplace_back(orientation_constraint);
   }
+
+  tf2_ros::Buffer tf_buffer_;
+  tf2_ros::TransformListener tf_listener_;
 
   std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface;
   rclcpp::Service<interfaces::srv::MoveArm>::SharedPtr move_request_;
