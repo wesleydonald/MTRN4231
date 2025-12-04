@@ -44,7 +44,7 @@ The robot's behavior follows this sequence:
 5. **Execution**: The arm moves to the decided piece, grips it, and places it in the desired location on the board.
 6. **Loop**: The arm then returns to a home position and waits for the player to take their turn.
 
-The full behaviour can be seen in the [functionality demo](https://drive.google.com/file/d/1_HoyY7OmRUAxUqheyWTY4O3YrtNutZCP/view?usp=drive_link) and the system visualisation can be observed in the [visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link).
+The full behaviour can be seen in the [functionality demo](https://drive.google.com/file/d/1CPIxWg0ur2wqS3amkw4ajLEvb_dR5X6y/view?usp=drive_link) and the system visualisation can be observed in the [visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link).
 
 ---
 
@@ -223,11 +223,6 @@ The code used on the arduino can be found `gripper.ino`. The port that the ardui
 ---
 
 # Running the System
-Instructions for launching and running the complete system.  
-Example commands.  
-Expected behaviour and example outputs.  
-Optional troubleshooting notes.  
-System must launch via a single command.
 
 ### Real Robot
 To launch the system with the real robot, connected to the gripper and realsense camera run the script.
@@ -236,7 +231,7 @@ To launch the system with the real robot, connected to the gripper and realsense
 ./launch_scripts/real_lanch.sh
 ```
 
-Wait for the `MoveItServer` and `DriverServer` terminals to start up, then try to connect the UR5e with the startupscript on the robot. The launch script will then ask you to press `enter` to launch all other nodes. 
+Wait for the `MoveItServer` and `DriverServer` terminals to start up, then try to connect the UR5e with the startupscript on the robot. The launch script will then ask you to press `enter` to launch all other nodes. Once the nodes begin to run, Rviz should launch and display the robot, safety planes, board and pieces.
 
 ### Simulation
 To launch a simulated game first make sure that `using_gripper = false` in `brain/src/brain.cpp` then run,
@@ -245,7 +240,35 @@ To launch a simulated game first make sure that `using_gripper = false` in `brai
 ./launch_scripts/fake_launch.sh
 ```
 
-which will run a simulated game using fake hardware. This was useful for testing motion planning without the real robot.
+which will run a simulated game using fake hardware. Again, you will need to press enter to complete the launching of the nodes. This was useful for testing motion planning without the real robot.
+
+### Example expected output
+
+After launching the necessary nodes, Rviz should be launched which will show the real time positions and orientations of the robot, pieces and board. To check the performance of the system the following output can be expected in the Ros2Nodes terminal. The inital one displays that the brain node is active.
+
+<p align="center">
+  <img src="images/expected_output1.png" width="700">
+</p>
+
+We then look to see that the board center has been detected.
+
+<p align="center">
+  <img src="images/expected_output2.png" width="700">
+</p>
+
+The robot waits for a move to be made, once a piece has been placed on the board it decides the move it wants to make.
+
+<p align="center">
+  <img src="images/expected_output3.png" width="700">
+</p>
+
+Then the robot moves to pick a white piece to pick up, it reports a successful move to the system and closes the gripper on the piece.
+
+<p align="center">
+  <img src="images/expected_output4.png" width="700">
+</p>
+
+If you get this output to start with you can be sure that the system has been configured correctly.
 
 ---
 
