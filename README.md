@@ -42,7 +42,13 @@ The robot's behavior follows this sequence:
 5. **Execution**: The arm moves to the decided piece, grips it, and places it in the desired location on the board.
 6. **Loop**: The arm then returns to a home position and waits for the player to take their turn.
 
-The full behaviour can be seen in the [functionality demo](https://drive.google.com/file/d/1_HoyY7OmRUAxUqheyWTY4O3YrtNutZCP/view?usp=drive_link) and the system visualisation can be observed in the [visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link).
+The full behaviour can be seen in the [functionality demo](https://drive.google.com/file/d/1_HoyY7OmRUAxUqheyWTY4O3YrtNutZCP/view?usp=drive_link) (drive link) or in the youtube video below.
+
+[![Functionality demo video](https://img.youtube.com/vi/9FtaOgNyzAc/0.jpg)](https://www.youtube.com/watch?v=9FtaOgNyzAc)
+
+The system visualisation can be observed in the [visualisation demo](https://drive.google.com/file/d/1lPf4V6NlLgwOl6tRVGjNmHHzRr6m4RVj/view?usp=drive_link) (drive link) or the youtube video below.
+ 
+[![Visualisation demo video](https://img.youtube.com/vi/OzphsGJ3rjw/0.jpg)](https://www.youtube.com/watch?v=OzphsGJ3rjw)
 
 ---
 
