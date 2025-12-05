@@ -31,7 +31,7 @@
 ---
 
 # Project Overview 
-This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended customer is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a physical game of Tic-Tac-Toe, turning therapy into an activity that feels like play. The entire process is managed by a ROS 2 based architecture.
+This system addresses the problem of poor engagement in current stroke rehabilitation. Traditional therapy methods are often highly repetitive, isolating, and provide no data tracking for the patient. Our intended customer is a post-stroke patient with hand weakness, personified as *Nick*, a 68 year old former engineer who loves robotics and strategy games. Our solution combines a UR5e robotic arm with a game of Tic-Tac-Toe, turning therapy into an enjoyable activity. The entire process is managed by a ROS 2 based architecture.
 
 The robot's behavior follows this sequence:
 
@@ -125,7 +125,7 @@ If any arm or gripper service reports a failure, the current action sequence is 
 ## Computer Vision
 The computer vision uses an Intel RealSense camera to detect the board and classify the white and black playing pieces. The RGB image is processed using colour thresholding while the aligned depth camera is used to convert pixel coordinates into 3D positions in the robot’s `base_link` frame.
 
-A trapezoidal region-of-interest (ROI) restricts detection to the table workspace. The board is identified by HSV colour thresholding, Canny edge extraction and Hough line detection, which gives both the board’s centre and orientation. The orientation is found using a *line of best fit* approach. A rolling average filter stabilises the board pose before broadcasting a TF frame for the board and its 3×3 grid (`board_index[i]`).
+A trapezoidal ROI restricts detection to the table workspace. The board is identified by HSV colour thresholding, Canny edge extraction and Hough line detection, which gives both the board’s centre and orientation. The orientation is found using a *line of best fit* approach. A rolling average filter stabilises the board pose before broadcasting a TF frame for the board and its 3×3 grid (`board_index[i]`).
 
 White and black pieces are detected separately using tuned HSV thresholds, filtering, and contour solidity/area checks to reject noise. For each valid contour, image moments provide the pixel centroid. Each piece is published as a `PoseArray` in `base_link`, and TF frames are broadcast as well.
 
@@ -304,7 +304,7 @@ Another novelty is using a MiniMax algorithm to recursively find the best move. 
 
 ## Robustness
 
-The `brain` node manages game logic and decisions, decoupling tasks and making the system easier to debug and maintain. The custom designed gripper has replaceable holders which allows for about ± 20 mm of error from the computer vision pipline, used for reliable grasping. The game pieces are also custom designed with a small tab which ensures a consistent grip. The pieces have a diameter of 60 mm which allows for ± 20 mm of error as the board squares are 100 mm $^2$.
+The `brain` node manages game logic and decisions, making the system easier to debug and maintain. The custom designed gripper has replaceable holders which allows for about ± 20 mm of error from the computer vision pipline, used for reliable grasping. The game pieces have a diameter of 60 mm which allows for ± 20 mm of error as the board squares are 100 mm $^2$. The game pieces are also designed with a small tab which ensures a consistent grip.
 
 <p align="center">
   <img src="images/Pieces.png" width="700">
@@ -321,7 +321,7 @@ The system uses a depth camera for perception, allowing it to detect the board a
 
 One of the main challenges was working with an unfamiliar package, MoveIt. Identifying a reliable method required significantly more time than expected and involved lots of documentation reviews, peer discussion, and experimentation. In the end we were unable to use orientation constraints and found that joint constraints significantly decreased the planning time, additionally cartesian planning was found to be far superior to MoveIts' default planner.
 
-Another challenge was allocating tasks in a way that matched team strengths while keeping progress aligned. For example, Wesley worked on the brain logic, but meaningful testing was difficult until the computer vision pipeline existed. This was addressed by developing a simulation package that replicates the CV node and produces hard coded board and piece locations.
+Another challenge was allocating tasks in a way that matched team strengths. For example, Wesley worked on the brain logic, but meaningful testing was difficult until the computer vision pipeline existed. This was addressed by developing a simulation package that replicates the CV node and produces hard coded board and piece locations.
 
 ## Future Enhancements
 
